@@ -1,0 +1,229 @@
+﻿@model HeaderLinksModel
+@using Nop.Web.Models.Common;
+@using Nop.Core;
+@using Nop.Core.Infrastructure;
+@{
+    var returl = Url.RouteUrl("Register");
+    if (!String.IsNullOrEmpty(this.Context.Request.QueryString["returnUrl"]))
+    {
+        var webHelper = EngineContext.Current.Resolve<IWebHelper>();
+        returl = webHelper.ModifyQueryString(returl, "returnurl=" + HttpUtility.UrlEncode(this.Context.Request.QueryString["returnUrl"]), null);
+
+    }
+    
+     
+}
+<div class="row row-top-hearder">
+    <div class="col-md-12">
+        <div class="dk-dn">            
+            @if (Model.IsAuthenticated)
+            {
+                <div class="login login-user">
+                    <a href="#"><strong>Xin chào: </strong>@Model.CustomerEmailUsername</a>
+                    <div class="logged_information">
+                        <ul>
+                            <li class="user_information">                                
+                                <div class="title ml">@Model.CustomerFullname</div>
+                                <div class="text ml">   
+                                                                    
+                                </div>
+                            </li>    
+                            <li><a href="@Url.RouteUrl("CustomerInfo")" rel="">Thông tin cá nhân</a></li>                       
+                            <li><a href="@Url.RouteUrl("Logout")" rel="">Đăng xuất</a></li>
+                        </ul>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="register"><a href="@Url.RouteUrl("Register")"> @T("Account.Register")</a></div>
+                <div class="login" id="btnLoginModel"><a href="@Url.RouteUrl("Login")"> @T("Account.Login")</a></div>
+            }            
+        </div>
+    </div>
+</div>
+<div id="i365-wrap" class="i365-hidden">
+    <div id="i365-title-bar">
+        <div id="i365-hide">@*&minus;*@</div>
+    </div>
+    <iframe src='@Url.Action("WindowsChat", "Chat")' width="100%"
+            height="1000" frameborder="0"></iframe>
+
+</div>
+<style>
+    #i365-wrap {
+        position: fixed;
+        right: 0px;
+        bottom: 0px;
+        height:365px;
+        width: 305px;
+        z-index: 999998;
+        opacity: 1 !important;
+        -webkit-box-shadow: -1px 1px 5px 0px rgba(50, 50, 50, 0.5);
+        -moz-box-shadow: -1px 1px 5px 0px rgba(50, 50, 50, 0.5);
+        box-shadow: -1px 1px 5px 0px rgba(50, 50, 50, 0.5);
+    }
+
+        #i365-wrap.i365-hidden {
+            bottom: -325px !important;
+            top: auto !important;
+            left: auto !important;
+           
+        }
+
+        #i365-wrap iframe {
+            border: 0;
+            height: 100%;
+            width: 100%;
+        }
+
+    #i365-hide {
+        position: absolute;
+        font-size: 20px;
+        line-height: 28px;
+        padding: 10px 13px 2px;
+        right: 0;
+        top: 0;
+        cursor: pointer;
+        z-index: 999999;
+        color: white;
+    }
+
+    #i365-wrap:not(.i365-hidden) #i365-hide:hover {
+        background-color: #4cc1ff;
+    }
+
+
+    .i365-hidden #i365-hide {
+        top: 0;
+        right: 0;
+        left: 0;
+        height: 40px;
+    }
+
+    #i365-title-bar {
+        position: absolute;
+        top: 0;
+        right: 0;
+        left: 0;
+        height: 40px;
+    }
+
+    .ui-draggable #i365-title-bar {
+        cursor: -moz-grab;
+        cursor: -webkit-grab;
+        cursor: grab;
+    }
+
+    .ui-draggable-dragging #i365-title-bar {
+        cursor: -moz-grabbing;
+        cursor: -webkit-grabbing;
+        cursor: grabbing;
+    }
+</style>
+<script>
+    /* Storage */
+    function hasStorage() {
+        return typeof (Storage) !== "undefined";
+    }
+
+    function storageSet(key, value) {
+        key = "i365_" + key;
+
+        if (hasStorage()) {
+            localStorage.setItem(key, value);
+        } else {
+            document.cookie = key + "=" + value + "; Path=/;";
+        }
+    }
+
+    function storageGet(key) {
+        key = "i365_" + key;
+
+        if (hasStorage()) {
+            return localStorage.getItem(key);
+        } else {
+            var name = key + "=";
+            var ca = document.cookie.split(";");
+            for (var i = 0; i < ca.length; i++) {
+                var c = $.trim(ca[i]);
+                if (c.indexOf(name) === 0) return c.substring(name.length, c.length);
+            }
+
+            return null;
+        }
+    }
+
+
+    /* UI contol */
+    function showWidget($i365Wrap) {
+        $i365Wrap.removeClass("i365-hidden");
+        $i365Wrap.find("#i365-hide").html("&minus;");
+
+        if ($i365Wrap.hasClass('mobile')) {
+
+        } else {
+            /*JQuery UI Draggable*/
+            $i365Wrap.draggable({
+                containment: 'window',
+                scroll: false,
+                handle: '#i365-title-bar',
+                disabled: false,
+                stop: function () { storageSet("widgetStyle", $(this).attr("style")); }
+            });
+        }
+    }
+
+    function hideWidget($i365Wrap) {
+        $i365Wrap.addClass("i365-hidden");
+        $i365Wrap.find("#i365-hide").html("");
+
+        if ($i365Wrap.hasClass('mobile')) {
+
+        } else {
+            $i365Wrap.draggable({ disabled: true });
+        }
+    }
+
+    function isElementInViewport($el) {
+        var rect = $el[0].getBoundingClientRect();
+
+        return (
+            rect.top >= 0 &&
+            rect.left >= 0 &&
+            rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+            rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+        );
+    }
+
+
+    /* Event handlers */
+    $("#i365-hide").on("click", function () {
+        var $i365Wrap = $('#i365-wrap');
+
+        var isHidden = $i365Wrap.hasClass("i365-hidden");
+        storageSet("widgetIsHidden", !isHidden);
+
+        if (isHidden) showWidget($i365Wrap);
+        else hideWidget($i365Wrap);
+    });
+
+    /* UI loading */
+    var $i365Wrap = $('#i365-wrap');
+
+    var isMobile = window.matchMedia("only screen and (max-width: 760px)").matches;
+    if (isMobile) $i365Wrap.addClass('mobile');
+
+    var isHidden = storageGet("widgetIsHidden") === "true";
+    if (!isHidden && !isMobile) showWidget($i365Wrap);
+    else hideWidget($i365Wrap);
+
+    if (!isMobile) {
+        var style = storageGet("widgetStyle");
+        $i365Wrap.attr("style", style);
+
+        if (!isElementInViewport($i365Wrap))
+            $i365Wrap.attr("style", "");    // reset position
+    }
+</script>
+@Html.Partial("_HeaderLink")

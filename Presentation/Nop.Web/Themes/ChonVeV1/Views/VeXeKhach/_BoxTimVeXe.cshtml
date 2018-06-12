@@ -1,0 +1,120 @@
+﻿@model TimVeXeModel
+@using Nop.Web.Models.VeXeKhach
+<div class="search-home">
+    <div class="title">Tìm vé xe</div>
+    <div class="content-search">
+            <div class="item-search">
+                <input id="cbbdiemkhoihanh" style="width:100%" />
+                @Html.HiddenFor(m => m.DiemKhoiHanh.Id)                
+            </div>
+            <div class="item-search">
+                <input id="cbbdiemden" style="width:100%" />
+                @Html.HiddenFor(m => m.DiemDen.Id)
+            </div>
+            <div class="item-search">
+                <div class="row">
+                    <div class="col-md-5 mb20">
+                        @Html.EditorFor(m => m.NgayDi, new { placeholder = "Ngày đi" })
+                        @Html.ValidationMessageFor(m => m.NgayDi)
+                    </div>
+                    <div class="col-md-2"></div>
+                    <div class="col-md-5">
+                        @Html.DropDownListFor(m=>m.KhungGioId,Model.khunggios)                        
+                    </div>              
+                </div>
+                
+            </div>            
+            <div class="item-search">
+                <span id="lberrornotice" style="color:#ffffff;margin-right:5px"></span>
+                <button type="button" id="btntimkiemvexe" value="Tìm kiếm">Tìm vé</button>
+            </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {        
+        $('#btntimkiemvexe').click(function () {
+            if (parseInt($("#@Html.FieldIdFor(model => model.DiemKhoiHanh.Id)").val()) == 0) {
+                $('#cbbdiemkhoihanh').data("kendoComboBox").focus();
+                $('#lberrornotice').html('@T("ChonVe.VeXeKhach.DiemKhoiHanh.ChuaChon")');
+                return false;
+            }
+            if (parseInt($("#@Html.FieldIdFor(model => model.DiemDen.Id)").val()) == 0) {
+                $('#cbbdiemden').data("kendoComboBox").focus();
+                $('#lberrornotice').html('@T("ChonVe.VeXeKhach.DiemDen.ChuaChon")');
+                return false;
+            }
+            if ($("#@Html.FieldIdFor(model => model.NgayDi)").val().trim() == "") {
+                $("#@Html.FieldIdFor(model => model.NgayDi)").focus();
+                $('#lberrornotice').html('@T("ChonVe.VeXeKhach.NgayDi.ChuaChon")');
+                return false;
+            }
+            var khid = $("#@Html.FieldIdFor(model => model.DiemKhoiHanh.Id)").val();
+            var ddid = $("#@Html.FieldIdFor(model => model.DiemDen.Id)").val();
+            var dt = $("#@Html.FieldIdFor(model => model.NgayDi)").val();
+            var ktime = $("#@Html.FieldIdFor(model => model.KhungGioId)").val();     
+            $('#cbbdiemkhoihanh').val($('#cbbdiemkhoihanh').data("kendoComboBox").text());
+            $('#cbbdiemden').val($('#cbbdiemden').data("kendoComboBox").text());
+            document.location.href = "/VeXeKhach/TimKiem?khid=" + khid + "&ddid=" + ddid + "&dt=" + dt + "&ktime=" + ktime;            
+            return false;
+
+        });
+        //diem don        
+        $('#cbbdiemkhoihanh').kendoComboBox({
+            placeholder: "Tỉnh, thành phố, hoặc bến xe đi ",
+            dataTextField: "Ten",
+            dataValueField: "Id",
+            filter: "contains",
+            autoBind: false,
+            minLength: 3,
+            dataSource: {
+                type: "json",
+                serverFiltering: true,
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("DiaDiemSearch", "VeXeKhach"))",
+                        data: additionalData1
+                    }
+                }
+            },
+            change: onChange1
+        });
+        function onChange1() {
+            $("#@Html.FieldIdFor(model => model.DiemKhoiHanh.Id)").val($('#cbbdiemkhoihanh').data("kendoComboBox").value());
+        }
+        function additionalData1() {
+            return {
+                keyword: $('#cbbdiemkhoihanh').data("kendoComboBox").text()
+            };
+        }
+        ///diem den
+        $('#cbbdiemden').kendoComboBox({
+            placeholder: "Tỉnh, thành phố, hoặc bến xe đến",
+            dataTextField: "Ten",
+            dataValueField: "Id",
+            filter: "contains",
+            autoBind: false,
+            minLength: 3,
+            dataSource: {
+                type: "json",
+                serverFiltering: true,
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("DiaDiemSearch", "VeXeKhach"))",
+                        data: additionalData2
+                    }
+                }
+            },
+            change: onChange2
+        });
+        function onChange2() {
+            $("#@Html.FieldIdFor(model => model.DiemDen.Id)").val($('#cbbdiemden').data("kendoComboBox").value());
+        }
+        function additionalData2() {
+            return {
+                keyword: $('#cbbdiemden').data("kendoComboBox").text()
+            };
+        }
+
+    });
+</script>
+

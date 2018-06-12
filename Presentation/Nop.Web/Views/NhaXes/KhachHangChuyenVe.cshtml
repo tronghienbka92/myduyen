@@ -1,0 +1,123 @@
+﻿@model QuanlyPhoiVeModel.KhachHangDatMuaVeModel
+@using Nop.Web.Models.NhaXes
+@Html.HiddenFor(m=>m.PhoiVeId_ChuyenVe)
+<h3>@T("PhoiVe.DatVe.ChuyenVe.ThongTinKhachHang")</h3>
+<table>
+    <tr>
+        <td style="width:50%">
+            <table class="adminContent">
+                <tr>
+                    <td class="adminTitle">
+                        @T("ChonVe.NhaXe.QuanLiPhoiVe.KhachHang.HoTen"):
+                    </td>
+                    <td class="adminData">
+                        @Model.TenKhachHang
+                    </td>
+                </tr>
+                <tr>
+                    <td class="adminTitle">
+                        @T("ChonVe.NhaXe.QuanLiPhoiVe.KhachHang.DienThoai"):
+                    </td>
+                    <td class="adminData">
+                        @Model.SoDienThoai
+                    </td>
+                </tr>
+                <tr>
+                    <td class="adminTitle">
+                        @Html.NopLabelFor(model => model.DaThanhToan)
+                    </td>
+                    <td class="adminData">
+                        @Html.CheckBoxFor(model => model.DaThanhToan)
+                    </td>
+                </tr>
+            </table>
+        </td>        
+        <td>
+            <table class="adminContent">
+                <tr>
+                    <td class="adminTitle">
+                        @T("chonve.nhaxe.nguonve.chuyendi"):
+                    </td>
+                    <td class="adminData">
+                        @Html.DropDownListFor(model => model.NguonVeXeId_ChuyenVe, Model.ListNguonVeXe_ChuyenVe)
+                    </td>
+                </tr>
+                <tr>
+                    <td class="adminTitle">
+                        @T("chonve.nhaxe.nguonve.ngaydi"):
+                    </td>
+                    <td class="adminData">
+                        @Html.EditorFor(model => model.NgayDi_ChuyenVe)
+                    </td>
+                </tr>
+            </table>
+        </td>        
+    </tr>
+</table>
+<div id="current_sodoghexe_quytac_chuyenve">
+</div>
+<script>
+    $(document).ready(function () {
+        $("#@Html.FieldIdFor(model => model.NgayDi_ChuyenVe)").change(function () {
+            LoadThongTinGheChuyenVe();
+        });
+        $('#@Html.FieldIdFor(model => model.NguonVeXeId_ChuyenVe)').change(function () {
+            LoadThongTinGheChuyenVe();
+        });
+        LoadThongTinGheChuyenVe();
+    });
+    function LoadThongTinGheChuyenVe() {
+        var NguonVeXeId = $('#@Html.FieldIdFor(m => m.NguonVeXeId_ChuyenVe)').val();
+        var NgayDi = $('#@Html.FieldIdFor(m => m.NgayDi_ChuyenVe)').val();
+        $.ajax({
+            cache: false,
+            type: "GET",
+            dataType: "html",
+            contentType: 'application/html;charset=utf-8',
+            data: { "NguonVeXeId": NguonVeXeId, "NgayDi": NgayDi, "PhanLoai": 1 },
+            url: "@(Url.Action("_GetInfoSoDoGheXe", "NhaXes"))",
+            success: function (data) {
+                $("#current_sodoghexe_quytac_chuyenve").html('');
+                $("#current_sodoghexe_quytac_chuyenve").html(data);
+                SetCenterWindowChuyenVe();
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert('Error bind data of seat');
+            }
+        });
+    }
+    function ChonChuyenVe(kyhieu, tang) {
+        if (!confirm("@T("Common.areyousure")")) {
+            return;
+        }
+        var NguonVeXeId = $('#@Html.FieldIdFor(m => m.NguonVeXeId_ChuyenVe)').val();
+        var NgayDi = $('#@Html.FieldIdFor(m => m.NgayDi_ChuyenVe)').val();
+        var PhoiVeId = $('#@Html.FieldIdFor(m => m.PhoiVeId_ChuyenVe)').val();
+        var DaThanhToan = $('#@Html.FieldIdFor(model => model.DaThanhToan)').is(':checked');
+        $.ajax({
+            cache: false,
+            type: "POST",
+            data: {
+                "PhoiVeId": PhoiVeId,
+                "NguonVeXeId": NguonVeXeId,
+                "NgayDi": NgayDi,
+                "KiHieuGhe": kyhieu,
+                "Tang": tang,
+                "DaThanhToan": DaThanhToan,
+            },
+            url: "@(Url.Action("ChonChuyenVe", "NhaXes"))",
+            success: function (data) {
+                if (data != "OK") {
+                    alert(data);
+                }
+                else {
+                    CloseWindowChuyenVe();
+                }
+
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                return alert('Error chon ghe');
+            }
+        });
+    }
+</script>

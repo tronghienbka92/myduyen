@@ -1,0 +1,240 @@
+﻿@model BaoCaoLaiXePhuXeListModel
+@using Nop.Web.Models.NhaXes
+@using Nop.Core.Domain.NhaXes
+@using Nop.Core.Infrastructure
+@{
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+}
+<div class="section-header">
+    <div class="title">
+        <img src="@Url.Content("~/Content/chonve/nxmenu/baocaodoanhthu.png")" alt="" />
+        Báo cáo tổng hợp doanh thu và lượt đi của lái và phụ xe
+    </div>
+</div>
+
+<table style="width:100%">
+    <tr>
+        <td align="center" width="35%">
+            <table class="adminContent">
+                <tr>
+                    <td class="adminTitle" style="text-align:right">
+                        Thông tin nhân viên:
+                    </td>
+                    <td class="adminData">
+                        @Html.TextBoxFor(m => m.LaiPhuxe, new { placeholder="Tên hoặc số điện thoại...",style="width:280px"})
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td align="center" width="15%">
+            <table class="adminContent">
+                <tr>
+                    <td class="adminTitle" style="text-align:right">
+                        Từ ngày:
+                    </td>
+                    <td class="adminData">
+                        @Html.EditorFor(model => model.TuNgay)
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td align="center" width="15%" id="tabThang">
+            <table class="adminContent">
+                <tr>
+                    <td class="adminTitle" style="text-align:right">
+                       Đến ngày:
+                    </td>
+                    <td class="adminData">
+                        @Html.EditorFor(model => model.DenNgay)
+
+                    </td>
+                </tr>
+            </table>
+        </td>
+       
+        <td style="text-align:right">
+            <input type="button" id="btnSearch" class="k-button" value="Tổng hợp dữ liệu" />
+        </td>
+    </tr>
+</table>
+
+
+<table class="adminContent">
+    <tr>
+        <td>
+            <div id="DoanhThuXeTheoNgay_grid">
+
+            </div>
+            <script>
+    var indexrow = 0;
+    $(document).ready(function () {
+        $("#@Html.FieldIdFor(model => model.LaiPhuxe)").keydown(function (event) {
+            if (event.keyCode == 13) {               
+                $('#btnSearch').click();
+            }
+        });
+        $('#btnSearch').click(function () {
+            indexrow = 0;
+            //search
+            var grid = $('#DoanhThuXeTheoNgay_grid').data('kendoGrid');
+            grid.dataSource.read();
+            return false;
+        });
+        $("#DoanhThuXeTheoNgay_grid").kendoGrid({
+            dataSource: {
+                type: "json",
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("BaoCaoLaiXePhuXe", "NhaXeBaoCao"))",
+                        type: "POST",
+                        dataType: "json",
+                        data: additionalData
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors"
+                },
+
+                error: function (e) {
+                    display_kendoui_grid_error(e);
+                    // Cancel the changes
+                    this.cancelChanges();
+                },
+                serverPaging: false,
+                serverFiltering: false,
+                serverSorting: false
+            },
+            scrollable: false,
+
+            columns: [
+                {
+                    title: "STT",
+                    template: "#= ++indexrow #",
+                    width: 50,
+                    attributes: { style: "text-align:center" },
+                    headerAttributes: {
+                        style: "text-align: center;"
+                    },
+                },
+                {
+                    field: "HoVaTen",
+                    title: "Tên lái(phụ) xe",
+                    headerAttributes: {
+                        style: "text-align: center;"
+                    },
+                },
+                {
+                    field: "CMT_Id",
+                    title: "CMT",
+                    attributes: {
+                        style: "text-align: center;"
+                    },
+                    headerAttributes: {
+                        style: "text-align: center;"
+                    },
+                },
+                {
+                    field: "DienThoai",
+                    title: "Điện thoại",
+                    attributes: {
+                        style: "text-align: center;"
+                    },
+                    headerAttributes: {
+                        style: "text-align: center;"
+                    },
+                },
+                {
+                    field: "KieuNhanVienText",
+                    title: "Chức danh",
+                    attributes: {
+                        style: "text-align: center;"
+                    },
+                    headerAttributes: {
+                        style: "text-align: center;"
+                    },
+                },
+                {
+                    field: "TongChuyenDi",
+                    title: "Tổng lượt",
+                    headerAttributes: {
+                        style: "text-align: center;"
+                    },
+                    attributes: {
+                        style: "text-align: center;"
+                    }
+                },
+                {
+                    field: "TongDoanhThu",
+                    title: "Doanh thu",
+                    headerAttributes: {
+                        style: "text-align: right;"
+                    },
+                    attributes: {
+                        style: "text-align: right;"
+                    },
+                    format: "{0:N0} đ"
+                },
+                {
+                    field: "TongLuong",
+                    title: "Tiền lương dự kiến",
+                    headerAttributes: {
+                        style: "text-align: right;"
+                    },
+                    attributes: {
+                        style: "text-align: right;"
+                    },
+                    format: "{0:N0} đ"
+                },
+                {
+                    field: "Id",
+                    title: "@T("Admin.ChonVe.HopDong.ChiTiet")",
+                    width: 100,
+                    headerAttributes: {
+                        style: "text-align: center;"
+                    },
+                    attributes: {
+                        style: "text-align: center;"
+                    },
+                    template: '<a href="javascript:ChiTietDoanhThuTheoNhanhVien(#=Id#)" >Chi tiết</a>',
+                    hidden: false
+                },
+
+
+            ]
+        });
+    });
+    function additionalData() {
+        return {
+            LaiPhuxe: $("#@Html.FieldIdFor(model => model.LaiPhuxe)").val(),
+            TuNgay: $("#@Html.FieldIdFor(model => model.TuNgay)").val(),
+            DenNgay: $("#@Html.FieldIdFor(model => model.DenNgay)").val(),
+        };
+    }
+    function ChiTietDoanhThuTheoNhanhVien(NhanVienId) {
+        var TuNgay = $("#@Html.FieldIdFor(model => model.TuNgay)").val();
+        var DenNgay = $("#@Html.FieldIdFor(model => model.DenNgay)").val();
+
+                    var windowDoanhThuXe = $("#detailDoanhThuNhanVien_div");
+                    if (windowDoanhThuXe.data("kendoWindow"))
+                        windowDoanhThuXe.data("kendoWindow").destroy();
+                    windowDoanhThuXe.kendoWindow({
+                        modal: true,
+                        width: "800px",
+                        height: "600px",
+                        title: " Doanh thu theo xe",
+                        content: "@(Url.Action("_ChiTietBaoCaoLaiPhuXe", "NhaXeBaoCao"))" + "?NhanVienId=" + NhanVienId + "&TuNgay=" + TuNgay + "&DenNgay=" + DenNgay,
+            actions: ["Close"]
+        });
+        windowDoanhThuXe.data('kendoWindow').center().open();
+    }
+            </script>
+
+        </td>
+    </tr>
+</table>
+
+<div id="detailDoanhThuNhanVien_div" style="display:none;">
+
+</div>

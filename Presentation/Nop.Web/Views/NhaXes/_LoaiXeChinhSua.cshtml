@@ -1,0 +1,429 @@
+﻿@model LoaiXeModel
+@using Nop.Web.Models.NhaXes
+@using Nop.Core.Infrastructure
+@using Nop.Web.Framework.Events
+@using Nop.Services.Events
+@Html.ValidationSummary(false)
+@Html.HiddenFor(model => model.Id)
+@Html.HiddenFor(model => model.SoDoGheXeQuyTacResult)
+@{
+    var tabidsodo = 1;
+    var tabidquytac = 2;
+}
+<div id="modeldetail-edit">
+    <ul>
+        <li @Html.RenderSelectedTabIndex(0, GetSelectedTabIndex())>
+            @T("ChonVe.LoaiXe.TabThongTin")
+        </li>
+        <li @Html.RenderSelectedTabIndex(tabidsodo, GetSelectedTabIndex())>
+            @T("ChonVe.LoaiXe.LoaiXe.GheItem")
+        </li>
+        <li @Html.RenderSelectedTabIndex(tabidquytac, GetSelectedTabIndex())>
+            @T("ChonVe.LoaiXe.LoaiXe.QuyTac")
+        </li>
+    </ul>
+    <div>
+        @TabInfo()
+    </div>
+    <div>
+        @TabGheItem()
+    </div>
+    <div>
+        @TabQuyTac()
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        var onActivate = function (e) {
+            var curtapid = $("#selected-tab-index").val();
+            if (curtapid == @tabidquytac && $('#@Html.FieldIdFor(model => model.SoDoGheXeID)').val() == 0)
+            {
+                alert("@T("ChonVe.LoaiXe.LoaiXe.ChonSoDoGhe")");
+                $("#modeldetail-edit").data("kendoTabStrip").select(@tabidsodo);
+            }
+
+        };
+        var tabStrip=$("#modeldetail-edit").kendoTabStrip({
+            animation: {
+                open: {
+                    effects: "fadeIn"
+                }
+
+            },
+            activate: onActivate,
+            select: tabstrip_on_tab_select
+        });
+        $("input[type='submit']").click(function () {
+            LuuThongTinQuyTac();
+        });
+
+    });
+    function ChonSoDo(sodogheid,UrlImage,TenSoDo) {
+        $('#@Html.FieldIdFor(model => model.SoDoGheXeID)').val(sodogheid);
+        $("#current_sodoghexe_image").attr('src', '/Content/Images/sodoghe/'+UrlImage+'.png');
+        $("#current_sodoghexe_tensodo").html(TenSoDo);
+        var current_sodoghexe_quytac=$('#current_sodoghexe_quytac');
+        $.ajax({
+            cache: false,
+            type: "GET",
+            url: "@(Url.Action("GetSoDoGheXeById", "NhaXes"))",
+            data: {"SoDoGheXeID":sodogheid, "LoaiXeID": @Model.Id },
+            success: function (data)
+            {
+                current_sodoghexe_quytac.html('');
+                current_sodoghexe_quytac.html(data);
+            },
+            error: function (xhr, ajaxOptions, thrownError)
+            {
+                alert('Failed to retrieve data.');
+            }
+        });
+       
+        //chuyen sang tab quy tac
+        $("#modeldetail-edit").data("kendoTabStrip").select(@tabidquytac);
+    }
+    function LuuThongTinQuyTac()
+    {
+        //luu theo cu phap tang;hang;cot;val|tang;hang;cot;val
+        var thongtin="";
+        for(var tang=1;tang<=2;tang++)
+        {
+            $("input[name='sodoghexequytac_"+tang+"']").each(function() {
+                var input = $(this);
+                var idinfo=input.attr('id');
+                idinfo=idinfo.replace("sodoghexequytac_","");
+                idinfo=idinfo.replace(/_/g,";");
+                thongtin=thongtin+idinfo+";"+input.val() +"|";
+            });
+
+            $("input[name='gheitemkyhieughe_"+tang+"']").each(function() {
+                var input = $(this);
+                var idinfo=input.attr('id');
+                idinfo=idinfo.replace("gheitemkyhieughe_","");
+                idinfo=idinfo.replace(/_/g,";");
+                thongtin=thongtin+idinfo+";"+input.val() +"|";
+            });
+        }
+        $('#@Html.FieldIdFor(model => model.SoDoGheXeQuyTacResult)').val(thongtin);
+
+    }
+</script>
+<style>
+    .divquytacsodoghe
+    {
+        width:450px;
+        float:left;
+        margin-left:10px;
+    }
+    .divquytacsodoghe h3
+    {
+        width:100%;
+        text-align:center;
+        margin-top:5px;
+    }
+   
+    .quytacsodoghe {        
+        width:100%;
+        border:solid 1px #aea8a8;
+        
+    }
+    .quytacsodoghe td {        
+        vertical-align:middle;
+        text-align:center;
+        height:70px;
+
+    }
+  
+    .quytacsodoghe td div {
+        border:solid 1px #bebbbb;
+        margin:2px;
+        padding:2px;
+    }
+</style>
+@if(Model.Id>0)
+{
+    <script>
+        $(document).ready(function () {
+            ChonSoDo($('#@Html.FieldIdFor(model => model.SoDoGheXeID)').val(),'@Model.CurrentSoDoGheXe.UrlImage','@Model.CurrentSoDoGheXe.TenSoDo');
+        });
+
+    </script>
+}
+
+@{
+    //custom tabs
+    var eventMessage = new AdminTabStripCreated(this.Html, "modeldetail-edit");
+    EngineContext.Current.Resolve<IEventPublisher>().Publish(eventMessage);
+    foreach (var eventBlock in eventMessage.BlocksToRender)
+    {
+        @eventBlock
+    }
+}
+
+@*save selected tab index*@
+
+<input type="hidden" id="selected-tab-index" name="selected-tab-index" value="@(GetSelectedTabIndex())">
+@helper TabInfo()
+{
+    <table class="adminContent">
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.TenLoaiXe):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.TenLoaiXe)
+                @Html.ValidationMessageFor(model => model.TenLoaiXe)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.MaLoaiXe):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.MaLoaiXe)
+                @Html.ValidationMessageFor(model => model.MaLoaiXe)
+            </td>
+        </tr>
+
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.IsDieuHoa):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.IsDieuHoa)
+                @Html.ValidationMessageFor(model => model.IsDieuHoa)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.IsKhanLanh):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.IsKhanLanh)
+                @Html.ValidationMessageFor(model => model.IsKhanLanh)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.IsNuocUong):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.IsNuocUong)
+                @Html.ValidationMessageFor(model => model.IsNuocUong)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.IsThucAn):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.IsThucAn)
+                @Html.ValidationMessageFor(model => model.IsThucAn)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.IsTV):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.IsTV)
+                @Html.ValidationMessageFor(model => model.IsTV)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.IsWC):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.IsWC)
+                @Html.ValidationMessageFor(model => model.IsWC)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.IsWifi):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.IsWifi)
+                @Html.ValidationMessageFor(model => model.IsWifi)
+            </td>
+        </tr>
+    </table>
+}
+
+@helper TabGheItem()
+{
+    <table class="adminContent">
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.KieuXeID):
+            </td>
+            <td class="adminData">
+                @Html.DropDownListFor(model => model.KieuXeID, Model.KieuXes)
+                @Html.ValidationMessageFor(model => model.KieuXeID)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.SoDoGheXeID):
+                @Html.HiddenFor(model => model.SoDoGheXeID)
+                @Html.HiddenFor(model => model.CurrentSoDoGheXe.Id)
+                @Html.HiddenFor(model => model.CurrentSoDoGheXe.KieuXeId)
+                @Html.HiddenFor(model => model.CurrentSoDoGheXe.SoCot)
+                @Html.HiddenFor(model => model.CurrentSoDoGheXe.SoHang)
+                @Html.HiddenFor(model => model.CurrentSoDoGheXe.SoLuongGhe)
+                @Html.HiddenFor(model => model.CurrentSoDoGheXe.TenSoDo)
+                @Html.HiddenFor(model => model.CurrentSoDoGheXe.UrlImage)
+            </td>
+            <td class="adminData">
+                <div id="sodoghelistView">
+
+                </div>
+            </td>
+        </tr>
+    </table>
+    <script>
+        $(document).ready(function () {
+            $("#sodoghelistView").kendoListView({
+                dataSource: {
+                    type: "json",
+                    transport: {
+                        read: {
+                            url: "@Html.Raw(Url.Action("GetSoDoGheXe", "NhaXes"))",
+                            type: "POST",
+                            dataType: "json",
+                            data: additionalData
+                        }
+                    },
+                    schema: {
+                        data: "Data",
+                        total: "Total",
+                        errors: "Errors"
+                    },
+                    error: function (e) {
+                        display_kendoui_grid_error(e);
+                        // Cancel the changes
+                        this.cancelChanges();
+                    },
+                    pageSize: 1000,
+                    serverPaging: true,
+                    serverFiltering: true,
+                    serverSorting: true
+                },
+                template: kendo.template($("#templatesodoghe").html())
+            });
+            $("#@Html.FieldIdFor(model => model.KieuXeID)").change(function () {
+                var grid = $('#sodoghelistView').data('kendoListView');
+                grid.dataSource.page(1); //new search. Set page size to 1
+                //grid.dataSource.read();// we already loaded the grid above using "page" function
+                return false;
+            });
+        });
+        function additionalData() {
+            return {
+                KieuXeID: $('#@Html.FieldIdFor(model => model.KieuXeID)').val()
+            };
+        }
+
+    </script>
+
+    <script type="text/x-kendo-template" id="templatesodoghe">
+        <div class="sodogheitem">
+            <img src="/Content/Images/sodoghe/#= UrlImage #.png" alt="#: TenSoDo # image" />
+            <h3>#:TenSoDo#</h3>
+            <a href="javascript:ChonSoDo(#=Id#,'#= UrlImage #','#=TenSoDo#');">@T("ChonVe.LoaiXe.LoaiXe.Chon")</a>
+        </div>
+    </script>
+    <style>
+        #sodoghelistView {
+            padding: 10px 5px;
+            margin-bottom: -1px;
+            min-height: 510px;
+        }
+
+        .sodogheitem {
+            float: left;
+            position: relative;
+            width: 300px;
+            height: 350px;
+            margin: 0 5px;
+            padding: 0;
+        }
+
+            .sodogheitem img {
+                width: 280px;
+                height: 300px;
+            }
+
+            .sodogheitem h3 {
+                margin: 0;
+                padding: 3px 5px 0 0;
+                overflow: hidden;
+                line-height: 1.1em;
+                font-size: 1.1em;
+                font-weight: bold;
+                text-transform: uppercase;
+                text-align: center;
+                color: rgba(0,0,0,0.75);
+            }
+
+            .sodogheitem a {
+                visibility: hidden;
+            }
+
+            .sodogheitem:hover a {
+                visibility: visible;
+                position: absolute;
+                width: 280px;
+                height: 300px;
+                top: 0;
+                margin: 0;
+                padding: 0;
+                line-height: 300px;
+                vertical-align: middle;
+                text-align: center;
+                color: #fff;
+                font-size: 2.1em;
+                font-weight: bold;
+                text-decoration: none;
+                background-color: rgba(0,0,0,0.75);
+                transition: background .2s linear, color .2s linear;
+                -moz-transition: background .2s linear, color .2s linear;
+                -webkit-transition: background .2s linear, color .2s linear;
+                -o-transition: background .2s linear, color .2s linear;
+            }
+
+        .k-listview:after {
+            content: ".";
+            display: block;
+            height: 0;
+            clear: both;
+            visibility: hidden;
+        }
+    </style>
+}
+@helper TabQuyTac()
+{
+    <table class="adminContent">
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.SoDoGheXeID):
+            </td>
+            <td class="adminData">
+                <img id="current_sodoghexe_image" src="" style="width:150px;height:170px" />
+                <h3 id="current_sodoghexe_tensodo"></h3>
+                <p>@T("ChonVe.LoaiXe.LoaiXe.QuyTac.Empty")</p>
+            </td>
+        </tr>
+     
+        <tr>
+            <td class="adminTitle">
+                @T("ChonVe.LoaiXe.LoaiXe.QuyTac")<br />               
+            </td>
+            <td class="adminData">
+                <div id="current_sodoghexe_quytac" style="width:100%;">
+                </div>
+            </td>
+        </tr>
+    </table>
+}

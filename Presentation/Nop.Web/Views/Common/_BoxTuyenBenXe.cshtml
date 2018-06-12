@@ -1,0 +1,62 @@
+﻿@model Nop.Web.Models.Common.ComMonSlideModel
+<link rel="stylesheet" type="text/css" href="~/Themes/ChonVe/Content/css/owl.carousel.css" />
+<link rel="stylesheet" type="text/css" href="~/Themes/ChonVe/Content/css/owl.theme.css" />
+<script type="text/javascript" src="~/Themes/ChonVe/Content/js/jquery.devrama.slider-0.9.4.js"></script>
+<script type="text/javascript" src="~/Themes/ChonVe/Content/js/owl.carousel.js"></script>
+<div class="cv-row-slide-bottom">
+    <div class="container">
+        <div class="col-md-12">
+            <div class="cv-title-slide-bottom">
+                <ul>
+                    <li data-active=".tv1" class="active">@T("web.nhaxeslide.NhaXeUyTin") </li>
+                    <li data-active=".tv2">@T("web.nhaxeslide.BenXePhoBien")</li>
+                </ul>
+            </div>
+            <div class="cv-tab-content-slide">
+                <div class="tv1 cv-tab-tv active">
+                    <div class="cv-slide-bottom owl-carousel owl-demo">
+                        @foreach (var item in @Model.nhaxes)
+                        {
+                            <div class="cv-item-slide-bottom lazyOwl">
+                                <a style="background:url('@item.PictureUrl');" href= @Url.Action("NhaXeInfoConnect", "Common", new { nhaxeId = item.Id })></a>
+                                <p>@item.TenNhaXe</p>
+                            </div>
+                        }                         
+                    </div>
+                </div>
+                <div class="tv2 cv-tab-tv">
+                    <div class="cv-slide-bottom owl-carousel owl-demo tv2 cv-tab-tv">
+                        @foreach (var item in @Model.benxes)
+                        {
+                            <div class="cv-item-slide-bottom lazyOwl">
+                                <a style="background:url('@item.PictureUrl');" href='<%: @Url.Action("NhaXeInfoConnect", "Common", new { id = item.Id }) %>'>></a>
+                                <p>@item.TenBenXe</p>
+                            </div>
+                        }                      
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function (e) {
+
+        $(".owl-demo").owlCarousel({
+            items: 4,
+            lazyLoad: true,
+            navigation: true,
+            autoPlay: false,
+            rewindSpeed: 500,
+            paginationSpeed: 500,
+        });
+        $('.cv-title-slide-bottom ul li').unbind('click');
+        $('.cv-title-slide-bottom ul li').click(function (event) {
+            $('.cv-title-slide-bottom ul li').removeClass('active');
+            $(this).addClass('active');
+            $('.cv-tab-tv').removeClass('active');
+            var tab_active = $(this).data('active');
+            $(tab_active).addClass('active');
+        });
+    });
+</script>

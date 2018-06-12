@@ -1,0 +1,357 @@
+﻿@model QuanlyPhoiVeModel
+@using Nop.Core.Infrastructure
+@using Nop.Core.Domain.Chonves
+@using  Nop.Web.Models.NhaXes
+@{
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+    var defaultGridPageSize = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().DefaultGridPageSize;
+    var gridPageSizes = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().GridPageSizes;
+
+}
+<div class="section-header">
+    <div class="title">
+        <img src="@Url.Content("~/Content/chonve/nxmenu/phoive.png")" alt="" />
+        @T("ChonVe.NhaXe.PhoiVe")
+    </div>
+</div>
+<table style="width:100%">
+    <tr>
+        <td align="center" width="30%">
+            <table class="adminContent">
+                <tr>
+                    <td class="adminTitle" style="text-align:right">
+                        @T("chonve.nhaxe.nguonve.hanhtrinhid"):
+                    </td>
+                    <td class="adminData">
+                        @Html.DropDownListFor(model => model.HanhTrinhId, Model.ListHanhTrinh)
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td align="center" width="40%">
+            <table class="adminContent">
+                <tr>
+                    <td class="adminTitle" style="text-align:right">
+                       @T("chonve.nhaxe.nguonve.chuyendi"):
+                    </td>
+                    <td class="adminData">
+                        @Html.DropDownListFor(model => model.NguonVeXeId, Model.ListNguonVeXe)
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td align="center" width="30%">
+            <table class="adminContent">
+                <tr>
+                    <td class="adminTitle" style="text-align:right">
+                        @T("chonve.nhaxe.nguonve.ngaydi"):
+                    </td>
+                    <td class="adminData">
+                        @Html.EditorFor(model => model.NgayDi)
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+<script>
+    $(document).ready(function () {
+        //load lai thong tin lich trinh thu hanh trinh dang chon
+        $('#@Html.FieldIdFor(model => model.HanhTrinhId)').change(function () {
+            var selectedItem = $(this).val();
+            var ddlnguonve = $("#@Html.FieldIdFor(model => model.NguonVeXeId)");
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: "@(Url.Action("GetNguonVeXeForDropDownList", "NhaXes"))",
+                data: { "HanhTrinhID": selectedItem },
+            success: function (data) {
+                ddlnguonve.html('');
+                var hasnguonve = false;
+                $.each(data, function (id, option) {
+                    hasnguonve = true;
+                    ddlnguonve.append($('<option></option>').val(option.Id).html(option.MoTa));
+                });
+
+                if (hasnguonve)
+                    LoadThongTinGhe();
+                else
+                {
+                    alert("Không có thông tin lịch trình trên tuyến đang chọn");
+                }
+                    
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert('Failed to retrieve nguonve.');
+            }
+        });
+        });
+        $('#@Html.FieldIdFor(model => model.NguonVeXeId)').change(function () {
+            LoadThongTinGhe();            
+        });
+
+    });
+</script>
+<div id="current_sodoghexe_quytac">
+</div>
+
+
+<div id="FormWindowDatMuaVe" style="display:none">
+</div>
+<div id="FormWindowChuyenVe" style="display:none">
+</div>
+<ul id="menucontextphoive_datmua">
+    <li class="k-separator"></li>
+    <li actionid="1">
+        @T("chonve.nhaxes.qualyphoive.menu_datmua").Text
+    </li>   
+    <li class="k-separator"></li>
+</ul>
+<ul id="menucontextphoive_nghiepvu">   
+    <li actionid="2">
+        @T("chonve.nhaxes.qualyphoive.menu_thanhtoan").Text
+    </li>
+    <li actionid="3">
+        @T("chonve.nhaxes.qualyphoive.menu_chuyen").Text
+    </li>
+    <li class="k-separator"></li>
+    <li actionid="4">
+        @T("chonve.nhaxes.qualyphoive.menu_huy").Text
+    </li>
+</ul>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#@Html.FieldIdFor(model => model.NgayDi)").change(function () {
+            LoadThongTinGhe();
+        });
+        $("#menucontextphoive_datmua").kendoContextMenu({
+            orientation: "vertical",
+            target: "#current_sodoghexe_quytac",
+            filter: ".phoive_menucontext_datve",
+            animation: {
+                open: { effects: "fadeIn" },
+                duration: 300
+            },
+            select: function (e) {
+                // Do something on select
+                ProcessActionPhoiVe(e);
+            }
+        });
+        $("#menucontextphoive_nghiepvu").kendoContextMenu({
+            orientation: "vertical",
+            target: "#current_sodoghexe_quytac",
+            filter: ".phoive_menucontext_nghiepvu",
+            animation: {
+                open: { effects: "fadeIn" },
+                duration: 300
+            },
+            select: function (e) {
+                // Do something on select
+                ProcessActionPhoiVe(e);
+            }
+        });
+        LoadThongTinGhe();
+    });
+    function ProcessActionPhoiVe(e) {
+        var actionid = $(e.item).attr('actionid');
+        var data_phoiveid = $(e.target).attr('data_phoiveid');
+        var data_kyhieu = $(e.target).attr('data_kyhieu');
+        var data_tang = $(e.target).attr('data_tang');
+        var data_trangthai = $(e.target).attr('data_trangthai');
+        switch (parseInt(actionid)) {
+            case 0: //chon ghe
+                {
+
+                    break;
+                }
+            case 1: //dat ghe
+                {
+                    //neu ghe con trong thi tao trang thai dat ghe
+                    if (data_trangthai == '@((int)ENTrangThaiPhoiVe.ConTrong)') {
+                        ChonGheDatCho(data_kyhieu, data_tang, true);
+                    }
+                    else if (data_trangthai == '@((int)ENTrangThaiPhoiVe.DatCho)')
+                        DatVe();
+                    break;
+                }
+            case 2: //thanh toan
+                {
+                    if (data_trangthai == '@((int)ENTrangThaiPhoiVe.ChoXuLy)' || data_trangthai == '@((int)ENTrangThaiPhoiVe.GiuCho)') {
+                        ThanhToanGiaoVe(data_phoiveid);
+                    }
+                    else
+                    {
+                        alert('@T("chonve.nhaxe.quanlyphoive.dathanhtoan")');
+                    }
+                    break;
+                }
+            case 3: //chuyen ghe
+                {
+                    ChuyenVe(data_phoiveid);
+                    break;
+                }
+            case 4: //huy ve
+                {
+                    HuyVe(data_phoiveid);
+                    break;
+                }
+        }
+    }
+    ////////////////////////////////////////////////////////////////////////////////FORM WINDOW NGHIEP VU
+    function OpenWindowDatMuaVe() {
+        var formdatmuave = $("#FormWindowDatMuaVe");
+        var NguonVeXeId = $('#@Html.FieldIdFor(model => model.NguonVeXeId)').val();
+        var NgayDi = $('#@Html.FieldIdFor(model => model.NgayDi)').val();
+        formdatmuave.kendoWindow({
+            width: "500px",
+            title: "@T("ChonVe.NhaXe.QuanLyPhoiVe.DatVe")",
+            content: "@(Url.Action("KhachHangDatMuaVe", "NhaXes"))?NguonVeXeId=" + NguonVeXeId + "&NgayDi=" + NgayDi,
+            actions: [
+                "Close"
+            ],
+        }).data("kendoWindow").center();
+        formdatmuave.data('kendoWindow').open();
+    }
+    function CloseWindowDatMuaVe(isReload) {
+        $("#FormWindowDatMuaVe").data('kendoWindow').close();
+        if (isReload)
+            LoadThongTinGhe();
+    }
+
+    /////XU LY THONG TIN GHE////////////////////////////////////////////////////////////////////////
+
+    function LoadThongTinGhe() {
+        var NguonVeXeId = $('#@Html.FieldIdFor(m=>m.NguonVeXeId)').val();
+        var NgayDi = $('#@Html.FieldIdFor(m=>m.NgayDi)').val();
+        var TangIndex=$('#selected-tab-index').val();
+        $.ajax({
+            cache: false,
+            type: "GET",
+            dataType: "html",
+            contentType: 'application/html;charset=utf-8',
+            data: { "NguonVeXeId": NguonVeXeId, "NgayDi": NgayDi, "TangIndex": TangIndex },
+            url: "@(Url.Action("_GetInfoSoDoGheXe", "NhaXes"))",
+            success: function (data) {
+                $("#current_sodoghexe_quytac").html(data);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert('Error bind data of seat');
+            }
+        });
+    }
+    function ChonGheDatCho(kyhieu, tang, showDatVe) {
+        var NguonVeXeId = $('#@Html.FieldIdFor(m=>m.NguonVeXeId)').val();
+        var NgayDi = $('#@Html.FieldIdFor(m=>m.NgayDi)').val();
+        $.ajax({
+            cache: false,
+            type: "POST",
+            data: {
+                "NguonVeXeId": NguonVeXeId,
+                "NgayDi": NgayDi,
+                "KiHieuGhe": kyhieu,
+                "Tang": tang
+            },
+            url: "@(Url.Action("ChonGheDatCho", "NhaXes"))",
+            success: function (data) {
+                if (data != "OK") {
+                    alert("@T("ChonVe.VeXeKhach.DatMuaVe.DaMua")");
+                }
+                LoadThongTinGhe();
+                if (showDatVe) {
+                    DatVe();
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                return alert('Error chon ghe');
+            }
+        });
+    }
+    function HuyGheDatCho(PhoiVeId) {
+        $.ajax({
+            cache: false,
+            type: "POST",
+            data: {
+                "PhoiVeId": PhoiVeId
+            },
+            url: "@(Url.Action("HuyGheDatCho", "NhaXes"))",
+            success: function (data) {
+                if (data != "OK") {
+                    alert("@T("ChonVe.Nhaxes.QuanLyPhoive.KhongSoHuu")");
+                }
+                LoadThongTinGhe();
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                return alert('Error huy ghe');
+            }
+        });
+    }
+    function DatVe() {
+        OpenWindowDatMuaVe();
+    }
+    function HuyVe(PhoiVeId) {
+        if (!confirm("@T("Common.areyousure")")) {
+            return;
+        }
+        $.ajax({
+            cache: false,
+            type: "POST",
+            data: {
+                "PhoiVeId": PhoiVeId
+            },
+            url: "@(Url.Action("HuyVe", "NhaXes"))",
+            success: function (data) {
+                if (data != "OK") {
+                    alert(data);
+                }
+                LoadThongTinGhe();
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                return alert('Error huy ghe');
+            }
+        });
+    }
+    function ThanhToanGiaoVe(PhoiVeId) {
+        if (!confirm("@T("Common.areyousure")")) {
+            return;
+        }
+        $.ajax({
+            cache: false,
+            type: "POST",
+            data: {
+                "PhoiVeId": PhoiVeId
+            },
+            url: "@(Url.Action("ThanhToanGiaoVe", "NhaXes"))",
+            success: function (data) {
+                if (data != "OK") {
+                    alert(data);
+                }
+                LoadThongTinGhe();
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                return alert('Error ThanhToanGiaoVe');
+            }
+        });
+    }
+
+    function ChuyenVe(PhoiVeId) {
+        var HanhTrinhId = $('#@Html.FieldIdFor(m=>m.HanhTrinhId)').val();
+        var formopen = $("#FormWindowChuyenVe");
+        formopen.kendoWindow({
+            width: "1024px",
+            title: "@T("ChonVe.NhaXe.QuanLyPhoiVe.ChuyenVe")",
+            content: "@(Url.Action("KhachHangChuyenVe", "NhaXes"))?PhoiVeId=" + PhoiVeId + "&HanhTrinhId=" + HanhTrinhId,
+            actions: [
+                "Close"
+            ]
+        }).data('kendoWindow').center();
+        formopen.data('kendoWindow').open();
+    }
+    function CloseWindowChuyenVe() {
+        $("#FormWindowChuyenVe").data('kendoWindow').close();
+        LoadThongTinGhe();
+    }
+    function SetCenterWindowChuyenVe() {
+        $("#FormWindowChuyenVe").data('kendoWindow').center();
+    }
+
+</script>

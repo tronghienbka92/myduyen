@@ -1,0 +1,46 @@
+﻿@model NewsItemListModel
+@using Nop.Web.Extensions;
+@using Nop.Web.Models.News;
+@{
+    Layout = "~/Views/Shared/_ColumnsTwo.cshtml";
+<link href="~/Themes/ChonVeV1/Content/css/News.css" rel="stylesheet" />
+    //title
+    Html.AddTitleParts(T("PageTitle.NewsArchive").Text);
+}
+
+<div class="blog-post-area">
+    <h2 class="CVH2">@T("News")</h2>  
+    <div class="custom-page-box-div">
+        @{
+            var last = 0;
+        }
+        @foreach (var item in Model.NewsItems)
+        {
+            last++;     
+            <div class="row">
+                <div class="col-md-3"><img src="@item.PictureModel.ImageUrl" alt="" width="180" height="140"></div>
+                <div class="col-md-9">
+                    <div>
+                        <a class="TitleCv" href="@Url.RouteUrl("NewsItem", new { SeName = item.SeName })">
+                            @item.Title
+                        </a>
+                    </div>
+                    <div>
+                        <div class="newsshort">@Html.Raw(item.Short)</div>
+                    </div>
+                </div>
+            </div>            
+            <hr />
+            if (last != Model.NewsItems.Count)
+            {
+                <legend></legend>
+            }
+        }
+        <div class="pagination-area">
+            <div class="pagination">
+                @Html.Pager(Model.PagingFilteringContext).QueryParam("pagenumber")
+            </div>
+        </div>
+
+    </div>
+</div>

@@ -1,0 +1,31 @@
+﻿@model ThuChiModel
+@using Nop.Web.Models.NhaXes
+@{
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+    //page title
+    //page title
+    if (Model.isChi)
+    {
+        ViewBag.Title = "Cập nhật khoản chi";
+    }
+    else
+    {
+        ViewBag.Title = "Cập nhật khoản thu";
+    }
+}
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "thuchi-form" }))
+{
+    <div class="section-header">
+        <div class="title">
+            <img src="@Url.Content("~/Content/chonve/nxmenu/hanhtrinhquanly.png")" alt="" />
+            @ViewBag.Title - @Model.Ma @Html.ActionLink("(Trở lại quỹ sổ tiền mặt)", "List")
+        </div>
+        <div class="options">
+            <input type="submit" name="save" class="k-button" value="@T("Admin.Common.Save")" />
+            <input type="submit" name="save-continue" class="k-button" value="@T("Admin.Common.SaveContinue")" />
+            <span id="thuchi-delete" class="k-button">@T("Admin.Common.Delete")</span>
+        </div>
+    </div>
+    @Html.Partial("_ThuChiChinhSua", Model)
+}
+@Html.DeleteConfirmation("ThuChiXoa", "thuchi-delete")

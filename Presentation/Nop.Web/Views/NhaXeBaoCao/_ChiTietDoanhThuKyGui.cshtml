@@ -1,0 +1,92 @@
+﻿@model BaoCaoNhaXeModel.BaoCaoDetailDoanhThuKiGuiModel
+@using Nop.Web.Models.NhaXes
+@using Nop.Core.Infrastructure
+@Html.HiddenFor(model => model.NhanVienId)
+@Html.HiddenFor(model => model.NgayBan)
+@Html.HiddenFor(model => model.NotPay)
+<table class="adminContent">
+    <tr>
+        <td>
+            <div id="DoanhThuNhanVienDetail_grid">
+
+            </div>
+
+            <script>
+                $(document).ready(function () {
+                    $("#DoanhThuNhanVienDetail_grid").kendoGrid({
+                        dataSource: {
+                            type: "json",
+                            transport: {
+                                read: {
+                                    url: "@Html.Raw(Url.Action("_ChiTietDoanhThuKyGui", "NhaXeBaoCao"))",
+                                type: "POST",
+                                dataType: "json",
+                                data: additionalData,
+                                //complete: function (data, status) {
+                                //    if (status == "success") {
+                                //        // your code that will be executed once the request is done
+                                //        $("#detailDoanhThuNhanVien_div").data('kendoWindow').center();
+                                //    }
+                                //}
+                            }
+                        },
+                        schema: {
+                            data: "Data",
+                            total: "Total",
+                            errors: "Errors"
+                        },
+                        error: function(e) {
+                            display_kendoui_grid_error(e);
+                            // Cancel the changes
+                            this.cancelChanges();
+                        },
+                        serverPaging: false,
+                        serverFiltering: false,
+                        serverSorting: false
+                    },                       
+                    scrollable: false,
+                    columns: [{
+                        field: "MaPhieu",
+                        title: "Mã phiếu"
+                    }, {
+                        field: "VanPhongNhan.TenVanPhong",
+                        title: "Tên văn phòng nhận"
+                    },  {
+                        field: "NguoiGui.HoTen",
+                        title: "Tên người gửi"
+                    }, {
+                        field: "NguoiNhan.HoTen",
+                        title: "Tên người nhận"
+                    },{
+                        field: "HangHoaInfo",
+                        title: "Thông tin hàng hóa"
+                    },{
+                        field: "NgayTao",
+                        title: "Ngày tạo",
+                        type: "date",
+                        format: "{0:dd/MM/yyyy}"
+
+                    },  {
+                        field: "TenNguoiKiemTraHang",
+                        title: "Người kiểm tra hàng",
+
+                    },
+                        {
+                            field: "TongCuocPhi",
+                            title: "Tiền cước",
+                        format: "{0:N0} đ",
+                        }
+                    ]
+                });
+                });
+                function additionalData() {
+                    return {
+                        NhanVienId: $("#@Html.FieldIdFor(model => model.NhanVienId)").val(),
+                        NgayThu: $("#@Html.FieldIdFor(model => model.NgayBan)").val(),
+                        NotPay: $("#@Html.FieldIdFor(model => model.NotPay)").val()
+                    };
+                }
+            </script>
+        </td>
+    </tr>
+</table>

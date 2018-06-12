@@ -1,0 +1,152 @@
+﻿@model GiaoDichKeVeMenhGiaModel
+@{
+    Layout = null;   
+        
+}
+
+@using (Html.BeginForm("UpdateGiaoDichKeVeMenhGia", "GiaoDichKeVe", FormMethod.Post, new { id = "FormKeVe" }))
+{
+    @Html.HiddenFor(model => model.Id)
+    @Html.HiddenFor(model => model.isNew)   
+    <table class="adminContent">
+        <tr>
+            <td class="adminTitle" style="font-weight:bold">
+                Mẫu Số - Ký Hiệu:
+            </td>
+            <td class="adminData">
+                @Html.DropDownListFor(model => model.QuanLyMauVeKyHieuId, Model.mauves)
+                @Html.ValidationMessageFor(model => model.QuanLyMauVeKyHieuId)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle" style="font-weight:bold">
+                Mệnh Giá
+            </td>
+            <td class="adminData">
+                @Model.MenhGia.ToString("###,###,##0") VNĐ
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle" style="font-weight:bold">
+                Từ Số:
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(m => m.SeriFrom)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle" style="font-weight:bold">
+                Số Lượng Vé
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(m => m.SoLuong)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle" style="font-weight:bold">
+                Ghi Chú
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(m => m.GhiChu)
+            </td>
+        </tr>
+
+        <tr>
+            <td></td>
+            <td class="adminData" width="100" height="60">
+                <input type="button" id="btnloadrowkeve" class="k-button" value="Xác Nhận" style="margin-left: 50px; height:30px;" />
+            </td>
+        </tr>
+    </table>
+    <script type="text/javascript">
+
+    $(document).ready(function () {
+        setTimeout(function () {
+            $('#@Html.FieldIdFor(model => model.SeriFrom)').focus();
+        }, 500);
+
+        $("#@Html.FieldIdFor(model => model.SeriFrom)").keydown(function (event) {
+            if (event.keyCode == 13) {
+                var _val = $('#@Html.FieldIdFor(model => model.SeriFrom)').val();
+                if (_val != "") {
+                    $('#@Html.FieldIdFor(model => model.SoLuong)').siblings('input:visible').focus();
+                }
+
+                return false;
+            }
+        });
+        $("#@Html.FieldIdFor(model => model.QuanLyMauVeKyHieuId)").keydown(function (event) {
+                if (event.keyCode == 13) {
+                    $('#@Html.FieldIdFor(model => model.SeriFrom)').focus();
+                    return false;
+                }
+            });
+            $("#@Html.FieldIdFor(model => model.SoLuong)").keydown(function (event) {
+            if (event.keyCode == 13) {
+                $("#btnloadrowkeve").click();
+                return false;
+            }
+        });
+        $("#@Html.FieldIdFor(model => model.SoLuong)").focus(function () {
+            var input = $(this);
+            setTimeout(function () {
+                input.select();
+            });
+        });
+        $("#@Html.FieldIdFor(model => model.GhiChu)").keydown(function (event) {
+            if (event.keyCode == 13) {
+                $("#btnloadrowkeve").click();
+                return false;
+            }
+        });
+
+        $('#btnloadrowkeve').click(function () {
+            var _val = $('#@Html.FieldIdFor(model => model.SeriFrom)').val();
+            if (_val == "") {
+                $('#@Html.FieldIdFor(model => model.SeriFrom)').focus();
+                return;
+            }
+            var form = $('#FormKeVe');
+            if (form.valid()) { //if you use validation
+                $.ajax({
+                    url: form.attr('action'),
+                    type: form.attr('method'),
+                    data: $("#FormKeVe").serialize(),
+                    success: function (data) {
+                        if (data == "ok") {
+                            SetCloseWindowSua();
+                            RefreshGridMenhGia();
+
+                        }
+                        else if (data = "1") {
+                            alert("Số seri bạn nhập trùng với số seri đã có trong hệ thống, vui lòng kiểm tra lại!");
+                        }
+                        else {
+                            alert("Có lỗi, bạn hãy kiểm tra lại số seri");
+                        }
+                    }
+                });
+            }
+        });
+
+    });
+
+    function RefreshGridMenhGia() {
+        @if(Model.isVeDi)
+            {
+                <text>
+        RefreshVeLuotDi();
+        </text>
+            }
+        @if(!Model.isVeDi)
+             {
+                 <text>
+        RefreshVeLuotVe();
+        </text>
+             }
+
+    }
+    </script>
+
+}
+

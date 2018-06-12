@@ -1,0 +1,391 @@
+﻿@model ChuyenDiTaiChinhModel
+@using Nop.Core.Infrastructure
+@using Nop.Web.Framework.Events
+@using Nop.Services.Events
+@using Nop.Services.NhaXes
+@using Nop.Core.Domain.NhaXes
+@Html.HiddenFor(c => c.ListThuChi)
+@Html.HiddenFor(c => c.isCapNhat)
+
+@{
+
+    var khoanchis = Model.GiaoDichThuChis.Where(c => c.LoaiThuChiId > 100).ToList();
+    var khoanthus = Model.GiaoDichThuChis.Where(c => c.LoaiThuChiId < 100).ToList();
+
+    var TongDoanhThu = Model.DTLuotDi;
+    var VeQuay = Model.VeQuay;
+    var VeTrenXe = TongDoanhThu - VeQuay;
+    var STT = 0;
+    var tongchi = khoanchis.Sum(c => c.SoTien) * 1000 - khoanthus.Sum(c => c.SoTien) * 1000;
+    var thucthu = TongDoanhThu - tongchi;
+}
+<div style="margin-top:10px;">
+    <div class="section-header">
+        <div class="title">
+            <img src="@Url.Content("~/Content/chonve/nxmenu/keve_capnhatchuyen.png")" alt="" />
+            Thông tin chi phí chuyến đi
+        </div>
+
+        <div class="options">
+            <a  href="/QLPhoiVe/InDSDonTra?ChuyenDiId=@Model.LuotDiId&istra=true" target="_blank" class="k-button">DS trả</a>&nbsp;
+            <a href="/QLPhoiVe/InDSDonTra?ChuyenDiId=@Model.LuotDiId&istra=false" target="_blank" class="k-button">DS đón</a>&nbsp;
+            <a href="/NhaXeCauHinh/InPhieu?MaId=@((int)Nop.Core.Domain.NhaXes.ENNhaXeCauHinh.PHIEU_THU_CHI_PHI)&Id=@Model.Id" id="inphieu" class="k-button" target="_blank">In phiếu</a>
+            <input type="button" id="btnChiPhiChuyenDi_DongY" value="Cập nhật" class="k-button" />
+            <input type="button" id="btnChiPhiChuyenDi_Huy" value="Hủy" class="k-button" />
+        </div>
+    </div>
+    <div>
+        <div style="text-align:left;color:red;padding:5px;">Chú ý: Có thể sử dụng các phép toán (+,/) ở các ô dưới để nhập liệu (ví du: 130+50+20 hoặc 290/2 ) </div>
+        <table id="ChiPhiChuyenDi_ThuChi" style="width:100%" cellpadding="5" cellspacing="2">
+            <tr>
+                <td style="width:50%;vertical-align:top">
+                    <h2>Các khoản chi</h2>
+                    <p style="color:red">Đơn vị tính: *1000 (vnđ);</p>
+                    @foreach (var item in khoanchis)
+                    {
+                        STT++;
+                        item.STT = STT;
+                        <text>
+                            @Html.Partial("_CapNhapChuyenDiTaiChinhItem", item)
+                        </text>
+
+                    }
+                </td>
+
+                <td style="vertical-align:top">
+                    <table style="width:100%;font-size:14px;font-weight:bold;text-align:right">
+                        <tr>
+                            <td>Ngày thu:</td>
+                            <td style="text-align:left">@Html.EditorFor(m => m.NgayGiaoDich)</td>
+                        </tr>
+                        <tr>
+                            <td>Người thu:</td>
+                            <td style="text-align:left">
+                                <input id="cbbSearchNguoiThu" value="@Model.tennguoithu" style="width:280px" />
+                                @Html.HiddenFor(model => model.NguoiThuId)
+                                <script>
+                                    $(document).ready(function () {
+                                        function dataSearchNguoiThu() {
+                                            var _hovaten = $('#cbbSearchNguoiNhan').data("kendoComboBox").text();
+                                            return {
+                                                SearchKhachhang: _hovaten
+                                            };
+                                        }
+                                        $('#cbbSearchNguoiThu').kendoComboBox({
+                                            placeholder: "Tên người thu",
+                                            dataTextField: "HoTen",
+                                            dataValueField: "Id",
+                                            filter: "contains",
+                                            autoBind: false,
+                                            minLength: 2,
+                                            dataSource: {
+                                                type: "json",
+                                                serverFiltering: true,
+                                                transport: {
+                                                    read: {
+                                                        url: "@Html.Raw(Url.Action("CBBNhanVienNhanVe", "GiaoDichKeVe"))",
+                                                        data: dataSearchNguoiThu
+                                                    }
+                                                }
+                                            },
+                                            change: onChangeNguoiThu
+                                        });
+                                        function onChangeNguoiThu(e) {
+                                            var DataItem = this.dataItem();
+                                            $("#@Html.FieldIdFor(model => model.NguoiThuId)").val(DataItem.Id);
+
+                                        }
+                                    });
+                                </script>
+                            </td>
+
+                        </tr>
+                        <tr>
+                            <td>Người nộp:</td>
+                            <td style="text-align:left">
+                                <input id="cbbSearchNguoiNop" value="@Model.tennguoinop" style="width:280px" />
+                                @Html.HiddenFor(model => model.NguoiNopId)
+                                <script>
+                                    $(document).ready(function () {
+                                        function dataSearchNguoiNop() {
+                                            var _hovaten = $('#cbbSearchNguoiNop').data("kendoComboBox").text();
+                                            return {
+                                                SearchKhachhang: _hovaten
+                                            };
+                                        }
+                                        $('#cbbSearchNguoiNop').kendoComboBox({
+                                            placeholder: "Tên người nộp",
+                                            dataTextField: "HoTen",
+                                            dataValueField: "Id",
+                                            filter: "contains",
+                                            autoBind: false,
+                                            minLength: 2,
+                                            dataSource: {
+                                                type: "json",
+                                                serverFiltering: true,
+                                                transport: {
+                                                    read: {
+                                                        url: "@Html.Raw(Url.Action("CBBNhanVienNhanVe", "GiaoDichKeVe"))",
+                                                        data: dataSearchNguoiNop
+                                                    }
+                                                }
+                                            },
+                                            change: onChangeNguoiNop
+                                        });
+                                        function onChangeNguoiNop(e) {
+                                            var DataItem = this.dataItem();
+                                            $("#@Html.FieldIdFor(model => model.NguoiNopId)").val(DataItem.Id);
+
+                                        }
+                                    });
+                                </script>
+
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2"><hr /></td>
+                        </tr>
+                        <tr>
+                            <td> Vé quầy:</td>
+                            <td> @VeQuay.ToString("###,###,###") (Vnd)</td>
+                        </tr>
+                        <tr>
+                            <td> Vé lái xe:</td>
+                            <td> @VeTrenXe.ToString("###,###,###") (Vnd)</td>
+                        </tr>
+                        <tr>
+                            <td> Doanh thu chuyến đi:</td>
+                            <td> @TongDoanhThu.ToString("###,###,###") (Vnd)</td>
+                        </tr>
+
+                        <tr>
+                            <td> Tổng chi:</td>
+                            <td> - @tongchi.ToString("###,###,###") (Vnd)</td>
+                        </tr>
+                        <tr style="height:70px;font-size:16px;color:red">
+                            <td> Thực thu:</td>
+                            <td style="border-top:2px solid #808080"> @thucthu.ToString("###,###,##0") (Vnđ)</td>
+                        </tr>
+                        @*luot di*@
+                        @if (Model.LuotDiTC != null)
+                        {
+                            <tr>
+                                <td colspan="2"><hr /></td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">DOANH THU LƯỢT ĐI</td>
+                            </tr>
+                            <tr>
+                                <td> Vé quầy:</td>
+                                <td> @Model.LuotDiTC.VeQuay.ToString("###,###,###") (Vnd)</td>
+                            </tr>
+                            <tr>
+                                <td> Vé lái xe:</td>
+                                <td> @Model.LuotDiTC.VeLaiXe.ToString("###,###,###") (Vnd)</td>
+                            </tr>
+                            <tr>
+                                <td> Doanh thu chuyến đi:</td>
+                                <td> @Model.LuotDiTC.DoanhThu.ToString("###,###,###") (Vnd)</td>
+                            </tr>
+
+                            <tr>
+                                <td> Tổng chi:</td>
+                                <td> - @Model.LuotDiTC.TongChi.ToString("###,###,###") (Vnd)</td>
+                            </tr>
+                            <tr style="height:70px;font-size:16px;color:red">
+                                <td> Thực thu:</td>
+                                <td style="border-top:2px solid #808080"> @Model.LuotDiTC.ThucThu.ToString("###,###,##0") (Vnđ)</td>
+                            </tr>
+                            @*tong hop*@
+                            <tr>
+                                <td colspan="2">TỔNG HỢP DOANH THU</td>
+                            </tr>
+                            <tr>
+                                <td> Vé quầy:</td>
+                                <td> @Model.TongChuyenDiTaiChinh.VeQuay.ToString("###,###,###") (Vnd)</td>
+                            </tr>
+                            <tr>
+                                <td> Vé lái xe:</td>
+                                <td> @Model.TongChuyenDiTaiChinh.VeLaiXe.ToString("###,###,###") (Vnd)</td>
+                            </tr>
+                            <tr>
+                                <td> Doanh thu chuyến đi:</td>
+                                <td> @Model.TongChuyenDiTaiChinh.DoanhThu.ToString("###,###,###") (Vnd)</td>
+                            </tr>
+
+                            <tr>
+                                <td> Tổng chi:</td>
+                                <td> - @Model.TongChuyenDiTaiChinh.TongChi.ToString("###,###,###") (Vnd)</td>
+                            </tr>
+                            <tr style="height:70px;font-size:16px;color:red">
+                                <td> Thực thu:</td>
+                                <td style="border-top:2px solid #808080"> @Model.TongChuyenDiTaiChinh.ThucThu.ToString("###,###,##0") (Vnđ)</td>
+                            </tr>
+                        }
+
+
+                    </table>
+                </td>
+
+            </tr>
+        </table>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+
+
+    function GetValueInput() {
+
+        //luu theo cu phap changid|seri1,seri2|changid|seri1,seri2
+        var resultinput = "";
+        $("input[name='txtSoTien_" + @Model.Id + "']").each(function () {
+
+            var input = $(this);
+            var loaithuchiid = input.attr('data_typeid');
+
+            if (resultinput == "")
+                resultinput = loaithuchiid + "|" + input.val();
+            else
+                resultinput = resultinput + "|" + loaithuchiid + "|" + input.val();
+        });
+        return resultinput;
+    }
+
+
+    function ThuChiProcess() {
+
+        var arrgiaodichs = GetValueInput();
+        var ghichu = $("#txtGhiChu_ChiPhiSuaChua").val();
+        $('#@Html.FieldIdFor(model => model.ListThuChi)').val(arrgiaodichs);
+        var isCapNhat = $('#@Html.FieldIdFor(model => model.isCapNhat)').val();
+        var nguoinopid = $('#@Html.FieldIdFor(model => model.NguoiNopId)').val();
+        var nguoithuid = $('#@Html.FieldIdFor(model => model.NguoiThuId)').val();
+        var ngaygiaodich = ConvertDateTimeSystem($("#@Html.FieldIdFor(m => m.NgayGiaoDich)").val());
+        var adddata = {
+            "Id": '@Model.Id',
+            "ListThuChi": arrgiaodichs,
+            "GhiChu": ghichu,
+            "isCapNhat": isCapNhat,
+            "NguoiNopId": nguoinopid,
+            "NguoiThuId": nguoithuid,
+            "NgayGiaoDich": ngaygiaodich
+        }
+
+        $.ajax({
+            cache: false,
+            type: "POST",
+            url: "/QLPhoiVe/_CapNhapChuyenDiTaiChinh",
+            data: adddata,
+            success: function (data) {
+                if (data == "DACAPNHAT") {
+                    alert("Bạn không có quyền sửa");
+                }
+                else {
+                    alert("Cập nhập chi phí chuyến đi thành công");
+                    LoadChiPhiChuyenDi();
+                }
+
+
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert('Có lỗi trong quá trình xử lý');
+
+            }
+        });
+    }
+
+    function SumChiBenXe() {
+
+    }
+    $("#ChiPhiChuyenDi_ThuChi").delegate("*", "focus blur", function () {
+        var elem = $(this);
+
+        elem.toggleClass("focused", elem.is(":focus"));
+        if (elem.is(":focus") == true) {
+            var stt = elem.attr('datastt');
+            $("input[datastt=" + stt + "]").keydown(function (event) {
+                if (event.keyCode == 13) {
+                    var stringInput = elem.val();
+                    if (stringInput.indexOf('+') > 0) {
+                        var arrinputtong = stringInput.split("+");
+                        var Tong = 0;
+                        for (i = 0; i < arrinputtong.length; i++) {
+                            if ($.isNumeric(arrinputtong[i])) {
+                                Tong = Tong + parseInt(arrinputtong[i]);
+                            }
+                        }
+                        elem.val(Tong);
+                    }
+                    else if (stringInput.indexOf('/') > 0) {
+                        var arrinputtong = stringInput.split("/");
+                        if ($.isNumeric(arrinputtong[0]) && $.isNumeric(arrinputtong[1])) {
+                            var Tong = parseInt(arrinputtong[0]) / parseInt(arrinputtong[1]);
+                            elem.val(Tong);
+                        }
+                    }
+
+                    stt = parseInt(stt) + 1;
+                    $("input[datastt=" + stt + "]").focus();
+
+                }
+            });
+        }
+    });
+    $(document).ready(function () {
+
+        if (parseInt($('#@Html.FieldIdFor(model => model.NguoiNopId)').val()) > 0) {
+            $('#inphieu').addClass("phieuchidathu");
+
+
+        }
+        else {
+            $('#inphieu').removeClass("phieuchidathu");
+        }
+        $('#btnChiPhiChuyenDi_DongY').click(function () {
+            ThuChiProcess();
+
+        });
+        $('#btnChiPhiChuyenDi_Huy').click(function () {
+            if (!confirm("Bạn có chắc chắn hủy thông tin chi phí của chuyến đi?"))
+                return false;
+
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url: "/QLPhoiVe/HuyCapNhatChiPhi",
+                data: { "Id": '@Model.Id' },
+                success: function (data) {
+
+                    if (data == "OK") {
+                        alert("Hủy chi phí chuyến đi thành công");
+                        LoadChiPhiChuyenDi();
+                    }
+                    else {
+                        alert("Có lỗi trong hủy chi phí chuyến đi");
+                    }
+
+
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert('Có lỗi trong quá trình xử lý');
+
+                }
+            });
+
+        });
+
+
+    });
+
+</script>
+<style>
+    .focused {
+        background: #abcdef;
+    }
+
+    .phieuchidathu {
+        background-color: red;
+    }
+</style>

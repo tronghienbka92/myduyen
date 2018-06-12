@@ -1,0 +1,123 @@
+﻿@model BaoCaoNhaXeModel
+@using Nop.Web.Models.NhaXes
+@using Nop.Core.Infrastructure
+@{
+    ViewBag.Title = "CHI TIẾT CHI PHÍ THEO XE";
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+}
+<div class="section-header">
+    <div class="title">
+        <img src="@Url.Content("~/Content/chonve/nxmenu/baocaodoanhthu.png")" alt="" />
+        @ViewBag.Title
+    </div>
+</div>
+<table style="width:100%">
+    <tr>        
+        <td align="center" width="20%">
+            <table class="adminContent">
+                <tr>
+                    <td class="adminTitle" style="text-align:right">
+                        Xe:
+                    </td>
+                    <td class="adminData">
+                        @Html.DropDownListFor(model => model.XeId, Model.Xe)
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td align="center" width="20%" id="tabThang">
+            <table class="adminContent">
+                <tr>
+                    <td class="adminTitle" style="text-align:right">
+                        Tháng:
+                    </td>
+                    <td class="adminData">
+                        @Html.DropDownListFor(model => model.ThangId, Model.ListMonth)
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td align="center" width="20%" id="tabNam">
+            <table class="adminContent">
+                <tr>
+                    <td class="adminTitle" style="text-align:right">
+                        Năm:
+                    </td>
+                    <td class="adminData">
+                        @Html.DropDownListFor(model => model.NamId, Model.ListYear)
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td style="text-align:left;width:15%">
+            <input type="button" id="btnSearch" class="k-button" value="@T("Admin.Common.Search")" />
+        </td>
+        <td style="text-align:right">
+            <input type="button" id="btnExport" class="k-button" value="Xuất ra file Excel" />
+            @using (Html.BeginForm("_ExportBaoCao", "BaoCao", FormMethod.Post, new { id = "export-xml-selected-form" }))
+            {
+                <input type="hidden" id="ThangId" name="ThangId" value="" />
+                <input type="hidden" id="NamId" name="NamId" value="" />
+    <input type="hidden" id="XeId" name="XeId" value="" />
+    <input type="hidden" id="LoaiBaoCaoId" name="LoaiBaoCaoId" value="@Model.LoaiBaoCaoId" />
+            }
+        </td>
+    </tr>
+</table>
+<div id="tabBaoCao"></div>
+<script>
+    function LoadBaoCao() {
+        $('#tabBaoCao').html("");
+        var datapost = dataSearchBaoCao();
+        $.ajax({
+            cache: false,
+            type: "POST",
+            data: datapost,
+            url: "@(Url.Action("_BaoCaoTongHop", "BaoCao"))",
+            success: function (data) {
+                $('#tabBaoCao').html(data);
+
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                $('#tabBaoCao').html("Có lỗi trong quá trình load dữ liệu");
+            }
+        });
+    }
+    function ExportBaoCao() {
+        var ThangId = $("#@Html.FieldIdFor(model => model.ThangId)").val();
+        var NamId = $("#@Html.FieldIdFor(model => model.NamId)").val();
+        var XeId = $("#@Html.FieldIdFor(model => model.XeId)").val();
+
+        $('#export-xml-selected-form #ThangId').val(ThangId);
+        $('#export-xml-selected-form #NamId').val(NamId);
+        $('#export-xml-selected-form #XeId').val(XeId);
+        $('#export-xml-selected-form').submit();
+    }
+    function dataSearchBaoCao() {
+        var datapost = {
+            ThangId: $("#@Html.FieldIdFor(model => model.ThangId)").val(),
+            NamId: $("#@Html.FieldIdFor(model => model.NamId)").val(),
+            XeId: $("#@Html.FieldIdFor(model => model.XeId)").val(),
+            LoaiBaoCaoId: '@Model.LoaiBaoCaoId'
+        };
+        return datapost;
+    }
+    $(document).ready(function () {
+        $('#btnSearch').click(function () {
+            //search
+            LoadBaoCao();
+            return false;
+        });
+        $('#btnExport').click(function () {
+            ExportBaoCao();
+            return false;
+        });
+        $("#@Html.FieldIdFor(model => model.NamId)").change(function () {
+            $("#btnSearch").click();
+        });
+        $("#@Html.FieldIdFor(model => model.ThangId)").change(function () {
+            $("#btnSearch").click();
+        });
+        LoadBaoCao();
+    });
+</script>

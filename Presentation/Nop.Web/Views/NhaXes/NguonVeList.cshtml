@@ -1,0 +1,194 @@
+﻿@model NguonVeListModel
+@using Nop.Web.Models.NhaXes
+@using Nop.Core.Infrastructure
+@Html.ValidationSummary(false)
+@{
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+    var defaultGridPageSize = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().DefaultGridPageSize;
+    var gridPageSizes = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().GridPageSizes;
+
+    //page title
+    ViewBag.Title = T("ChonVe.NhaXe.NguonVe.List.Title").Text;
+}
+<div class="section-header">
+    <div class="title">
+        <img src="@Url.Content("~/Content/chonve/nxmenu/hanhtrinhnguonve.png")" alt="" />
+        @T("ChonVe.NhaXe.NguonVe.List.Title")
+    </div>
+   
+</div>
+<table width="100%">
+    <tr>
+        <td class="adminTitle">
+            @Html.NopLabelFor(model => model.HanhTrinhId):
+        </td>
+        <td class="adminData">
+            @Html.DropDownListFor(model => model.HanhTrinhId, Model.HanhTrinhs)
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <input type="button" id="btnSearch" class="k-button" value="@T("Admin.Common.Search")" />
+        </td>
+    </tr>
+</table>
+<table class="adminContent">
+    <tr>
+        <td>
+            <div id="subdanhsachnguonve-grid"></div>
+
+            <script>
+                $(document).ready(function () {
+                    $('#btnSearch').click(function () {
+                        //search
+                        var grid = $('#subdanhsachnguonve-grid').data('kendoGrid');
+                        grid.dataSource.page(1);
+                        return false;
+                    });
+
+                    $("#@Html.FieldIdFor(model => model.HanhTrinhId)").change(function () {
+                        $("#btnSearch").click();
+                    });
+                  
+                    $("#subdanhsachnguonve-grid").kendoGrid({
+                        dataSource: {
+                            type: "json",
+                            transport: {
+                                read: {
+                                    url: "@Html.Raw(Url.Action("NguonVeList", "NhaXes"))",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: additionalData
+                                },
+                                update: {
+                                    url: "@Html.Raw(Url.Action("NguonVeXeUpdate", "NhaXes"))",
+                                    type: "POST",
+                                    dataType: "json"
+                                },
+                                
+                            },
+                            schema: {
+                                data: "Data",
+                                total: "Total",
+                                errors: "Errors",
+                                model: {
+                                    id: "Id",
+                                    fields: {
+                                        TenDiemDon: { editable: false, type: "string" },
+                                        TenDiemDen: { editable: false, type: "string" },
+                                        ThoiGianDi: { editable: false, type: "date" },
+                                        SoGioChay: { editable: false, type: "number" },
+                                        ThoiGianDen: { editable: false, type: "date" },
+                                        GiaVeMoi: { editable: false, type: "number" },
+                                        GiaVeMoiText: { editable: false, type: "string" },
+                                        HienThi: { editable: true, type: "boolean" },
+                                        ToWeb: { editable: true, type: "boolean" },
+                                        Id: { editable: false, type: "number" }
+                                    }
+                                }
+                            },
+                            requestEnd: function (e) {
+                                if (e.type == "create" || e.type == "update") {
+                                    this.read();
+                                }
+                            },
+                            error: function (e) {
+                                display_kendoui_grid_error(e);
+                                // Cancel the changes
+                                this.cancelChanges();
+                            },
+                            serverPaging: true,
+                            serverFiltering: true,
+                            serverSorting: true
+                        },
+                        pageable: {
+                            refresh: true,
+                            numeric: false,
+                            previousNext: false,
+                            info: false,
+                            messages: {
+                                display: "@T("Nop.Common.KendoGrid.display")", //{0} is the index of the first record on the page, {1} - index of the last record on the page, {2} is the total amount of records
+                                empty: "@T("Nop.Common.KendoGrid.Empty")",
+                                page: "@T("Nop.Common.KendoGrid.Page")",
+                                of: "@T("Nop.Common.KendoGrid.Of")", //{0} is total amount of pages
+                                itemsPerPage: "@T("Nop.Common.KendoGrid.itemsPerPage")",
+                                first: "@T("Nop.Common.KendoGrid.first")",
+                                previous: "@T("Nop.Common.KendoGrid.previous")",
+                                next: "@T("Nop.Common.KendoGrid.next")",
+                                last: "@T("Nop.Common.KendoGrid.last")",
+                                refresh: "@T("Nop.Common.KendoGrid.refresh")"
+                            }
+                        },
+                        edit: function (e) {
+                        },
+                        editable: {
+                            confirmation: "@T("Admin.Common.AreYouSure")",
+                            mode: "inline"
+                        },
+                        scrollable: false,
+                        columns: [{
+                            field: "TenDiemDon",
+                            title: "@T("ChonVe.NhaXe.VeXeKhach.DiemDonId")",
+                        }, {
+                            field: "TenDiemDen",
+                            title: "@T("ChonVe.NhaXe.VeXeKhach.DiemDenId")",
+                        }, {
+                            field: "ThoiGianDi",
+                            title: "@T("ChonVe.NhaXe.VeXeKhach.ThoiGianDi")",
+                            width: 100,
+                            type: "date",
+                            attributes: { style: "text-align:center" },
+                            format: "{0:HH:mm}"
+                        }, {
+                            field: "SoGioChay",
+                            title: "@T("ChonVe.NhaXe.VeXeKhach.SoGioChay")",
+                            width: 100,
+
+                        }, {
+                            field: "ThoiGianDen",
+                            title: "@T("ChonVe.NhaXe.VeXeKhach.ThoiGianDen")",
+                            width: 100,
+                            type: "date",
+                            attributes: { style: "text-align:center" },
+                            format: "{0:HH:mm}"
+                        }, {
+
+                            field: "GiaVeMoi",
+                            title: "@T("ChonVe.NhaXe.VeXeKhach.GiaVeMoi")",
+                            headerAttributes: { style: "text-align:right" },
+                            attributes: { style: "text-align:right" },
+                            width: 200,
+                            //integer format
+                            template: "#:GiaVeMoiText#"
+                        }, {
+                            field: "HienThi",
+                            title: "@T("ChonVe.NhaXe.VeXeKhach.HienThi")",
+                            width: 200,
+                            headerAttributes: { style: "text-align:center" },
+                            attributes: { style: "text-align:center" },
+                            template: '<img src="@Url.Content("~/Administration/Content/images/")active-#=HienThi#.gif" />'
+                        }, {
+                            field: "ToWeb",
+                            title: "Cho phép bán trên web",
+                            width: 200,
+                            headerAttributes: { style: "text-align:center" },
+                            attributes: { style: "text-align:center" },
+                            template: '<img src="@Url.Content("~/Administration/Content/images/")active-#=ToWeb#.gif" />'
+                        }, {
+                            command: [{
+                                name: "edit",
+                                text: "@T("Admin.Common.Edit")"
+                            }],
+                            width: 200
+                        }]
+                    });
+                });
+                function additionalData() {
+                    return {
+                        HanhTrinhId: $('#@Html.FieldIdFor(model => model.HanhTrinhId)').val()
+                    };
+                }
+            </script>
+        </td>
+    </tr>
+</table>

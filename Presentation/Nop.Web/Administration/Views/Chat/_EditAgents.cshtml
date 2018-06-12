@@ -1,0 +1,109 @@
+﻿@model AgentsModel
+@using Nop.Admin.Models.Chat
+@Html.ValidationSummary(false)
+@Html.HiddenFor(model => model.Id)
+<div id="agents-edit">
+    <ul>
+        <li @Html.RenderSelectedTabIndex(0, GetSelectedTabIndex())>
+            @T("Admin.ChonVe.HopDong.ThongTin")
+        </li>
+      
+    </ul>
+    <div>
+        @TabInfo()
+    </div>
+   
+</div>
+<script>
+    $(document).ready(function () {
+        $("#agents-edit").kendoTabStrip({
+            animation: {
+                open: {
+                    effects: "fadeIn"
+                }
+            },
+            select: tabstrip_on_tab_select
+        });
+    });
+</script>
+@{
+    //custom tabs
+    var eventMessage = new AdminTabStripCreated(this.Html, "agents-edit");
+    EngineContext.Current.Resolve<IEventPublisher>().Publish(eventMessage);
+    foreach (var eventBlock in eventMessage.BlocksToRender)
+    {
+        @eventBlock
+    }
+}
+
+@*save selected tab index*@
+<input type="hidden" id="selected-tab-index" name="selected-tab-index" value="@(GetSelectedTabIndex())">
+@helper TabInfo()
+{
+    <table class="adminContent">
+        
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.NickName):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.NickName)
+                @Html.ValidationMessageFor(model => model.NickName)
+            </td>
+        </tr>
+       
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.CustomerId)
+            </td>
+            <td class="adminData">
+                <input id="cbbEmail" value="@Model.Customer.Email" />
+                @Html.HiddenFor(model => model.Customer.Email)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.AvartaId):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(x => x.AvartaId)
+                @Html.ValidationMessageFor(model => model.AvartaId)
+            </td>
+        </tr>
+
+    </table>
+}
+<script>
+        $(document).ready(function () {
+            $('#cbbEmail').kendoComboBox({
+                placeholder: "Chọn nhân viên",
+                dataTextField: "Email",
+                dataValueField: "Id",
+                filter: "contains",
+                autoBind: false,
+                minLength: 3,
+                dataSource: {
+                    type: "json",
+                    serverFiltering: true,
+                    transport: {
+                        read: {
+                            url: "@Html.Raw(Url.Action("KhachHangList", "Chat"))",
+                            data: additionalData
+                        }
+                    }
+                },
+                change: onChange
+            });
+            function onChange() {
+                $("#@Html.FieldIdFor(model => model.Customer.Email)").val($('#cbbEmail').data("kendoComboBox").text());
+            }
+            function additionalData() {
+                return {
+                    Email: $('#cbbEmail').data("kendoComboBox").text()
+                };
+            }
+
+        });
+</script>
+
+

@@ -1,0 +1,28 @@
+﻿@{
+    Layout = "~/Themes/ChonVeV1/Views/Shared/_Root.Head.cshtml";
+}
+@Html.Widget("body_start_html_tag_after")
+<div class="container-fluid">
+    @Html.Action("JavaScriptDisabledWarning", "Common")
+    @*ajax loading window*@
+    <div class="ajax-loading-block-window" style="display: block">
+        <div class="loading-image">
+        </div>
+    </div>
+    <div class="row-header">
+        @Html.Partial("Header")
+    </div>
+    @*@section Top_site {
+    <div class="Menu_top_site">
+       mai moc
+    </div>
+    }*@
+   
+    <div >
+        @Html.Widget("content_before")
+        @RenderBody()
+        @Html.Widget("content_after")
+    </div>
+    @Html.Action("Footer", "Common")
+</div>
+@Html.Widget("body_end_html_tag_before")

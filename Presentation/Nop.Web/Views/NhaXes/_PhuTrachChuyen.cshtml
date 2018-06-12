@@ -1,0 +1,41 @@
+﻿@model Nop.Web.Models.VeXeKhach.XeXuatBenModel
+@Html.HiddenFor(model => model.NguonVeId)
+
+@using (Html.BeginForm("_PhuTrachChuyen", "NhaXes", FormMethod.Post))
+{
+    <div class="section-header">  
+
+    <div class="options">
+        <input type="submit" id="btnHoanTat" class="k-button" value="@T("Nop.Web.PhuTrachChuyen.HoanTat")" />
+    </div>
+</div>
+    @Html.HiddenFor(model => model.NguonVeId)
+<table width="100%">
+    <tr>
+        <td>
+            <table>
+                @for (int i = 0; i < Model.LaiXePhuXes.Count(); i++)
+                {
+                  
+                    <tr>
+                        <td>
+                            @Html.CheckBoxFor(model => model.LaiXePhuXes[i].LaiXeCheckbox)
+                            @Html.DisplayFor(model => model.LaiXePhuXes[i].TenLaiXe)
+                            @Html.HiddenFor(model => model.LaiXePhuXes[i].TenLaiXe)
+                            @Html.HiddenFor(model => model.LaiXePhuXes[i].Id)
+                        </td>
+
+                    </tr>
+                }
+            </table>
+        </td>
+        
+    </tr>
+  
+</table>
+}
+
+
+  
+   
+

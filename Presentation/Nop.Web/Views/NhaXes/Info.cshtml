@@ -1,0 +1,18 @@
+﻿@model NhaXeInfoModel
+@using Nop.Web.Models.NhaXes
+@{
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+}
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "nhaxe-form" }))
+{
+    <div class="section-header">
+        <div class="title">
+            <img src="@Url.Content("~/Content/chonve/nxmenu/nhaxeinfocontract.png")" alt="" />
+            @T("ChonVe.NhaXe.ChiTiet")
+        </div>
+        <div class="options">
+            <input type="submit" name="save" class="k-button" value="@T("Admin.Common.Save")" style="width:180px" />
+        </div>
+    </div>
+    @Html.Partial("_NhaXeChinhSua", Model)
+}

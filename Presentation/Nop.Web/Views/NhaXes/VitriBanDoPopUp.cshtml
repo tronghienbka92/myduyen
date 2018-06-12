@@ -1,0 +1,144 @@
+﻿@model DiaChiInfoModel
+@using Nop.Web.Models.NhaXes
+@{
+    Layout = "~/Administration/Views/Shared/_AdminPopupLayout.cshtml";
+}
+<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js"></script>
+<script>
+    var map;
+    var marker;
+    var geocoder = new google.maps.Geocoder();;
+    var addresspos = "";
+    var myCenter = new google.maps.LatLng(21.028385, 105.841599); //vi tri Ha Noi
+    function geocodePosition(pos) {
+        geocoder.geocode({
+            latLng: pos
+        }, function (responses) {
+            if (responses && responses.length > 0) {
+                addresspos = responses[0].formatted_address;
+            }
+            var infowindow = new google.maps.InfoWindow({
+                content: 'Địa chỉ:' + addresspos + ' <br>Latitude: ' + pos.lat() + '<br>Longitude: ' + pos.lng()
+            });
+            infowindow.open(map, marker);
+
+        });
+    }
+    function Initialize() {
+        var lat = parseFloat(document.getElementById("Latitude").value);
+        var lng = parseFloat(document.getElementById("Longitude").value);
+        if (lat == 0 || lng == 0) {
+            lat = 21.028385;
+            lng = 105.841599;
+        }
+        myCenter = new google.maps.LatLng(lat, lng);
+        geocodePosition(myCenter);
+        var myOptions =
+        {
+            zoom: 13,
+            center: myCenter,
+            mapTypeId: google.maps.MapTypeId.ROADMAP,
+            disableDefaultUI: true
+        };
+        map = new google.maps.Map(document.getElementById("googleMap"), myOptions);
+        google.maps.event.addListener(map, 'click', function (event) {
+            placeMarker(event.latLng);
+        });
+        placeMarker(myCenter);
+    }
+    function InitializeNewMap() {
+
+        var myOptions =
+        {
+            zoom: 13,
+            center: myCenter,
+            mapTypeId: google.maps.MapTypeId.ROADMAP,
+            disableDefaultUI: true
+        };
+        map = new google.maps.Map(document.getElementById("googleMap"), myOptions);
+        google.maps.event.addListener(map, 'click', function (event) {
+            placeMarker(event.latLng);
+        });
+    }
+
+
+    function placeMarker(location) {
+        if (marker != null) {
+            marker.setMap(null);
+            //setAllMap(null);
+        }
+        marker = new google.maps.Marker({
+            position: location,
+            map: map,
+        });
+        geocodePosition(location);
+
+        document.getElementById("Longitude").value = marker.getPosition().lng();
+        document.getElementById("Latitude").value = marker.getPosition().lat();
+    }
+
+    function FindLocation() {
+        //geocoder = new google.maps.Geocoder();
+        InitializeNewMap();
+
+        var address = document.getElementById("addressinput").value;
+        if (address == "")
+            address = "Hà Nội, Việt Nam";
+        geocoder.geocode({ 'address': address }, function (results, status) {
+            if (status == google.maps.GeocoderStatus.OK) {
+                map.setCenter(results[0].geometry.location);
+                addresspos = results[0].formatted_address;
+            }
+            else {
+                alert("Không tim thấy vị trí : " + status);
+            }
+        });
+
+    }
+    google.maps.event.addDomListener(window, 'load', Initialize);
+</script>
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    <fieldset>
+        <legend>DeviceInfo</legend>
+
+        <div class="editor-label">
+            Nhập thông tin vị trí
+        </div>
+        <div class="editor-field">
+            <input id="addressinput" type="text" style="width: 447px" />  <input id="Button1" type="button" value="Tìm" onclick="return FindLocation();" />
+        </div>
+        <table>
+            <tr>
+                <td>
+                    <div class="editor-label">
+                        <div id="googleMap" style="width:500px;height:380px;"></div>
+                    </div>
+                </td>
+                <td valign="top">
+                    <div class="editor-label">
+                        @Html.LabelFor(model => model.Latitude)
+                    </div>
+                    <div class="editor-field">
+                        @Html.EditorFor(model => model.Latitude)
+                        @Html.ValidationMessageFor(model => model.Latitude)
+                    </div>
+                    <div class="editor-label">
+                        @Html.LabelFor(model => model.Longitude)
+                    </div>
+                    <div class="editor-field">
+                        @Html.EditorFor(model => model.Longitude)
+                        @Html.ValidationMessageFor(model => model.Longitude)
+                    </div>
+                    <p>
+                        <input type="submit" value="Save" />
+                    </p>
+                </td>
+            </tr>
+        </table>
+
+    </fieldset>
+}
+

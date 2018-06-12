@@ -1,0 +1,20 @@
+﻿@model QuanHuyenModel
+@using Nop.Admin.Models.ChonVes 
+@{
+    //page title
+    ViewBag.Title = T("Admin.Configuration.QuanHuyen.AddNew").Text;
+}
+@using (Html.BeginForm())
+{
+    <div class="section-header">
+        <div class="title">
+            <img src="@Url.Content("~/Administration/Content/images/ico-catalog.png")" alt="" />
+            @T("Admin.Configuration.QuanHuyen.AddNew") @Html.ActionLink("(" + T("Admin.Configuration.QuanHuyen.BackToList") + ")", "List")
+        </div>
+        <div class="options">
+            <input type="submit" name="save" class="k-button" value="@T("Admin.Common.Save")" />
+            <input type="submit" name="save-continue" class="k-button" value="@T("Admin.Common.SaveContinue")" />
+        </div>
+    </div>
+    @Html.Partial("_CreateOrUpdate", Model)
+}

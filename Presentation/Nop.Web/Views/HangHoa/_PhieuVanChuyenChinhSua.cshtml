@@ -1,0 +1,143 @@
+﻿@model PhieuVanChuyenModel
+@using Nop.Web.Models.ChuyenPhatNhanh
+@{
+    String _lbcapnhat = "Tạo mới";
+    if(Model.Id>0)
+    {
+        _lbcapnhat = "Cập nhật";
+    }
+}
+<table style="width:100%">
+    <tr>
+        <td style="text-align:left;border-bottom:2px dashed #531010">
+            <table style="width:100%">
+                <tr>
+                    <td>
+                        @if (Model.Id > 0)
+                        {
+                            <h3>Sửa phiếu vận chuyển - @Model.SoLenh</h3>
+                        }
+                        else
+                        {
+                            <h3>Tạo mới phiếu vận chuyển</h3>
+                        }
+                    </td>
+                    
+                </tr>
+            </table>
+            
+        </td>
+    </tr>    
+    <tr>
+        <td>
+            <table style="width:100%" cellpadding="2" cellspacing="2">
+                <tr>
+                    <td style="text-align:left;">
+                        Loại phiếu:
+                    </td>
+                    <td>
+                        @Html.DropDownListFor(m => m.LoaiPhieuVanChuyenId, Model.loaiphieus)
+                    </td>
+                </tr>
+                <tr>
+                    <td style="width:120px;text-align:left">
+                        Số phiếu:
+                    </td>
+                    <td>
+                        @Html.EditorFor(m => m.SoLenh)
+                    </td>
+                </tr>
+
+                <tr>
+                    <td style="text-align:left;">
+                        Khu vực vận chuyển:
+                    </td>
+                    <td>
+                        @Html.DropDownListFor(m => m.KhuVucDenId, Model.khuvucdens)
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+
+                    </td>
+                    <td style="text-align:left">
+                        <input type="button" id="btnCapNhat_PVCEDIT" class="k-button" value="@_lbcapnhat" />&nbsp;&nbsp;
+                        @if (Model.Id > 0)
+                        {
+                            <input type="button" id="btnXoaPhieu_PVCEDIT" class="k-button" value="Xóa phiếu" />
+                        }
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>    
+</table>
+<script>
+    $(document).ready(function () {
+
+        $('#btnCapNhat_PVCEDIT').click(function () {
+            //kiem tra thong tin du lieu
+            if ($("#@Html.FieldIdFor(m=>m.SoLenh)").val() == "") {
+                alert("Bạn chưa nhập thông tin số phiếu vận chuyển!");
+                $("#@Html.FieldIdFor(m => m.SoLenh)").focus();
+                return;
+            }
+
+            var _data = {
+                "Id": '@Model.Id',
+                "LoaiPhieuVanChuyenId": $("#@Html.FieldIdFor(m => m.LoaiPhieuVanChuyenId)").val(),
+                "SoLenh": $("#@Html.FieldIdFor(m => m.SoLenh)").val(),
+                "KhuVucDenId": $("#@Html.FieldIdFor(m => m.KhuVucDenId)").val(),
+                "phieuchuyenphatids": '@Model.phieuchuyenphatids'
+            };
+
+            $('#btnCapNhat_PVCEDIT').prop('disabled', true);
+            $.ajax({
+                cache: false,
+                type: "POST",
+                data: _data,
+                dataType: 'json',
+                url: "@(Url.Action("_PhieuVanChuyenChinhSua", "HangHoa"))",
+                success: function (data) {
+                    CloseEditPhieuVanChuyen(data);
+                    LoadDSLenhVanChuyen();
+                    $('#btnCapNhat_PVCEDIT').prop('disabled', false);
+
+                },
+            });
+
+        });
+        $('#btnXoaPhieu_PVCEDIT').click(function () {
+            if(!confirm("Bạn có chắc chắn xóa phiếu vận chuyển này không ?"))
+                return;
+            $.ajax({
+                cache: false,
+                type: "POST",
+                data: { "Id": '@Model.Id' },
+                dataType: 'json',
+                url: "@(Url.Action("_XoaPhieuVanChuyen", "HangHoa"))",
+                success: function (data) {
+                    if (data == "OK") {
+                        alert("Xóa phiếu thành công!");
+                        
+                    }
+                    else {
+                        alert(data);
+                    }
+
+                },
+            });
+        });
+        
+    });
+
+</script>
+<style>
+    .phieuchuyenphat_border_td {
+        border: 1px solid #808080;
+    }
+     .phieuchuyenphat_tien {
+        font-weight:bold;
+        color:#531010;
+    }
+</style>

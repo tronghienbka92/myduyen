@@ -1,0 +1,15 @@
+﻿@model TimVeXeModel
+@using Nop.Web.Models.VeXeKhach
+<div class="row">
+    <div class="col-sm-4">
+        @Html.Partial("_TimVeXe", Model)
+        @Html.Partial("_TinTuc", Model)
+    </div>
+    <div class="col-sm-8">
+        @Html.Partial("_Marketing")
+        @Html.Action("TuyenVeXeTop", "VeXeKhach")
+        @Html.Partial("_Welcome")
+    </div>
+</div>
+
+

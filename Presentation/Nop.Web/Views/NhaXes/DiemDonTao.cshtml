@@ -1,0 +1,23 @@
+﻿@model DiemDonModel
+@using Nop.Web.Models.NhaXes
+@{
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+    //page title
+    ViewBag.Title = T("ChonVe.NhaXe.DiemDon.TaoMoi").Text;
+}
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "DiemDon-form" }))
+{
+   
+    <div class="section-header">
+        <div class="title">
+            <img src="@Url.Content("~/Content/chonve/nxmenu/hanhtrinhdiemdon.png")" alt="" />
+            @T("ChonVe.NhaXe.DiemDon.TaoMoi") @Html.ActionLink("(" + T("ChonVe.NhaXe.DiemDon.BackToList") + ")", "DiemDonList")
+        </div>
+        <div class="options">
+            <input type="submit" name="save" class="k-button" value="@T("Admin.Common.Save")" />
+            <input type="submit" name="save-continue" class="k-button" value="@T("Admin.Common.SaveContinue")" />
+        </div>
+    </div>
+    @Html.Partial("_DiemDonChinhSua", Model)
+}

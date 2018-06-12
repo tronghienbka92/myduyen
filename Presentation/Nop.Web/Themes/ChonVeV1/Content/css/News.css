@@ -1,0 +1,51 @@
+﻿.TitleCv {
+    color: #0041FF;
+    font-size: 18px;
+}
+
+    .TitleCv:hover {
+        color: #000;
+        text-decoration: underline;
+    }
+
+    .TitleCv:active {
+        color: #000;
+    }
+
+.CVH2 {
+    font-size: 23px;
+    border-style: outset;
+    color: rgba(11, 105, 115, 0.9);
+    text-align: center;
+    font-family: initial;
+}
+
+.current-page {
+    float: left;
+    padding: 5px;
+}
+
+.individual-page {
+    float: left;
+    padding: 5px;
+   
+}
+.individual-page a{
+     color:#0041FF;
+}
+.individual-page:hover{
+    
+     text-decoration: underline;
+}
+.next-page {
+    float: left;
+    padding: 5px;
+     
+}
+.next-page a{
+      color:#0041FF;
+}
+.next-page :hover{
+   
+     text-decoration: underline;
+}

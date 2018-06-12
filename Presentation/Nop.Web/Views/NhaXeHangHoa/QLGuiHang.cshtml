@@ -1,0 +1,197 @@
+﻿@model HoaDonListModel
+@using Nop.Web.Models.NhaXes
+@using Nop.Core.Infrastructure
+@Html.ValidationSummary(false)
+@{
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+    var defaultGridPageSize = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().DefaultGridPageSize;
+    var gridPageSizes = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().GridPageSizes;
+
+    //page title
+    ViewBag.Title = "Danh sách phiếu gửi hàng";
+}
+<div class="section-header">
+    <div class="title">
+        <img src="@Url.Content("~/Content/chonve/nxmenu/hanhtrinhlichtrinh.png")" alt="" />
+        @T("ChonVe.NhaXe.PhieuGuiHang.List.Title")
+    </div>
+    <div class="options">
+        <a class="k-button" title="Thêm mới hóa đơn gửi hàng" href="@Url.Action("PhieuGuiHangTao")">@T("Admin.Common.AddNew")</a>
+
+    </div>
+</div>
+<table width="100%">
+    <tr>
+        <td class="adminTitle">
+            @Html.NopLabelFor(model => model.MaPhieu):
+        </td>
+        <td class="adminData">
+            @Html.EditorFor(model => model.MaPhieu)
+        </td>
+    </tr>
+    <tr>
+        <td class="adminTitle">
+            @Html.NopLabelFor(model => model.TenNguoiGui):
+        </td>
+        <td class="adminData">
+            @Html.EditorFor(model => model.TenNguoiGui)
+        </td>
+    </tr>
+    <tr>
+        <td class="adminTitle">
+            @Html.NopLabelFor(model => model.NgayTao):
+        </td>
+        <td class="adminData">
+            @Html.EditorFor(model => model.NgayTao)
+        </td>
+    </tr>
+    <tr>
+        <td class="adminTitle">
+            @Html.NopLabelFor(model => model.VanPhongNhanId):
+        </td>
+        <td class="adminData">
+            @Html.DropDownListFor(model => model.VanPhongNhanId, Model.VanPhongs)
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <input type="button" id="btnSearch" class="k-button" value="@T("Admin.Common.Search")" />
+        </td>
+    </tr>
+</table>
+<table class="adminContent">
+    <tr>
+        <td>
+            <div id="danhsach-grid"></div>
+
+            <script>
+                $(document).ready(function () {
+                    $('#btnSearch').click(function () {
+                        var grid = $('#danhsach-grid').data('kendoGrid');
+                        grid.dataSource.page(1); //new search. Set page size to 1
+                        return false;
+                    });
+                    $("#@Html.FieldIdFor(model => model.TenNguoiGui)").keydown(function (event) {
+                        if (event.keyCode == 3) {
+                            $("#btnSearch").click();
+                            return false;
+                        }
+                    });
+                    $("#@Html.FieldIdFor(model => model.MaPhieu)").keydown(function (event) {
+                        if (event.keyCode == 13) {
+                            $("#btnSearch").click();
+                            return false;
+                        }
+                    });
+                    $("#@Html.FieldIdFor(model => model.NgayTao)").change(function () {
+                        $("#btnSearch").click();
+                        return false;
+                    });
+                    $("#@Html.FieldIdFor(model => model.VanPhongNhanId)").change(function () {
+                        $("#btnSearch").click();
+                        return false;
+                    });
+                    $("#danhsach-grid").kendoGrid({
+                        dataSource: {
+                            type: "json",
+                            transport: {
+                                read: {
+                                    url: "@Html.Raw(Url.Action("QLGuiHang", "NhaXeHangHoa"))",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: additionalData
+                                }
+                            },
+                            schema: {
+                                data: "Data",
+                                total: "Total",
+                                errors: "Errors"
+                            },
+                            error: function(e) {
+                                display_kendoui_grid_error(e);
+                                // Cancel the changes
+                                this.cancelChanges();
+                            },
+                            pageSize: @(defaultGridPageSize),
+                            serverPaging: true,
+                            serverFiltering: true,
+                            serverSorting: true
+                        },
+                        pageable: {
+                            refresh: true,
+                            pageSizes: [@(gridPageSizes)],
+                            messages: {
+                                display: "@T("Nop.Common.KendoGrid.display")", //{0} is the index of the first record on the page, {1} - index of the last record on the page, {2} is the total amount of records
+                                empty: "@T("Nop.Common.KendoGrid.Empty")",
+                                page: "@T("Nop.Common.KendoGrid.Page")",
+                                of: "@T("Nop.Common.KendoGrid.Of")", //{0} is total amount of pages
+                                itemsPerPage: "@T("Nop.Common.KendoGrid.itemsPerPage")",
+                                first: "@T("Nop.Common.KendoGrid.first")",
+                                previous: "@T("Nop.Common.KendoGrid.previous")",
+                                next: "@T("Nop.Common.KendoGrid.next")",
+                                last: "@T("Nop.Common.KendoGrid.last")",
+                                refresh: "@T("Nop.Common.KendoGrid.refresh")"
+                            }
+                        },
+                        editable: {
+                            confirmation: false,
+                            mode: "inline"
+                        },
+                        scrollable: false,
+                        columns: [{
+                            field: "MaPhieu",
+                            title: "Mã phiếu",
+                            template:'#="<a href=\'javascript:ChiTietPGH("+Id+")\'>"+MaPhieu+"</a>"#'
+                        }, {
+                            field: "VanPhongNhan.TenVanPhong",
+                            title: "Tên văn phòng nhận"
+                        },  {
+                            field: "NguoiGui.HoTen",
+                            title: "Tên người gửi"
+                        }, {
+                            field: "NguoiNhan.HoTen",
+                            title: "Tên người nhận"
+                        },{
+                            field: "HangHoaInfo",
+                            title: "Thông tin hàng hóa"
+                        },{
+                            field: "ThanhToan",
+                            title: "Thanh toán"
+                        },{
+                            field: "NgayTao",
+                            title: "Ngày tạo",
+                            type: "date",
+                            format: "{0:dd/MM/yyyy}"
+
+                        },  {
+                            field: "TenNguoiKiemTraHang",
+                            title: "Người kiểm tra hàng",
+
+                        },{
+                            field: "Id",
+                            title: "Phiếu",
+                            width: 100,
+                    template: '<a href="/NhaXeCauHinh/InPhieu?MaId=@((int)Nop.Core.Domain.NhaXes.ENNhaXeCauHinh.KY_GUI_PHIEU_GUI_HANG)&Id=#=Id#" class="k-button" target="_blank">In phiếu</a>'
+                },{
+                            field: "Id",
+                            title: "@T("Admin.Common.Edit")",
+                            width: 100,
+                            template: '<a href="PhieuGuiSua/#=Id#">@T("Admin.Common.Edit")</a>'
+                        }]
+                    });
+                });
+                function additionalData() {
+                    return {
+                        MaPhieu: $('#@Html.FieldIdFor(model => model.MaPhieu)').val(),
+                        TenNguoiGui: $('#@Html.FieldIdFor(model => model.TenNguoiGui)').val(),
+                        NgayTao: $('#@Html.FieldIdFor(model => model.NgayTao)').val(),
+                        VanPhongNhanId: $('#@Html.FieldIdFor(model => model.VanPhongNhanId)').val(),
+                    };
+                }
+            </script>
+
+        </td>
+    </tr>
+</table>
+
+@Html.Partial("_PhieuGuiHangWindow")

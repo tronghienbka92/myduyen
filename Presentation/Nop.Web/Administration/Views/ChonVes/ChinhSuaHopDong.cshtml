@@ -1,0 +1,89 @@
+﻿@model HopDongModel
+@using Nop.Admin.Models.ChonVes
+@Html.ValidationSummary(false)
+@Html.HiddenFor(model => model.Id)
+@Html.HiddenFor(model => model.KhachHangID)
+<div id="hopdong-edit">
+    <ul>
+        <li @Html.RenderSelectedTabIndex(0, GetSelectedTabIndex())>
+            @T("Admin.ChonVe.HopDong.ThongTin")
+        </li>
+      
+    </ul>
+    <div>
+        @TabInfo()
+    </div>
+   
+</div>
+<script>
+    $(document).ready(function () {
+        $("#hopdong-edit").kendoTabStrip({
+            animation: {
+                open: {
+                    effects: "fadeIn"
+                }
+            },
+            select: tabstrip_on_tab_select
+        });
+    });
+</script>
+@{
+    //custom tabs
+    var eventMessage = new AdminTabStripCreated(this.Html, "hopdong-edit");
+    EngineContext.Current.Resolve<IEventPublisher>().Publish(eventMessage);
+    foreach (var eventBlock in eventMessage.BlocksToRender)
+    {
+        @eventBlock
+    }
+}
+
+@*save selected tab index*@
+<input type="hidden" id="selected-tab-index" name="selected-tab-index" value="@(GetSelectedTabIndex())">
+@helper TabInfo()
+{
+    <table class="adminContent">
+        
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.TenHopDong):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.TenHopDong)
+                @Html.ValidationMessageFor(model => model.TenHopDong)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.LoaiHopDongID):
+            </td>
+            <td class="adminData">
+                @Html.DropDownListFor(model => model.LoaiHopDongID, Model.ListLoaiHopDong)
+                @Html.ValidationMessageFor(model => model.LoaiHopDongID)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.NhaXeID):
+            </td>
+            <td class="adminData">
+                @Html.DropDownListFor(model => model.NhaXeID, Model.ListNhaXe)
+                @Html.ValidationMessageFor(model => model.NhaXeID)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.ThongTin):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(x => x.ThongTin, "RichEditor")
+                @Html.ValidationMessageFor(model => model.ThongTin)
+            </td>
+        </tr>
+
+    </table>
+}
+
+   
+
+
+}

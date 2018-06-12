@@ -1,0 +1,199 @@
+﻿@model BaoCaoNhaXeModel
+@using Nop.Web.Models.NhaXes
+@using Nop.Core.Domain.NhaXes
+@using Nop.Core.Infrastructure
+@{
+
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+    var defaultGridPageSize = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().DefaultGridPageSize;
+    var gridPageSizes = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().GridPageSizes;
+    var titlepage = "Thống kê doanh thu theo thời gian";
+}
+<div class="section-header">
+    <div class="title">
+        <img src="@Url.Content("~/Content/chonve/nxmenu/baocaodoanhthu.png")" alt="" />
+        @titlepage
+    </div>
+</div>
+<table style="width:100%">
+    <tr>
+        <td align="center" width="15%">
+            <table class="adminContent">
+                <tr>
+                    <td class="adminTitle" style="text-align:right">
+                        @T("chonve.menu.nhaxe.baocao.ListLoai"):
+                    </td>
+                    <td class="adminData">
+                        @Html.DropDownListFor(model => model.Loai1Id, Model.ListLoai1)
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td align="center" width="15%" id="tabThang">
+            <table class="adminContent">
+                <tr>
+                    <td class="adminTitle" style="text-align:right">
+                        @T("common.month"):
+                    </td>
+                    <td class="adminData">
+                        @Html.DropDownListFor(model => model.ThangId, Model.ListMonth)
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td align="center" width="15%" id="tabNam">
+            <table class="adminContent">
+                <tr>
+                    <td class="adminTitle" style="text-align:right">
+                        @T("common.year"):
+                    </td>
+                    <td class="adminData">
+                        @Html.DropDownListFor(model => model.NamId, Model.ListYear)
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td style="text-align:right">
+            <input type="button" id="btnSearch" class="k-button" value="@T("Admin.Common.Search")" />
+        </td>
+    </tr>
+</table>
+<script>
+    $(document).ready(function () {
+        $('#btnSearch').click(function () {
+            //search
+            createChart();
+            return false;
+        });
+        $("#@Html.FieldIdFor(model => model.Loai1Id)").change(function () {
+            switch ($(this[this.selectedIndex]).val()) {
+                case "@((int)ENBaoCaoChuKyThoiGian.HangNam)":
+                    {
+                        $("#tabThang").hide();
+                        $("#tabNam").hide();
+                        break;
+                    }
+                case "@((int)ENBaoCaoChuKyThoiGian.HangThang)":
+                    {
+                        $("#tabThang").hide();
+                        $("#tabNam").show();
+                        break;
+                    }
+                case "@((int)ENBaoCaoChuKyThoiGian.HangNgay)":
+                    {
+                        $("#tabThang").show();
+                        $("#tabNam").show();
+                        break;
+                    }
+            }
+            $("#btnSearch").click();
+        });
+        $("#@Html.FieldIdFor(model => model.NamId)").change(function () {
+            $("#btnSearch").click();
+        });
+        $("#@Html.FieldIdFor(model => model.ThangId)").change(function () {
+            $("#btnSearch").click();
+        });
+    });
+</script>
+<table class="adminContent">
+    <tr>
+        <td>
+            <div id="ThongKe_chart" style="height:450px">
+            </div>
+            <script>
+
+                function createChart() {
+
+                    $("#ThongKe_chart").kendoChart({
+                        dataSource: {
+                            type: "json",
+                            transport: {
+                                read: {
+                                    url: "@Html.Raw(Url.Action("BieuDoDoanhThu", "NhaXeBaoCao"))",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: additionalData
+                                }
+                            },
+                            error: function (e) {
+                                alert(e);
+                                // Cancel the changes
+                                this.cancelChanges();
+                            }
+                        },
+                        title: {
+                            text: "@titlepage"
+                        },
+                        legend: {
+                            position: "top",
+                            labels: {
+                                template: "#= text # (Tổng: #=getSumdata(series) #)"
+                            }
+                        },
+                        seriesDefaults: {
+                            type: "column"
+                        },
+                        series:
+                        [{
+                            field: "GiaTri",
+                            labels: {
+                                format: "{0:N0} đ",
+                                position: "center",
+                                visible: true,
+                                background: "transparent"
+                            },
+                            name: "Doanh thu"
+                        },
+                        {
+                            type: "line",
+                            field: "SoLuong",
+                            name: "Lượng vé",
+                            axis: "LV",
+                            labels: {
+                                format: "N0",
+                                visible: true,
+                                background: "transparent",
+                                position: "bottom",
+                            }
+
+                        }],
+                        valueAxes: [{
+                            title: { text: "Doanh thu (VNĐ)" },
+                            labels: {
+                                format: "{0:N0}"
+                            }
+                        }, {
+                            name: "LV",
+                            title: { text: "Lượng vé" },
+                            labels: {
+                                format: "N0"
+                            }
+                        }],
+                        categoryAxis: {
+                            field: "Nhan",
+                            majorGridLines: {
+                                visible: false
+                            },
+                            axisCrossingValues: [0, 100]
+                        }
+                    });
+
+
+
+                }
+                function additionalData() {
+                    return {
+                        Loai1Id: $('#@Html.FieldIdFor(model => model.Loai1Id)').val(),
+                        ThangId: $('#@Html.FieldIdFor(model => model.ThangId)').val(),
+                        NamId: $('#@Html.FieldIdFor(model => model.NamId)').val(),
+
+                    };
+                }
+                $(document).ready(createChart);
+                $(document).bind("kendo:skinChange", createChart);
+            </script>
+          
+        </td>
+    </tr>
+</table>

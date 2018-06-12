@@ -1,0 +1,337 @@
+﻿@model XeXuatBenInforModel
+@using Nop.Web.Models.NhaXes
+@using Nop.Core.Domain.Chonves
+@using Nop.Core.Domain.NhaXes;
+@Html.HiddenFor(m => m.NgayDi, new { @id = "hidngaydi" })
+
+<h3> Tuyến gần đây</h3>
+<div>
+    @DanhSachXe(Model.NguonVeTop)
+</div>
+<h3> Tất cả các tuyến</h3>
+<div>
+    @DanhSachXe(Model.NguonVeAll)
+</div>
+@helper DanhSachXe(List<XeXuatBenItemModel> items)
+{
+    <table id="BangDanhSach">
+        <thead>
+            <tr>
+                <td>STT  </td>
+                <td>Tuyến xe </td>
+                <td>Ngày đi  </td>
+                <td>Giờ xuất phát  </td>
+                <td>Giờ dự kiến đến  </td>
+                <td>Trạng thái</td>
+                <td style="width:120px">Biển số</td>
+                <td style="width:270px">Lái xe</td>
+                <td style="width:270px">Phụ xe</td>
+                <td></td>
+                <td></td>
+                <td>Nhật ký</td>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < items.Count(); i++)
+            {
+                int laixeid = 0, phuxeid = 0, biensoid = 0;
+                string _nodisplayclass = "khonghienthi";
+                if (items[i].Id > 0)
+                {
+                    _nodisplayclass = "";
+                    if (items[i].laivaphuxes.Count > 0)
+                    {
+                        laixeid = items[i].laivaphuxes[0].Id;
+                    }
+                    if (items[i].laivaphuxes.Count > 1)
+                    {
+                        phuxeid = items[i].laivaphuxes[1].Id;
+                    }
+                    biensoid = items[i].XeVanChuyenId;
+                }
+
+                var _class = "";
+                if (i % 2 == 0)
+                {
+                    _class = "RowColor";
+                }
+                <tr class="@_class">
+                    <td>
+                        @(i + 1)
+                    </td>
+                    <td>
+                        @items[i].TuyenXeChay
+                    </td>
+                    <td>
+                        @items[i].NgayDi.ToString("dd-MM-yyyy")
+                    </td>
+                    <td>
+                        @items[i].GioDi
+                    </td>
+                    <td>
+                        @items[i].GioDen
+                    </td>
+                    <td>
+                        <span id="sptrangthai_@items[i].NguonVeId">
+                            @items[i].TrangThaiText
+                            @if (items[i].isEdit && items[i].Id > 0)
+                            {
+                                <br />
+                                <a href="javascript:KetThucChuyenDi(@items[i].Id , @items[i].NguonVeId)">Kết thúc</a>
+                            }
+                        </span>
+                    </td>
+                    <td>
+                        <input name="CBBXe" id="cbbBienSo_@items[i].NguonVeId" style="width:100%" value_dataid="@biensoid" />
+                    </td>
+                    <td>
+                        <input name="CBBNhanVien" id="cbbLaiXe_@items[i].NguonVeId" style="width:100%" value_dataid="@laixeid" />
+                    </td>
+                    <td>
+                        <input name="CBBNhanVien" id="cbbPhuXe_@items[i].NguonVeId" style="width:100%" value_dataid="@phuxeid" />
+                    </td>
+
+                    <td>
+                        <div id="actionedit_@items[i].NguonVeId" style="width:100%;text-align:center;margin:3px;">
+                            @if (items[i].isEdit)
+                            {
+                                <text>
+                                    <a href="javascript:LuuThongTin(@items[i].NguonVeId,@items[i].Id)" class="k-button"><img src="~/Content/chonve/nhaxe/edit_action.png" /></a>&nbsp; &nbsp;
+                                    <span class="@_nodisplayclass" id="lnkhuyechuyen_@items[i].Id"><a class="k-button" href="javascript:HuyChuyenDi(@items[i].Id , @items[i].NguonVeId)"><img src="~/Content/chonve/nhaxe/cancel_action.png" /></a></span>
+                                </text>
+                            }
+                        </div>
+                    </td>
+                    <td>
+                        <a href="PrinfPhoiVe?Id=@items[i].Id" class="k-button" target="_blank">In phơi vé</a>
+                        <a href='/NhaXeCauHinh/InPhieu?MaId=@((int)Nop.Core.Domain.NhaXes.ENNhaXeCauHinh.KY_GUI_MAU_HANG_HOA_XUAT_BEN)&id=@items[i].Id' class='k-button' target='_blank'>Lệnh hàng hóa</a>
+                    </td>
+                    <td>
+                        <span class="@_nodisplayclass" id="lnkxemnhatky_@items[i].NguonVeId"><a href="javascript:XemNhatKy(@items[i].Id)">Xem nhật ký</a></span>
+                        <span id="noghichu_@items[i].NguonVeId">
+                            @if (items[i].Id == 0)
+                            {
+                                <text>
+                                    Không có thông tin
+                                </text>
+                            }
+                        </span>
+                    </td>
+                </tr>
+            }
+
+        </tbody>
+    </table>
+
+}
+<div id="divNhatKy"></div>
+<script>
+
+    $(document).ready(function () {
+
+        ThongTinBienSo();
+        ThongTinLaiPhuXe();
+
+
+    });
+    function KetThucChuyenDi(Id, NguonVeId)
+    {
+        if (!confirm("Bạn có chắc chắn không, hệ thống không cho phép bạn sửa thông tin sau khi kết thúc chuyến đi ?"))
+            return;
+        $.ajax({
+            cache: false,
+            type: "POST",
+            data: { Id: Id,TrangThaiId:@((int)ENTrangThaiXeXuatBen.KET_THUC) },
+            dataType: 'json',
+            url: "@(Url.Action("CapNhatTrangThaiXeXuatBen", "NhaXes"))",
+            success: function (data) {
+                if (data == "OK") {
+                    $('#sptrangthai_' + NguonVeId).html("Kết thúc");
+                    $('#actionedit_' + NguonVeId).hide();
+
+                }
+                else {
+                    alert("Không có xe xuất bến");
+                }
+
+            },
+        });
+    }
+    function XemNhatKy(Id)
+    {
+
+        var windownhatky = $("#divNhatKy");
+        windownhatky.html("");
+
+        windownhatky.kendoWindow({
+            modal: true,
+            width: "500px",
+            height:"350px",
+            title: "Nhật ký chuyến đi",
+            content: "@(Url.Action("_NhatKyXeXuatBen", "NhaXes"))" + "?Id=" + Id,
+            actions: ["Close"]
+        });
+
+        windownhatky.data('kendoWindow').center().open();
+    }
+    function LuuThongTin(NguonVeId,ChuyenId)
+    {
+        var _laixeid = $('#cbbLaiXe_' + NguonVeId).data("kendoComboBox").value();
+        var _phuxexeid = $('#cbbPhuXe_' + NguonVeId).data("kendoComboBox").value();
+        var _biensoxeid = $('#cbbBienSo_' + NguonVeId).data("kendoComboBox").value();
+        if (_biensoxeid=="") {
+            alert("Bạn chưa chọn biển số xe");
+            $("#cbbBienSo_" + NguonVeId).data("kendoComboBox").input.focus();
+            return;
+        }
+        if (_laixeid == "") {
+            alert("Bạn chưa chọn lái xe");
+            $("#cbbLaiXe_" + NguonVeId).data("kendoComboBox").input.focus();
+            return;
+        }
+
+
+
+        var laiphuxeids = _laixeid;
+        if (_phuxexeid != "")
+            laiphuxeids = laiphuxeids + "," + _phuxexeid;
+        var NgayXuatBen = $('#hidngaydi').val();
+        var _data={ "laiphuxeids": laiphuxeids, "XeVanChuyenId": _biensoxeid, "NgayXuatBen": NgayXuatBen, "NguonVeId": NguonVeId,"TrangThaiId":@((int)ENTrangThaiXeXuatBen.CHO_XUAT_BEN),"ChuyenDiId":ChuyenId };
+        $.ajax({
+            cache: false,
+            type: "POST",
+            data: _data,
+            dataType: 'json',
+            url: "@(Url.Action("AddLaiXeHoacPhuXe", "NhaXes"))",
+            success: function (data) {
+                if (data) {
+                    //hien thi ket qua
+                    $('#noghichu_' + NguonVeId).hide();
+                    $('#sptrangthai_' + NguonVeId).html(data.TrangThaiText+"<br /><a href='javascript:KetThucChuyenDi(" + data.Id + ","+data.NguonVeId+")'>Kết thúc</a>");
+                    $('#lnkxemnhatky_' + NguonVeId).removeClass("khonghienthi");
+                    $('#lnkxemnhatky_' + NguonVeId).html("<a href='javascript:XemNhatKy(" + data.Id + ")'>Xem nhật ký</a>");
+                    $('#lnkhuyechuyen_' + NguonVeId).removeClass("khonghienthi");
+                    $('#lnkhuyechuyen_' + NguonVeId).html("<a class='k-button' href='javascript:HuyChuyenDi(" + data.Id + ","+data.NguonVeId+")'><img src='/Content/chonve/nhaxe/cancel_action.png' /></a>");
+                }
+                else {
+                    alert("Có lỗi");
+                }
+
+            },
+        });
+    }
+    function HuyChuyenDi(Id, NguonVeId) {
+        if (!confirm("Bạn có chắc chắn hủy chuyến đi này không ?"))
+            return;
+        $.ajax({
+            cache: false,
+            type: "POST",
+            data: { Id: Id,TrangThaiId:@((int)ENTrangThaiXeXuatBen.HUY) },
+            dataType: 'json',
+            url: "@(Url.Action("CapNhatTrangThaiXeXuatBen", "NhaXes"))",
+            success: function (data) {
+                if (data == "OK") {
+                    $('#noghichu_' + NguonVeId).show();
+                    $('#noghichu_' + NguonVeId).html("Không có thông tin");
+                    $('#sptrangthai_' + NguonVeId).html("");
+                    $('#lnkxemnhatky_' + NguonVeId).addClass("khonghienthi");
+                    $('#lnkxemnhatky_' + NguonVeId).html("");
+                    $('#lnkhuyechuyen_' + NguonVeId).addClass("khonghienthi");
+                    $('#lnkhuyechuyen_' + NguonVeId).html("");
+                    $('#cbbLaiXe_' + NguonVeId).data("kendoComboBox").value("");
+                    $('#cbbPhuXe_' + NguonVeId).data("kendoComboBox").value("");
+                    $('#cbbBienSo_' + NguonVeId).data("kendoComboBox").value("");
+
+                }
+                else {
+                    alert("Không có xe xuất bến");
+                }
+
+            },
+        });
+
+    }
+
+    function ThongTinLaiPhuXe() {
+
+        $("input[name='CBBNhanVien']").each(function () {
+            var _dataid = parseInt($(this).attr('value_dataid'));
+            $(this).kendoComboBox({
+                placeholder: "Chọn lái hoặc phụ xe",
+                dataTextField: "TenLaiXe",
+                dataValueField: "Id",
+                filter: "contains",
+                autoBind: false,
+                minLength: 1,
+                dataSource: {
+                    data: laiphuxedatasoures
+                },
+                change: function (e) {
+                    //var value = this.value();
+                    //input.value = value;
+                }
+            });
+            //thay doi du lieu neu co
+            if (_dataid>0)
+                $(this).data("kendoComboBox").value(_dataid);
+
+        });
+
+
+    }
+    function ThongTinBienSo() {
+
+        $("input[name='CBBXe']").each(function () {
+            var _dataid = parseInt($(this).attr('value_dataid'));
+            $(this).kendoComboBox({
+                placeholder: "Chọn biển số",
+                dataTextField: "BienSo",
+                dataValueField: "Id",
+                filter: "contains",
+                autoBind: false,
+                minLength: 1,
+                dataSource: {
+                    data: xevanchuyendatasoures
+                },
+                change: function (e) {
+                    //var value = this.value();
+                    //input.value = value;
+                }
+            });
+            if (_dataid > 0)
+                $(this).data("kendoComboBox").value(_dataid);
+        });
+    }
+</script>
+<style>
+    h3 {
+        text-align: center;
+    }
+
+    .RowColor {
+        background-color: #f5f5f5;
+    }
+
+    #BangDanhSach {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        #BangDanhSach thead {
+            font-weight: 700;
+            text-align: center;
+        }
+
+        #BangDanhSach, #BangDanhSach tr, #BangDanhSach tr td {
+            border: 1px solid #cccccc;
+            text-align: center;
+        }
+
+            #BangDanhSach tr {
+                height: 45px;
+            }
+
+    .khonghienthi {
+        display: none;
+    }
+</style>

@@ -1,0 +1,320 @@
+﻿@model ListVeXeItemModel
+
+@{
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+    ViewBag.Title = "Danh sách vé xe";
+}
+
+<div class="section-header">
+    <div class="title">
+        <img src="@Url.Content("~/Content/chonve/nxmenu/phoive.png")" alt="" />
+        @ViewBag.Title
+    </div>
+    <div class="options">
+        <button id="btnChuyenTrangThaiChuaSuDung" class="k-button">Chuyển trạng thái đã bán nhưng chưa gắn chuyến(Vé quầy)</button>&nbsp;&nbsp;  
+        <button id="btnChuyenTrangThai" class="k-button">Chuyển trạng thái chưa bán(Vé trên xe)</button>&nbsp;&nbsp;        
+        <button id="btnXoaVe" class="k-button">Xóa vé (Vé chưa bàn giao)</button>
+        <script>
+            function showProgessData() {
+                $('.throbber-header').html("Đang xử lý dữ liệu...");
+                $(".throbber").show();
+                $('#btnChuyenTrangThai').hide();
+                $('#btnXoaVe').hide();
+
+            }
+            function hideProgessData() {
+                $(".throbber").hide();
+                $('#btnChuyenTrangThai').show();
+                $('#btnXoaVe').show();
+            }
+            $(document).ready(function () {
+                $('#btnChuyenTrangThaiChuaSuDung').click(function () {
+                    if (!confirm("Bạn có chắc chắn chuyển vé đã chọn sang trạng thái đã bán(chưa sử dụng) không? "))
+                        return false;
+                    showProgessData();
+                    var _ids = getIdSelected();
+                    var _data = {
+                        VeXeIds: _ids
+                    };
+                    $.ajax({
+                        cache: false,
+                        type: "POST",
+                        url: "/GiaoDichKeVe/ChuyenTrangThaiDaBan",
+                        data: _data,
+                        success: function (data) {
+                            $('#btnSearch').click();
+                            hideProgessData();
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            alert('Có lỗi trong quá trình xử lý');
+                        }
+                    });
+                    return false;
+                });
+                $('#btnChuyenTrangThai').click(function () {
+                    if (!confirm("Bạn có chắc chắn chuyển vé đã chọn sang trạng thái chưa bán không? "))
+                        return false;
+                    showProgessData();
+                    var _ids = getIdSelected();                    
+                    var _data = {
+                        VeXeIds: _ids
+                    };
+                    $.ajax({
+                        cache: false,
+                        type: "POST",
+                        url: "/GiaoDichKeVe/ChuyenTrangThaiChuaBan",
+                        data: _data,
+                        success: function (data) {
+                            $('#btnSearch').click();
+                            hideProgessData();
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            alert('Có lỗi trong quá trình xử lý');
+                        }
+                    });
+                    return false;
+                });
+                $('#btnXoaVe').click(function () {
+                    if (!confirm("Bạn có chắc chắn xóa vé đã chọn không? "))
+                        return false;
+                    showProgessData();
+                    var _ids = getIdSelected();                    
+                    var  _data= {
+                        VeXeIds: _ids
+                    };
+                    $.ajax({
+                        cache: false,
+                        type: "POST",
+                        url: "/GiaoDichKeVe/XoaVeXe",
+                        data: _data,
+                        success: function (data) {
+                            $('#btnSearch').click();
+                            hideProgessData();
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            alert('Có lỗi trong quá trình xử lý');
+                        }
+                    });
+                    return false;
+                });
+            });
+        </script>
+    </div>
+</div>
+<table style="width:100%;margin-bottom:15px">
+    <tr>
+        <td style="width:10%">
+            @Html.DropDownListFor(model => model.LoaiVeId, Model.ddlLoaiVes)
+        </td>
+        <td style="width:20%">
+            @Html.DropDownListFor(model => model.VanPhongId, Model.dllVanPhongs)
+        </td>
+        <td style="width:15%">
+            <input id="cbbSearchNguoiNhan" style="width:280px" />
+            @Html.HiddenFor(model => model.NguoiNhanId)
+            <script>
+                $(document).ready(function () {
+                    function dataSearchNguoiNhan() {
+                        var _hovaten = $('#cbbSearchNguoiNhan').data("kendoComboBox").text();
+                        return {
+                            SearchKhachhang: _hovaten
+                        };
+                    }
+                    $('#cbbSearchNguoiNhan').kendoComboBox({
+                        placeholder: "Tên người nhận",
+                        dataTextField: "HoTen",
+                        dataValueField: "Id",
+                        filter: "contains",
+                        autoBind: false,
+                        minLength: 2,
+                        dataSource: {
+                            type: "json",
+                            serverFiltering: true,
+                            transport: {
+                                read: {
+                                    url: "@Html.Raw(Url.Action("CBBNhanVienNhanVe", "GiaoDichKeVe"))",
+                                    data: dataSearchNguoiNhan
+                                }
+                            }
+                        },
+                        change: onChangeNhan
+                    });
+                    function onChangeNhan(e) {
+                        //alert(e.index);
+                        var DataItem = this.dataItem();
+                        $("#@Html.FieldIdFor(model => model.NguoiNhanId)").val(DataItem.Id);
+
+                    }
+                });
+            </script>
+
+        </td>
+        <td style="width:10%">
+            @Html.DropDownListFor(model => model.MauVeId, Model.ddlmauves)
+        </td>
+        <td style="width:10%">
+            @Html.DropDownListFor(model => model.TrangThaiId, Model.dlltrangthais)
+        </td>
+        <td style="width:25%">
+            @Html.TextBoxFor(model => model.ThongTin, new {@style="width:250px", placeholder = "Seri vé: 0071600 hoặc 0071600-0071699" })
+        </td>       
+        <td>
+            <input type="button" id="btnSearch" class="k-button" value="@T("Admin.Common.Search")" />
+        </td>
+    </tr>
+</table>
+
+<table class="adminContent">
+    <tr>
+        <td>
+            <div id="gridlist"></div>
+
+            <script>
+    $(document).ready(function () {
+        $('#btnSearch').click(function () {
+            var grid = $('#gridlist').data('kendoGrid');
+            grid.dataSource.read();
+            return false;
+        });
+        
+        $("#gridlist").kendoGrid({
+            dataSource: {
+                type: "json",
+                transport: {
+                    read: {
+                        url: "/GiaoDichKeVe/ListVeXeItem",
+                        type: "POST",
+                        dataType: "json",
+                        data: additionalData
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors"
+                },
+                error: function (e) {
+                    display_kendoui_grid_error(e);
+                    // Cancel the changes
+                    this.cancelChanges();
+                },
+                serverPaging: false,
+                serverFiltering: false,
+                serverSorting: false
+            },
+
+            scrollable: false,
+            dataBound: function () {
+                $('#ckbVexeIdAll').click(function (e) {
+                    var _check = $(this).is(':checked');
+                    $('.ckbvexeitem').each(function () {
+                        //set checked based on if current checkbox's value is in selectedIds.
+                        $(this).prop("checked", _check);
+                        //$(this).attr('checked', checked > -1);
+                    });
+                });
+            },
+            columns: [
+                      {
+                          title: "Mẫu & ký hiệu", width: "150px",
+                          attributes: {
+                              style: "text-align: center;"
+                          },
+                          headerAttributes: { style: "text-align: center;" },
+                          template: '#=MauVe+"-"+KyHieu#',
+                      },
+                       {
+                           field: "SoSeri", title: "Serial", width: "90px",
+                           attributes: {
+                               style: "text-align: center;"
+                           },
+                           headerAttributes: { style: "text-align: center;" }
+                       },
+                       {
+                           field: "TenNhanVien", title: "Nhân viên", width: "120px",
+                           attributes: {
+                               style: "text-align: center;"
+                           },
+                           headerAttributes: { style: "text-align: center;" }
+                       },
+                      {
+                          field: "NgayTao",
+                          title: "Ngày tạo",
+                          type: "date",
+                          attributes: { style: "text-align:center" },
+                          headerAttributes: { style: "text-align: center;" },
+                          format: "{0:dd/MM/yyyy HH:mm}",
+                          width:120
+
+                      },
+                      {
+                          field: "TrangThaiText", title: "Trạng thái",
+                          headerAttributes: { style: "text-align: center;" },
+                          attributes: { style: "text-align:center" },
+                          width: 120
+
+                      },
+                      {
+                          field: "MenhGia", title: "Mệnh giá",
+                          headerAttributes: { style: "text-align: center;" },
+                          attributes: { style: "text-align:center" },
+                          format: "{0:###,###,##0 đ}",
+                          width: 90
+                      },
+                      {
+                          field: "ThongTinXuatBen", title: "Ghi chú",
+                          headerAttributes: { style: "text-align: center;" },
+                          attributes: { style: "text-align:center" },
+                          
+
+                      },
+                      {
+                          title: "<input id='ckbVexeIdAll' type='checkbox' />",
+                          headerAttributes: { style: "text-align: center;" },
+                          attributes: { style: "text-align:center" },
+                          template: '<input class=\'ckbvexeitem\' type=\'checkbox\' data_id=\'#=Id#\' />',
+                          width:50
+                      }
+            ]
+        });
+
+
+    });
+
+    function additionalData() {
+        var data =
+        {
+            LoaiVeId: $('#@Html.FieldIdFor(model => model.LoaiVeId)').val(),
+            VanPhongId: $('#@Html.FieldIdFor(model => model.VanPhongId)').val(),
+            NguoiNhanId: $('#@Html.FieldIdFor(model => model.NguoiNhanId)').val(),
+            MauVeId: $('#@Html.FieldIdFor(model => model.MauVeId)').val(),
+            TrangThaiId: $('#@Html.FieldIdFor(model => model.TrangThaiId)').val(),
+            ThongTin: $('#@Html.FieldIdFor(model => model.ThongTin)').val(),
+            NumRow:100
+        };
+        //addAntiForgeryToken(data);
+        return data;
+    }
+                function getIdSelected()
+                {
+                    var ids = "";
+                    $('.ckbvexeitem').each(function () {
+                        //set checked based on if current checkbox's value is in selectedIds.
+                        var _check = $(this).is(':checked');
+                        var _id = $(this).attr('data_id');
+                        if(_check)
+                        {
+                            if (ids == "")
+                                ids = _id;
+                            else
+                                ids =ids+","+ _id;
+                        }
+                        
+                    });
+                    return ids;
+                   
+                }
+            </script>
+        </td>
+    </tr>
+</table>

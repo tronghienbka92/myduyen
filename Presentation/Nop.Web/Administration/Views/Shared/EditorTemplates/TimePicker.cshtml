@@ -1,0 +1,12 @@
+@using System.Globalization
+@model DateTime
+@{
+        
+}
+<input id="@ViewData.TemplateInfo.GetFullHtmlFieldId(string.Empty)" name="@ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty)" value="@((Model > DateTime.MinValue ? Model : DateTime.Today).ToString("hh:mm tt"))" />
+<script>
+    $(document).ready(function () {
+        
+        $("#@ViewData.TemplateInfo.GetFullHtmlFieldId(string.Empty)").kendoTimePicker({ format: "hh:mm tt", culture: "vi-VN" });
+    });
+</script>

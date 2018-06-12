@@ -1,0 +1,12 @@
+﻿@model LoaiXeModel.SoDoGheXeModel
+@using Nop.Web.Models.NhaXes
+@using Nop.Core.Domain.Chonves
+@using Nop.Core.Domain.NhaXes;
+@if(Model.PhanLoai==ENPhanLoaiPhoiVe.IN_PHOI_VE)
+{
+     @Html.Partial("_GetInfoSoDoGheXeToInPhoi", Model)
+}
+else
+{
+     @Html.Partial("_GetInfoSoDoGheXeToDatVe", Model)
+}

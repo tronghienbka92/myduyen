@@ -1,0 +1,10 @@
+E:\chonve\My duyen\MyDuyen\MyDuyen\Plugins\Nop.Plugin.NhaXeAPI\obj\Debug\Nop.Plugin.NhaXeAPI.csprojResolveAssemblyReference.cache
+E:\chonve\My duyen\MyDuyen\MyDuyen\Presentation\Nop.Web\Plugins\NhaXeAPI\Description.txt
+E:\chonve\My duyen\MyDuyen\MyDuyen\Presentation\Nop.Web\Plugins\NhaXeAPI\web.config
+E:\chonve\My duyen\MyDuyen\MyDuyen\Presentation\Nop.Web\Plugins\NhaXeAPI\logo.jpg
+E:\chonve\My duyen\MyDuyen\MyDuyen\Presentation\Nop.Web\Plugins\NhaXeAPI\Views\Configure.cshtml
+E:\chonve\My duyen\MyDuyen\MyDuyen\Presentation\Nop.Web\Plugins\NhaXeAPI\Nop.Plugin.NhaXeAPI.dll.config
+E:\chonve\My duyen\MyDuyen\MyDuyen\Presentation\Nop.Web\Plugins\NhaXeAPI\Nop.Plugin.NhaXeAPI.dll
+E:\chonve\My duyen\MyDuyen\MyDuyen\Presentation\Nop.Web\Plugins\NhaXeAPI\Nop.Plugin.NhaXeAPI.pdb
+E:\chonve\My duyen\MyDuyen\MyDuyen\Plugins\Nop.Plugin.NhaXeAPI\obj\Debug\Nop.Plugin.NhaXeAPI.dll
+E:\chonve\My duyen\MyDuyen\MyDuyen\Plugins\Nop.Plugin.NhaXeAPI\obj\Debug\Nop.Plugin.NhaXeAPI.pdb

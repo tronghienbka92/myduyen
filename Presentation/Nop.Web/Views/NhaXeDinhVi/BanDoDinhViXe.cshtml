@@ -1,0 +1,155 @@
+﻿@model BanDoDinhViXeModel
+@using Nop.Core.Infrastructure
+@using Nop.Core.Domain.Chonves
+@{
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+    
+
+}
+<style>
+    /*#current_sodoghexe_quytac{
+        width:700px;
+        height:600px;
+    }*/
+</style>
+<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js"></script>
+<div class="section-header">
+    <div class="title">
+        <img src="@Url.Content("~/Content/chonve/nxmenu/phoive.png")" alt="" />
+        Bản đồ định vị xe
+    </div>
+    <div class="options">
+        @Html.TextBoxFor(m=>m.ThongTinChuyen,new {placeholder="Biển số xe, tên lái, phụ xe...", style="width:350px"})
+        <input type="button" class="k-button" value="Tìm kiếm" id="btnTimKiem" />
+    </div>
+</div>
+  <script>
+      function XeInfo(id,marker)
+      {
+          this.Id=id;
+          this.Marker = marker;
+         
+      }
+      var arrmarker = [];
+      var map;      
+      $(document).ready(function () {
+          
+          GetArrayXeInfo();
+          var SetTimeLocate = setInterval(function () {
+              MoveMarker();
+
+          }, 5000);
+          $('#btnTimKiem').click(function () {
+              GetArrayXeInfo();
+          });
+       
+    });
+
+    function GetArrayXeInfo() {
+        var _thongtin = $('#@Html.FieldIdFor(m=>m.ThongTinChuyen)').val();
+        _thongtin = encodeURI(_thongtin);
+        $.ajax({
+            cache: false,
+            type: "GET",
+            url: "@(Url.Action("GetListXeInfo", "NhaXeDinhVi"))?ThongTin=" + _thongtin,
+            dataType: 'json',
+            success: function (data) {
+                MapGoogleInitialize(data);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+
+            }
+        });
+    }
+    function MapGoogleInitialize(data) {       
+        map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 5,
+            center: new google.maps.LatLng(16, 107),
+
+        });
+       
+        $.each(data, function (id, option) {
+           
+            var image = '/Content/chonve/icon/ico_bus24.png';
+            var latLng = new google.maps.LatLng( option.Latitude,
+                option.Longitude);        
+           
+            var marker;
+            var bienso = option.BienSo  ;
+            marker = new google.maps.Marker({
+                position: latLng,
+                title: option.NgayGPS,
+                icon: image,
+                map: map
+            });           
+            var item =new XeInfo(option.Id, marker)           
+            
+            arrmarker.push(item);
+           
+            var window_license_plate = new google.maps.InfoWindow({
+                content: bienso
+            });
+
+            window_license_plate.open(map, marker);
+            var infowindow_notrip = new google.maps.InfoWindow({
+                content: "Không có thông tin chuyến"
+            });
+            google.maps.event.addListener(marker, 'click', function () {
+                if (option.NguonVeXeId == 0) {                    
+                    infowindow_notrip.open(map, marker);
+                }
+                else
+                {
+                    map.setCenter(marker.position);
+                    map.setZoom(14);
+                    GetThongTinXe(option.NguonVeXeId, option.NgayDi);
+                }
+               
+                
+            });
+        });      
+       
+    }
+    function MoveMarker() {
+        $.ajax({
+            cache: false,
+            type: "GET",            
+            url: "@(Url.Action("GetLatlogNew", "NhaXeDinhVi"))",
+            dataType: 'json',
+            success: function (data) {
+                $.each(data, function (id, option) {
+                    $.each(arrmarker, function (index,item) {
+                        if (option.Id == item.Id)
+                        {
+                        
+                            item.Marker.setPosition(new google.maps.LatLng(option.Latitude, option.Longitude));
+
+                        }
+                       });                   
+                });           
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+
+        }
+    });          
+
+    }   
+     
+      function GetThongTinXe(nguonveid, ngaydi) {
+         
+          var formopen = $("#PhoiVeInfo");
+         
+        formopen.kendoWindow({
+            width: "800px",
+            modal:true,
+            title: "Thông tin xe",
+            content: "@(Url.Action("ThongTinPhoiVe", "NhaXeDinhVi"))?NguonVeXeId=" + nguonveid + "&ngaydi=" + ngaydi,
+        actions: [
+            "Close"
+        ]
+        }).data('kendoWindow').open().center();    
+    }
+  </script>  
+<div id="map" style="width:100%; height: 416px;"></div>
+<div id="PhoiVeInfo" style="display:none"></div>
+

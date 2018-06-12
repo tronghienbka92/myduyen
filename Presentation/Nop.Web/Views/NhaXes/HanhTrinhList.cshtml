@@ -1,0 +1,118 @@
+﻿@model HanhTrinhListModel
+@using Nop.Web.Models.NhaXes
+@using Nop.Core.Infrastructure
+@Html.ValidationSummary(false)
+@{
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+    
+    //page title
+    ViewBag.Title = T("ChonVe.NhaXe.HanhTrinh.List.Title").Text;
+}
+<div class="section-header">
+    <div class="title">
+        <img src="@Url.Content("~/Content/chonve/nxmenu/hanhtrinhquanly.png")" alt="" />
+        @T("ChonVe.NhaXe.HanhTrinh.List.Title")
+    </div>
+    <div class="options">
+        <a href="@Url.Action("HanhTrinhTao")" class="k-button">@T("Admin.Common.AddNew")</a>
+    </div>
+</div>
+<table width="100%">
+    <tr>
+        <td class="adminTitle">
+            @Html.NopLabelFor(model => model.MaHanhTrinh):
+        </td>
+        <td class="adminData">
+            @Html.EditorFor(model => model.MaHanhTrinh)
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <input type="button" id="btnSearch" class="k-button" value="@T("Admin.Common.Search")" />
+        </td>
+    </tr>
+</table>
+<table class="adminContent">
+    <tr>
+        <td>
+            <div id="danhsach-grid"></div>
+
+            <script>
+                $(document).ready(function () {
+                    $("#danhsach-grid").kendoGrid({
+                        dataSource: {
+                            type: "json",
+                            transport: {
+                                read: {
+                                    url: "@Html.Raw(Url.Action("HanhTrinhList", "NhaXes"))",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: additionalData
+                                }
+                            },
+                            schema: {
+                                data: "Data",
+                                total: "Total",
+                                errors: "Errors"
+                            },
+                            error: function(e) {
+                                display_kendoui_grid_error(e);
+                                // Cancel the changes
+                                this.cancelChanges();
+                            },
+                            serverPaging: false,
+                            serverFiltering: false,
+                            serverSorting: false
+                        },
+                        editable: {
+                            confirmation: false,
+                            mode: "inline"
+                        },
+                        scrollable: false,
+                        columns: [{
+                            field: "MaHanhTrinh",
+                            title: "@T("ChonVe.NhaXe.HanhTrinh.MaHanhTrinh")"
+                        }, {
+                            field: "MoTa",
+                            title: "@T("ChonVe.NhaXe.HanhTrinh.MoTa")"
+                        }, {
+                            field: "TongKhoangCach",
+                            title: "@T("ChonVe.NhaXe.HanhTrinh.TongKhoangCach")"
+                        },{
+                            field: "Id",
+                            title: "@T("Admin.Common.Edit")",
+                            width: 100,
+                            template: '<a href="HanhTrinhSua/#=Id#">@T("Admin.Common.Edit")</a>'
+                        },]
+                    });
+                });
+            </script>
+
+            <script type="text/javascript">
+                $(document).ready(function () {
+                    //search button
+                    $('#btnSearch').click(function () {
+                        //search
+                        var grid = $('#danhsach-grid').data('kendoGrid');
+                        //grid.dataSource.page(1); //new search. Set page size to 1
+                        grid.dataSource.read(); //we already loaded the grid above using "page" function
+                        return false;
+                    });
+
+                    $("#@Html.FieldIdFor(model => model.MaHanhTrinh)").keydown(function (event) {
+                        if (event.keyCode == 13) {
+                            $("#btnSearch").click();
+                            return false;
+                        }
+                    });
+                });
+
+                function additionalData() {
+                    return {
+                        MaHanhTrinh: $('#@Html.FieldIdFor(model => model.MaHanhTrinh)').val()
+                    };
+                }
+            </script>
+        </td>
+    </tr>
+</table>

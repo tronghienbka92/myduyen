@@ -1,0 +1,103 @@
+﻿@model Nop.Web.Models.NhaXes.XeXuatBenItemModel
+@{
+    Layout = null;   
+}
+
+<table width="100%">
+    <tr>
+        <td>
+            <h1>Doanh thu chặng</h1>
+            <div id="doanhthuchang_grid"></div>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <h1>Doanh thu điểm</h1>
+            <div id="doanhthudiem_grid"></div>
+        </td>
+    </tr>
+</table>
+
+
+<script>
+    $(document).ready(function () {
+        $("#doanhthuchang_grid").kendoGrid({
+            dataSource: {
+                type: "json",
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("GetDoanhThuChang", "QLPhoiVe"))?Id=@Model.Id",
+                    type: "POST",
+                    dataType: "json"
+                }
+            },
+            schema: {
+                data: "Data",
+                total: "Total",
+                errors: "Errors"
+            },
+            error: function(e) {
+                display_kendoui_grid_error(e);
+                // Cancel the changes
+                this.cancelChanges();
+            },
+            serverPaging: false,
+            serverFiltering: false,
+            serverSorting: false
+        },
+        scrollable: false,
+        columns: [{
+            field: "TenChang",
+            title: "Tên chặng",
+           
+        }, {
+            field: "SoKhach",
+            title: "Số khách",
+           
+    }, 
+        ]
+        });
+
+        $("#doanhthudiem_grid").kendoGrid({
+            dataSource: {
+                type: "json",
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("_DoanhThuDiem", "QLPhoiVe"))?Id=@Model.Id",
+                    type: "POST",
+                    dataType: "json"
+                }
+            },
+            schema: {
+                data: "Data",
+                total: "Total",
+                errors: "Errors"
+            },
+            error: function(e) {
+                display_kendoui_grid_error(e);
+                // Cancel the changes
+                this.cancelChanges();
+            },
+            serverPaging: false,
+            serverFiltering: false,
+            serverSorting: false
+        },
+            scrollable: false,
+        columns: [{
+            field: "TenDiem",
+            title: "Tên điểm",
+           
+        }, {
+            field: "SoKhachLen",
+            title: "Số khách lên",
+           
+        },
+         {
+             field: "SoKhachXuong",
+             title: "Số khách xuống",
+
+         },
+        ]
+    });
+    });    
+</script>

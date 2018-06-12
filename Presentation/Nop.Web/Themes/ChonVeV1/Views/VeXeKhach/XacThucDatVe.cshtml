@@ -1,0 +1,24 @@
+﻿@model ThanhToanVeXeModel
+@using Nop.Web.Models.VeXeKhach
+<script src="~/Scripts/jquery.validate.min.js"></script>
+@Html.Partial("_StepMuaVe", 3)
+<div style="margin-left:40%;">
+@using (Html.BeginForm(null, null, FormMethod.Post))
+{
+    @Html.HiddenFor(m => m.diachigiaohang.Id)
+    @Html.HiddenFor(m => m.HinhThucThanhToan)
+    @Html.HiddenFor(m => m.BankCode)
+    @Html.HiddenFor(m => m.TongTien)
+    
+    <h1>Vui lòng nhập mã xác thực của bạn tại đây!</h1>
+    if (Session["SoLanXacThuc"] != null)
+    {
+        <p style="color:red">Mã không đúng, bạn còn @(3 - Convert.ToInt32(Session["SoLanXacThuc"])) lần để xác thực</p>
+    }
+
+    @Html.TextBoxFor(m => m.MaXacThuc, new { placeholder = "Mã xác thực" })
+
+    <input type="submit" class="btnchonve-orange"  value="Xác Thực">
+}
+</div>
+<br /><br /><br />

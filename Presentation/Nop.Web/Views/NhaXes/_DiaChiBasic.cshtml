@@ -1,0 +1,96 @@
+﻿@model DiaChiInfoModel
+@using Nop.Web.Models.NhaXes
+@using Nop.Core.Infrastructure
+@using Nop.Web.Framework.Events
+@using Nop.Services.Events
+@Html.ValidationSummary(false)
+@Html.HiddenFor(model => model.Id)
+
+<script>
+    $(document).ready(function () {
+        $("#@Html.FieldIdFor(model => model.ProvinceID)").change(function () {
+            var selectedItem = $(this).val();
+            var ddlStates = $("#@Html.FieldIdFor(model => model.QuanHuyenID)");
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: "@(Url.Action("GetQuanHuyenByProvinceId", "NhaXes"))",
+                data: { "ProvinceId": selectedItem, "addSelectStateItem": "false" },
+                success: function (data) {
+                    ddlStates.html('');
+                    $.each(data, function (id, option) {
+                        ddlStates.append($('<option></option>').val(option.id).html(option.name));
+                    });
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert('Failed to retrieve states.');
+                }
+            });
+        });
+    });
+</script>
+    <table class="adminContent">
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.DiaChi1):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.DiaChi1)
+                @Html.ValidationMessageFor(model => model.DiaChi1)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.DiaChi2):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.DiaChi2)
+                @Html.ValidationMessageFor(model => model.DiaChi2)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.ProvinceID):
+            </td>
+            <td class="adminData">
+                @Html.DropDownListFor(model => model.ProvinceID, Model.AvailableStates)
+                @Html.ValidationMessageFor(model => model.ProvinceID)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.QuanHuyenID):
+            </td>
+            <td class="adminData">
+                @Html.DropDownListFor(model => model.QuanHuyenID, Model.AvailableQuanHuyens)
+                @Html.ValidationMessageFor(model => model.QuanHuyenID)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.MaBuuDien):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.MaBuuDien)
+                @Html.ValidationMessageFor(model => model.MaBuuDien)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.DienThoai):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.DienThoai)
+                @Html.ValidationMessageFor(model => model.DienThoai)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.Fax):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.DiaChi1)
+                @Html.ValidationMessageFor(model => model.Fax)
+            </td>
+        </tr>
+    </table>

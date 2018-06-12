@@ -1,0 +1,189 @@
+﻿@model BaoCaoNhaXeModel
+@using Nop.Web.Models.NhaXes
+@using Nop.Core.Infrastructure
+@{
+    int STT=1;
+    decimal _sumright = decimal.Zero, _sumallright = decimal.Zero;
+   
+}
+<style>
+    .BangBaoCaoTongHop {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+        .BangBaoCaoTongHop, .BangBaoCaoTongHop tr, .BangBaoCaoTongHop tr td {
+            border: 1px solid #928d8d;
+            font-weight:normal;
+        }
+
+            .BangBaoCaoTongHop tr {
+                height: 30px;
+            }
+
+            .BangBaoCaoTongHop thead tr td {
+                font-weight: bold;
+                font-size: 16px;
+                text-align:center;
+            }
+</style>
+
+<table style="width:100%">
+    <tr>
+        <td style="width:100%;text-align:left;font-weight:bold">
+            @Html.Raw(Model.topPage.Replace("\n", "<br />"))
+        </td>
+    </tr>
+    <tr>
+        <td style="width:100%;text-align:center;font-weight:bold">
+            <h1>@Model.Title[0]</h1>
+            @if (Model.Title.Length > 1)
+            {
+                <h2>@Model.Title[1]</h2>
+            }
+        </td>
+    </tr>
+    <tr>
+        <td style="width:100%">
+            <table class="BangBaoCaoTongHop">
+                <thead>
+                    @if (Model.TitleColSpan != null && Model.TitleColSpan.Count > 0)
+                    {
+                        <tr style="font-weight:bold;text-align:center">
+                            @if (Model.isShowSTT)
+                            {
+                                <td>
+                                    
+                                </td>
+                            }
+                            @foreach (var _header in Model.TitleColSpan)
+                            {
+                                <td colspan="@(Convert.ToInt32(_header[1]))">
+                                    @_header[0]
+                                </td>
+                            }
+                            @if (Model.addSumRight)
+                            {
+                                <td>
+                                    
+                                </td>
+                            }
+                        </tr>
+                    }
+                    <tr style="font-weight:bold;text-align:center">
+                        @if (Model.isShowSTT)
+                        {
+                            <td style="width:50px">
+                                STT
+                            </td>
+                        }
+                        @foreach (var _header in Model.headers)
+                        {
+                            <td>
+                                @_header
+                            </td>
+                        }
+                        @if (Model.addSumRight)
+                        {
+                            <td style="width:80px">
+                                Tổng
+                            </td>
+                        }
+                    </tr>
+                </thead>
+                @for (int i = 0; i < Model.dataReport.Rows.Count; i++)
+                {
+                    _sumright = 0;
+                    <text>
+                        <tr style="font-weight:bold;text-align:center">
+                            @if (Model.isShowSTT)
+                            {
+                                <td>
+                                    @(STT++)
+                                </td>
+                            }
+                            @for (int j = 0; j < Model.dataReport.Columns.Count; j++)
+                            {
+                                if (Model.addSumRight && j >= Model.idxColForSum)
+                                {
+                                    decimal _retsum;
+                                    if (decimal.TryParse(Model.dataReport.Rows[i][j].ToString().Replace(",", "").Replace(".", ""), out _retsum))
+                                    {
+                                        _sumright = _sumright + _retsum;
+                                    }
+                                        
+                                }
+                                <td>
+                                    @Model.dataReport.Rows[i][j].ToString()
+                                </td>
+                            }
+                            @if (Model.addSumRight)
+                            {
+                                <td style="font-weight:bold">
+                                    @_sumright.ToString("###,###,##0")
+                                </td>
+                            }
+                        </tr>
+                    </text>
+                    _sumallright =_sumallright+ _sumright;
+                }
+                @if (Model.addSumBottom)
+                {
+                    <text>
+                        <tr style="font-weight:bold;text-align:center">
+                            @if (Model.isShowSTT)
+                            {
+                                <td></td>
+                            }
+                            <td>Tổng</td>
+                            @for (int j = 1; j < Model.idxColForSum; j++)
+                            {
+                                <td></td>
+                            }
+                            @for (int j = Model.idxColForSum; j < Model.dataReport.Columns.Count; j++)
+                            {
+                                decimal _sumbottom = decimal.Zero;
+                                for (int i = 0; i < Model.dataReport.Rows.Count; i++)
+                                {
+                                    decimal _retsum;
+                                    if (decimal.TryParse(Model.dataReport.Rows[i][j].ToString().Replace(",", "").Replace(".", ""), out _retsum))
+                                    {
+                                        _sumbottom = _sumbottom + _retsum;
+                                    }
+                                        
+                                }
+                                <td style="font-weight:bold">@_sumbottom.ToString("###,###,##0")</td>
+                            }
+                            @if (Model.addSumRight)
+                            {
+                                <td style="font-weight:bold">
+                                    @_sumallright.ToString("###,###,##0")
+                                </td>
+                            }
+                        </tr>
+                        @if (Model.TitleColSpan != null && Model.TitleColSpan.Count > 0)
+                        {
+                            <tr style="font-weight:bold;text-align:center">
+                                @if (Model.isShowSTT)
+                                {
+                                    <td></td>
+                                }
+                                @foreach (var _header in Model.TitleColSpan)
+                                {
+                                    <td colspan="@(Convert.ToInt32(_header[1]))" style="font-weight:bold;text-align:center">
+                                        @_header[2]
+                                    </td>
+                                }
+                                @if (Model.addSumRight)
+                                {
+                                    <td></td>
+                                }
+                            </tr>
+                        }
+                    </text>
+                }
+
+            </table>
+        </td>
+    </tr>
+</table>

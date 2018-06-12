@@ -1,0 +1,512 @@
+﻿@model ListPhieuModel
+@using Nop.Web.Models.ChuyenPhatNhanh
+@{
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+
+    //page title
+    ViewBag.Title = "Danh sách phiếu vận chuyển";
+}
+@Html.HiddenFor(m => m.PhieuVanChuyenId)
+@Html.HiddenFor(m => m.TrangThaiVanChuyenId, new { @id = "TrangThaiVanChuyenId" })
+<table style="width:100%">
+    <tr>
+        <td style="text-align:right;border-bottom:2px solid #808080; ">
+            <table style="width:100%">
+                <tr>
+                    <td style="text-align:left;">
+                        <span style="font-weight:bold;font-size:15px">Quản lý xếp phiếu vận chuyển <strong>(Chưa vận chuyển)</strong> </span> [<span style="color:red;font-style:italic">Bạn đang thao tác tại văn phòng: <strong>@Model.TenVanPhongHienTai</strong></span>]
+                    </td>
+                    <td style="text-align:right;width:160px"></td>
+                </tr>
+            </table>
+        </td>
+        <td></td>
+    </tr>
+    <tr>
+        <td style="vertical-align:top;" colspan="2">
+            <table style="width:100%">
+                <tr>
+                    <td colspan="2">
+                        <table style="width:100%">
+                            <tr>
+                                <td style="text-align:right;width:80px;">
+                                    Ngày ký gửi:
+                                </td>
+                                <td style="width:80px;">
+                                    @Html.EditorFor(m => m.NgayTao)
+                                </td>
+                                <td>
+                                    @Html.TextBoxFor(model => model.HangHoaInfo, new { placeholder = "Thông tin người gửi, nhận, tên hàng...", @style = "width:95%" })
+                                </td>
+                                <td style="text-align:right;width:120px;">
+                                    Phiếu vận chuyển:
+                                </td>
+                                <td style="width:120px;">
+                                    @Html.DropDownListFor(m => m.PhieuVanChuyenId, Model.phieuvanchuyens, new { @id = "ddlPhieuVanChuyenId" })
+                                </td>
+                                <td style="width:80px;">
+                                    <input type="button" id="btnTimKiem" class="k-button" value="Lọc" style="width:100%" />
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="text-align:left"><h3>Danh sách phiếu biên nhận</h3></td>
+                    <td style="text-align:right;width:350px;">
+                        <table style="width:100%" id="tabTaoPhieu">
+                            <tr>
+                                <td><div id="tabEditPhieuVanChuyenChinh" style="display:none;text-align:left"></div></td>
+                                <td>
+                                    <ul id="mnChonPhieuVanChuyen" style="width:280px;">
+                                        <li>
+                                            Xếp vào phiếu vận chuyển đã có
+                                            <ul>
+                                                @foreach (var item in Model.phieuvanchuyens)
+                                                {
+                                                    if (item.Value != "0")
+                                                    {
+                                                <li data-id="@item.Value" data-text="@item.Text">@item.Text</li>
+                                                    }
+                                                }
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </td>
+                                <td><input type="button" id="btnTaoMoi_QLXP" class="k-button" value="Tạo mới phiếu vận chuyển" /></td>
+                            </tr>
+                        </table>
+                        <table style="width:100%" id="tabCapNhatPhieu">
+                            <tr>
+                                <td>
+                                    <a id="lnkInPhieu" href="/NhaXeCauHinh/InPhieu?MaId=@((int)Nop.Core.Domain.NhaXes.ENNhaXeCauHinh.KY_GUI_PHIEU_GUI_HANG)&Id=" target="_blank" class="k-button">In phiếu</a>&nbsp;
+                                    <input type="button" id="btnXoaPhieuVanChuyen" class="k-button" value="Xóa phiếu" />
+                                </td>
+                            </tr>
+                        </table>
+
+                        <script>
+                            function OpenEditPhieuVanChuyen(Id) {
+                                //lay thong tin phieu bien nhan da chon
+                                var phieuids = getPhieuChuyenPhatCheck();
+                                if (Id == 0 && phieuids == "") {
+                                    alert("Bạn chưa chọn phiếu biên nhận cần tạo phiếu vận chuyển !");
+                                    return;
+                                }
+                                var WindowTaoMoi = $("#tabEditPhieuVanChuyenChinh");
+                                WindowTaoMoi.html("");
+                                if (WindowTaoMoi.data("kendoWindow"))
+                                    WindowTaoMoi.data("kendoWindow").destroy()
+                                WindowTaoMoi.kendoWindow({
+                                    modal: true,
+                                    width: "500px",
+                                    height: "250px",
+                                    title: "Phiếu vận chuyển",
+                                    content: "@(Url.Action("_PhieuVanChuyenChinhSua", "HangHoa"))" + "?Id=" + Id + "&phieuids=" + phieuids,
+                                    actions: ["Close"]
+                                });
+
+                                WindowTaoMoi.data('kendoWindow').center().open();
+                            }
+                            function CloseEditPhieuVanChuyen(Id) {
+                                $("#tabEditPhieuVanChuyenChinh").data("kendoWindow").close();
+                                LoadDllPhieuVanChuyen(Id);
+                                
+                                
+                            }
+                            $(document).ready(function () {
+                                $('#btnTaoMoi_QLXP').click(function () {
+                                    OpenEditPhieuVanChuyen(0);
+                                });
+                                $('#btnXoaPhieuVanChuyen').click(function () {
+                                    if(!confirm("Bạn có chắc chắn xóa phiếu vận chuyển này không ?"))
+                                        return;
+                                    $.ajax({
+                                        cache: false,
+                                        type: "POST",
+                                        data: { "Id": $("#ddlPhieuVanChuyenId").val() },
+                                        dataType: 'json',
+                                        url: "@(Url.Action("_XoaPhieuVanChuyen", "HangHoa"))",
+                                        success: function (data) {
+                                            if (data == "OK") {
+                                                alert("Xóa phiếu thành công!");
+                                                document.location.href = document.location.href;
+                                            }
+                                            else {
+                                                alert(data);
+                                            }
+
+                                        },
+                                        });
+                                });
+                                function ChonPhieuVanChuyen(e) {
+                                    var _item = $(e.item);
+                                    var _phieuvanchuyenid = _item.attr("data-id");
+                                    var _phieuvanchuyentext = _item.attr("data-text");
+                                    if (_phieuvanchuyenid == null)
+                                        return;
+                                    var _phieuids = getPhieuChuyenPhatCheck();
+                                    if (_phieuids == "") {
+                                        alert("Bạn chưa chọn phiếu biên nhận cần tạo phiếu vận chuyển !");
+                                        return;
+                                    }
+                                    if (!confirm("Bạn có chắc chắn xếp thêm phiếu biên nhận vào phiếu vận chuyển '" + _phieuvanchuyentext + "' không ?")) {
+                                        return;
+                                    }
+                                    $.ajax({
+                                        cache: false,
+                                        type: "POST",
+                                        data: {
+                                            "PhieuChuyenPhatIds": _phieuids,
+                                            "PhieuVanChuyenId": _phieuvanchuyenid,
+                                        },
+                                        dataType: 'json',
+                                        url: "@(Url.Action("XepNhieuPhieu", "HangHoa"))",
+                                        success: function (data) {
+                                            LoadDanhSachPhieuChuyenPhat();
+
+                                        },
+                                    });
+
+                                }
+                                $("#mnChonPhieuVanChuyen").kendoMenu({
+                                    select: ChonPhieuVanChuyen,
+                                });
+                            });
+                        </script>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <div id="phieuchuyenphat-grid"></div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td colspan="2">
+                        <div id="tabPhieuVanChuyenChuyenDi" style="display:none">
+                            <div style="text-align:center;padding-top:50px">                                
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+<script>
+    function LoadDllPhieuVanChuyen(Id) {
+        //load thong tin van chuyen bind -> dropdownlist
+        var ddltemp = $("#ddlPhieuVanChuyenId");
+        var _ngaytao = ConvertDateTimeSystem($('#@Html.FieldIdFor(model => model.NgayTao)').val());
+        var dataadd = {
+            NgayTao: _ngaytao,
+            TrangThaiVanChuyenIds: '@((int)Nop.Core.Domain.NhaXes.ENTrangThaiPhieuVanChuyen.Moi)',
+            VanPhongGuiId: '@Model.VanPhongGuiId'
+        };
+        $.ajax({
+            cache: false,
+            type: "GET",
+            url: "@(Url.Action("GetDllPhieuVanChuyen", "HangHoa"))",
+            data: dataadd,
+            success: function (data) {
+                ddltemp.html('');
+                $.each(data, function (id, option) {
+                    if (Id == option.Value)
+                        ddltemp.append($('<option selected></option>').val(option.Value).html(option.Text));
+                    else 
+                        ddltemp.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+                LoadDanhSachPhieuChuyenPhat();
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert('Failed to retrieve states.');
+            }
+        });
+    }
+    function LoadLenhVanChuyenChuyenDi(Id) {
+        $("#@Html.FieldIdFor(m=>m.PhieuVanChuyenId)").val(Id);
+        
+        $('#tabPhieuVanChuyenChuyenDi').html($("#divLoadingContent").html());
+        $.ajax({
+            cache: false,
+            type: "GET",
+            url: "@(Url.Action("_PhieuVanChuyenChinhSuaChuyenDi", "HangHoa"))?Id=" + Id,
+            success: function (data) {
+                $('#tabPhieuVanChuyenChuyenDi').html(data);
+
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                $('#tabPhieuVanChuyenChuyenDi').html("Có lỗi trong quá trình load dữ liệu");
+            }
+        });        
+    }
+    function getPhieuChuyenPhatCheck(isAll) {
+        var _ret = "";
+        $('.phieuchuyenphat_checkbox').each(function () {
+            if (this.checked || isAll) {
+                var _id = $(this).attr('data-id');
+                if (_ret == "")
+                    _ret = _id;
+                else
+                    _ret = _ret + "," + _id;
+            }
+        });
+        return _ret;
+    }
+    function LoadDSLenhVanChuyen() {
+        var _ngaytao = ConvertDateTimeSystem($('#@Html.FieldIdFor(model => model.NgayTao)').val());
+        var dataadd = {
+            NgayTao: _ngaytao,
+            TrangThaiVanChuyenIds: '@((int)Nop.Core.Domain.NhaXes.ENTrangThaiPhieuVanChuyen.Moi),@((int)Nop.Core.Domain.NhaXes.ENTrangThaiPhieuVanChuyen.DangVanChuyen),@((int)Nop.Core.Domain.NhaXes.ENTrangThaiPhieuVanChuyen.DenVanPhongNhan)',
+            VanPhongGuiId: '@Model.VanPhongGuiId'
+        };
+        $("#phieuvanchuyen-grid").kendoGrid({
+            dataSource: {
+                type: "json",
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("_PhieuVanChuyenList", "HangHoa"))",
+                        type: "POST",
+                        dataType: "json",
+                        data: dataadd
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors"
+                },
+                error: function (e) {
+                    display_kendoui_grid_error(e);
+                    // Cancel the changes
+                    this.cancelChanges();
+                },
+            },
+            scrollable: true,
+            columns: [{
+                field: "SoLenh",
+                title: "Số lệnh",
+                template: '<a href="javascript:LoadLenhVanChuyenChuyenDi(#=Id#)">#=SoLenh#</a>'
+            }, {
+                field: "LoaiPhieuVanChuyenText",
+                title: "Loại",
+            }, {
+                field: "TenChang",
+                title: "Chặng"
+            }, {
+                field: "TongCuocDiKem",
+                title: "Tổng cước",
+                type: "number",
+                format: "{0:n0} đ"
+            }, {
+                field: "Id",
+                title: "&nbsp;",
+                width: 70,
+                template: '#= TrangThaiId==@((int)Nop.Core.Domain.NhaXes.ENTrangThaiPhieuVanChuyen.Moi) ? "<a href=\'javascript:OpenEditPhieuVanChuyen("+Id+")\' class=\'k-button\'>Sửa</a>" : ""#'
+            }]
+        });
+    }
+    function LoadDanhSachPhieuChuyenPhat() {
+        var _phieuvanchuyenid = $("#ddlPhieuVanChuyenId").val();
+        if (_phieuvanchuyenid == 0) {
+            $("#tabTaoPhieu").show();
+            $("#tabCapNhatPhieu").hide();
+            $('#tabPhieuVanChuyenChuyenDi').hide();
+        }
+        else {
+            $("#tabTaoPhieu").hide();
+            $("#tabCapNhatPhieu").show();
+            $('#tabPhieuVanChuyenChuyenDi').show();
+            $("#lnkInPhieu").attr("href", "/NhaXeCauHinh/InPhieu?MaId=@((int)Nop.Core.Domain.NhaXes.ENNhaXeCauHinh.KY_GUI_MAU_HANG_HOA_XUAT_BEN)&Id=" + _phieuvanchuyenid)
+            //LoadLenhVanChuyenChuyenDi(_phieuvanchuyenid);
+        }
+        var _ngaytao = ConvertDateTimeSystem($('#@Html.FieldIdFor(model => model.NgayTao)').val());
+        var _trangthaiid = '@((int)Nop.Core.Domain.NhaXes.ENTrangThaiChuyenPhat.Moi)';
+
+        if (_phieuvanchuyenid > 0)
+            _trangthaiid = '@((int)Nop.Core.Domain.NhaXes.ENTrangThaiChuyenPhat.DaXepLenh),@((int)Nop.Core.Domain.NhaXes.ENTrangThaiChuyenPhat.DenVanPhongNhan)';
+        var dataadd = {
+            HangHoaInfo: $('#@Html.FieldIdFor(model => model.HangHoaInfo)').val(),
+            NgayTao: _ngaytao,
+            TrangThaiId: _trangthaiid,
+            VanPhongGuiId: '@(Model.VanPhongGuiId)',
+            PhieuVanChuyenId: _phieuvanchuyenid,
+            isXepPhieu: 'true'
+        };
+
+        $("#phieuchuyenphat-grid").kendoGrid({
+            dataSource: {
+                type: "json",
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("_PhieuChuyenPhatList", "HangHoa"))",
+                        type: "POST",
+                        dataType: "json",
+                        data: dataadd
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors"
+                },
+                error: function (e) {
+                    display_kendoui_grid_error(e);
+                    // Cancel the changes
+                    this.cancelChanges();
+                },
+            },
+            scrollable: true,
+            columns: [{
+                field: "MaPhieu",
+                title: "Mã phiếu",
+                template: '<a href="javascript:ViewPBN(#=Id#)">#=MaPhieu#</a>'
+            }, {
+                field: "VanPhongNhanText",
+                title: "Tên văn phòng nhận"
+            }, {
+                field: "NguoiGui.HoTen",
+                title: "Tên người gửi",
+                template: "#=NguoiGui.HoTen#(#=NguoiGui.SoDienThoai#)"
+            }, {
+                field: "NguoiGui.HoTen",
+                title: "Tên người nhận",
+                template: "#=NguoiNhan.HoTen#(#=NguoiNhan.SoDienThoai#)"
+            }, {
+                field: "TenHang",
+                title: "Thông tin"
+            }, {
+                field: "TongTienCuoc",
+                title: "Tổng cước",
+                type: "number",
+                format: "{0:n0} đ"
+            }, {
+                field: "NgayTao",
+                title: "Ngày tạo",
+                type: "date",
+                format: "{0:HH:mm}"
+            }, {
+                field: "KhuVucText",
+                title: "Khu vực nhận"
+            }, {
+                field: "Id",
+                title: "&nbsp;",
+                width: 100,
+                attributes: { style: "text-align:center" },
+                template: '#=TrangThaiId==@((int)Nop.Core.Domain.NhaXes.ENTrangThaiChuyenPhat.Moi)?"<input type=\'checkbox\' data-id="+Id+" class=\'phieuchuyenphat_checkbox\' />":"<a title=\'Hủy xếp phiếu\' href=\'javascript:HuyXepPhieu("+Id+")\'><img src=\'/Content/chonve/nhaxe/cancel_action.png\' /></a>"#'
+            }]
+        });
+
+    }
+
+    $(document).ready(function () {
+        LoadDanhSachPhieuChuyenPhat();
+        $('#btnTimKiem').click(function () {
+            LoadDanhSachPhieuChuyenPhat();
+        });
+        $("#@Html.FieldIdFor(m=>m.HangHoaInfo)").keydown(function (event) {
+            if (event.keyCode == 13) {
+                LoadDanhSachPhieuChuyenPhat();
+            }
+        });
+        $("#@Html.FieldIdFor(m=>m.NgayTao)").change(function (event) {
+            LoadDllPhieuVanChuyen();
+            LoadDanhSachPhieuChuyenPhat();
+        });
+        $("#ddlPhieuVanChuyenId").change(function (event) {
+
+
+            LoadDanhSachPhieuChuyenPhat();
+        });
+        /*
+        $("#phieuchuyenphat-grid").kendoTooltip({
+            filter: "td", //this filter selects the second column's cells
+            position: "right",
+            content: function (e) {
+                var dataItem = $("#phieuchuyenphat-grid").data("kendoGrid").dataItem(e.target.closest("tr"));
+                var content = "<div style='text-align:left'><strong>Thông tin:</strong> " + dataItem.MaPhieu + " - " + dataItem.TenHang + " (" + kendo.toString(dataItem.NgayTao, "dd/MM HH:mm") + ")<br />";
+                content = content + "<strong>Văn phòng nhận:</strong> " + dataItem.VanPhongNhanText + "<br />";
+                content = content + "<strong>Người gửi:</strong> " + dataItem.NguoiGuiText + " - " + "<strong>Người nhận:</strong> " + dataItem.NguoiNhanText + "<br />";
+                content = content + "<strong>Người tạo:</strong> " + dataItem.TenNhanvienGiaoDich + "<br />";
+                content = content + "<strong>Tổng cước:</strong> " + kendo.toString(dataItem.TongTienCuoc, "n0") + " đ" + " - " + "<strong>Đã TT:</strong> " + kendo.toString(dataItem.TongCuocDaThanhToan, "n0") + " đ";
+                content = content + "</div>";
+                return content;
+            }
+        }).data("kendoTooltip");
+        */
+    });
+    ///////////////////////////////////////////////cac ham thao tac nghiep vu
+    function HuyXepPhieu(Id) {
+        //kiem tra cho phep phieu van chuyen co dc thay doi ko
+        var _trangthaivanchuyenid = $("#TrangThaiVanChuyenId").val();
+        if (_trangthaivanchuyenid == '@((int)Nop.Core.Domain.NhaXes.ENTrangThaiPhieuVanChuyen.DenVanPhongNhan)') {
+            alert("Bạn không thể hủy phiếu biên nhận ra phiêu vận chuyển vượt tuyến");
+            return;
+        }
+        if (!confirm("Bạn có chắc chắn hủy phiếu chuyển phát ra khỏi phiếu vận chuyển này không ?"))
+            return;
+        var _phieuvanchuyenid = $('#ddlPhieuVanChuyenId').val();
+        if (_phieuvanchuyenid == 0) {
+            return alert("Phiếu vận chuyển không xác định");
+        }
+
+
+        $.ajax({
+            cache: false,
+            type: "POST",
+            data: {
+                "PhieuVanChuyenId": _phieuvanchuyenid,
+                "PhieuChuyenPhatId": Id,
+            },
+            dataType: 'json',
+            url: "@(Url.Action("HuyXepPhieu", "HangHoa"))",
+            success: function (data) {
+                if (data == "OK") {
+                    LoadDanhSachPhieuChuyenPhat();
+                }
+                else {
+                    alert(data);
+                }
+
+            },
+        });
+    }
+    function XepPhieu(Id) {
+        var _trangthaivanchuyenid = $("#TrangThaiVanChuyenId").val();
+        if (_trangthaivanchuyenid == '@((int)Nop.Core.Domain.NhaXes.ENTrangThaiPhieuVanChuyen.DenVanPhongNhan)') {
+            alert("Bạn không thể thêm phiếu biên nhận vào phiêu vận chuyển vượt tuyến");
+            return;
+        }
+        var _phieuvanchuyenid = $('#@Html.FieldIdFor(model => model.PhieuVanChuyenId)').val();
+        if (_phieuvanchuyenid == 0) {
+            return alert("Bạn phải chọn phiếu vận chuyển trước khi thêm phiếu phát nhanh");
+        }
+        $.ajax({
+            cache: false,
+            type: "POST",
+            data: {
+                "PhieuVanChuyenId": _phieuvanchuyenid,
+                "PhieuChuyenPhatId": Id,
+            },
+            dataType: 'json',
+            url: "@(Url.Action("XepPhieu", "HangHoa"))",
+            success: function (data) {
+                if (data == "OK") {
+                    LoadPVCItem();
+                    LoadDanhSachPhieuChuyenPhat();
+                }
+                else {
+                    alert(data);
+                }
+
+            },
+        });
+    }
+</script>
+<style>
+    .k-grid table tr:hover td {
+        background: rgba(220, 239, 173, 0.38) !important;
+    }
+</style>

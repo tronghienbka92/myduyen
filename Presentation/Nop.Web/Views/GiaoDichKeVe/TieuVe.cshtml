@@ -1,0 +1,74 @@
+﻿@model GiaoDichKeVeMenhGiaModel
+@{
+    Layout = null;
+}
+
+@using (Html.BeginForm("TieuVe", "GiaoDichKeVe", FormMethod.Post, new { id = "FormTieuVe" }))
+{
+    @Html.HiddenFor(model => model.Id)
+     @Html.HiddenFor(model => model.NguoiNhanId)
+     @Html.HiddenFor(model => model.MenhGiaId)
+    <table class="adminContent">
+      
+        <tr>
+            <td class="adminTitle" style="font-weight:bold">
+                Mệnh Giá
+            </td>
+            <td class="adminData">
+                @Model.MenhGia VNĐ
+            </td>
+        </tr>       
+        <tr>
+            <td class="adminTitle" style="font-weight:bold">
+                Số Lượng Vé
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(m => m.SoLuong)
+            </td>
+        </tr>
+      
+        <tr>
+            <td></td>
+            <td class="adminData" width="100" height="60">
+                <input type="button" id="BtnTieuVe" class="k-button" value="Xác Nhận" style="margin-left: 50px; height:30px;" />
+            </td>
+        </tr>
+    </table>
+
+
+}
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $("#@Html.FieldIdFor(model => model.SoLuong)").keydown(function (event) {
+            if (event.keyCode == 13) {
+                $("#BtnTieuVe").click();
+                return false;
+            }
+        });
+        $('#BtnTieuVe').click(function () {
+
+            var form = $('#FormTieuVe');
+            if (form.valid()) { //if you use validation
+                $.ajax({
+                    url: form.attr('action'),
+                    type: form.attr('method'),
+                    data: $("#FormTieuVe").serialize(),
+                    success: function (data) {
+                        if (data == "ok") {
+                            SetCloseWindowTieuVe();
+                            RefreshVeLuotDi();
+                            RefreshVeLuotVe();
+                        }
+                        else {
+                            alert("không thực hiện được");
+                        }
+                    }
+                });
+            }
+        });
+
+    });
+
+</script>

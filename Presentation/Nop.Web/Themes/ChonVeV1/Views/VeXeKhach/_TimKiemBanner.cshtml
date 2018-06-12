@@ -1,0 +1,23 @@
+﻿@model TimVeXeModel
+<div class="row">
+   @Html.Partial("_StepMuaVe",1)
+    <div class="col-md-12 map-site">
+        <div class="container">
+            <div class="row row-sp">
+                <div class="col-md-6">
+                    <div class="map-bus">
+                        <span>Chuyến đi của bạn từ</span>
+                        <strong>@Model.DiemKhoiHanh.Ten đến @Model.DiemDen.Ten</strong>
+                        <span>@Model.NgayDi.ToNgayThang()</span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="support">
+                        <strong>Cần hỗ trợ?</strong>
+                        <span>cskh@chonve.vn | 0462938860</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

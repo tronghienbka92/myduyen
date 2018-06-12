@@ -1,0 +1,68 @@
+﻿@model Nop.Web.Models.NhaXes.QuanlyPhoiVeModel.KhachHangDatMuaVeModel
+@Html.HiddenFor(m => m.Id)
+<table style="width:100%">
+    <tr>
+        <td class="adminTitle">Quầy bán vé:</td>
+        <td class="adminData">
+            @Html.DropDownListFor(m => m.QuayBanVeId, Model.quaybanves)
+        </td>
+    </tr>
+    <tr>
+        <td class="adminTitle">Mẫu và ký hiệu:</td>
+        <td class="adminData">
+            @Html.DropDownListFor(m => m.MauVeKyHieuId, Model.maukyhieus)
+        </td>
+    </tr>
+    <tr>
+        <td class="adminTitle">
+            Số serial vé:
+        </td>
+        <td class="adminData">
+            @Html.EditorFor(model => model.MaVe)
+        </td>
+    </tr>
+    <tr>
+        <td></td>
+        <td style="text-align:left">
+            <input type="button" id="BtnGanSeriVe" value="Đồng ý" class="k-button">
+        </td>
+    </tr>
+</table>
+<script>
+    $(document).ready(function () {
+        setTimeout(function () {
+            $('#@Html.FieldIdFor(model => model.MaVe)').focus();
+        }, 500);
+        $('#BtnGanSeriVe').click(function () {
+            
+            var _mave=$('#@Html.FieldIdFor(m=>m.MaVe)').val();
+            /*
+            if ( _mave== "") {
+                return alert("Bạn chưa nhập thông tin serial");
+            }
+            */
+            var _quayid=$('#@Html.FieldIdFor(m => m.QuayBanVeId)').val();
+            var _mauid=$('#@Html.FieldIdFor(m => m.MauVeKyHieuId)').val();
+            $.ajax({
+                cache: false,
+                type: "POST",
+                data: { "Id": @Model.Id,"QuayBanVeId":_quayid,"MauVeKyHieuId":_mauid, "MaVe": _mave},
+                dataType: 'json',
+                url: "@(Url.Action("GanSeriVe", "QLPhoiVe"))",
+                success: function (data) {
+                    if (data == "OK") {
+                        CloseWindowNhapSeriVe();
+                    }
+                    else {
+                        alert("Vé đã được sử dụng hoặc không đúng mệnh giá, bạn hãy kiểm tra lại thông tin vé");
+                    }
+
+
+                },
+
+
+            });
+        });
+    });
+
+</script>

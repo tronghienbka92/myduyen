@@ -1,0 +1,173 @@
+﻿@model PhieuGuiHangModel.HangHoaModel
+@using Nop.Web.Models.NhaXes
+@using Nop.Core.Infrastructure
+@Html.ValidationSummary(false)
+@{
+    Layout = null;
+    var defaultGridPageSize = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().DefaultGridPageSize;
+    var gridPageSizes = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().GridPageSizes;
+
+}
+<style>
+    input[type="radio"] {
+
+        -webkit-appearance: checkbox;
+        -moz-appearance: checkbox;
+        -ms-appearance: checkbox; /* not currently supported */
+        -o-appearance: checkbox; /* not currently supported */
+    }
+    .btnHoanTat {
+        float: right;
+        background: #3498db;
+        background-image: -webkit-linear-gradient(top, #3498db, #2980b9);
+        background-image: -moz-linear-gradient(top, #3498db, #2980b9);
+        background-image: -ms-linear-gradient(top, #3498db, #2980b9);
+        background-image: -o-linear-gradient(top, #3498db, #2980b9);
+        background-image: linear-gradient(to bottom, #3498db, #2980b9);
+        -webkit-border-radius: 28;
+        -moz-border-radius: 28;
+        border-radius: 28px;
+        font-family: Arial;
+        color: #ffffff;
+        font-size: 14px;
+        padding: 6px 12px 6px 13px;
+        text-decoration: none;
+    }
+
+        .btnHoanTat:hover {
+            background: #3cb0fd;
+            background-image: -webkit-linear-gradient(top, #3cb0fd, #3498db);
+            background-image: -moz-linear-gradient(top, #3cb0fd, #3498db);
+            background-image: -ms-linear-gradient(top, #3cb0fd, #3498db);
+            background-image: -o-linear-gradient(top, #3cb0fd, #3498db);
+            background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
+            text-decoration: none;
+        }
+</style>
+@Html.HiddenFor(model => model.MaPhieuGuiId)
+<h3 style="text-align: center; margin: 13px;">Thông tin hàng hóa</h3>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $('#btnThemHangHoa').click(function () {
+            if ($('#@Html.FieldIdFor(model => model.TenHangHoa)').val() == "")
+            {
+                return alert("Bạn chưa nhập tên hàng hóa");
+            }
+            var form = $('#FormHangHoaInfo');
+            if (form.valid()) { //if you use validation
+                $.ajax({
+                    url: form.attr('action'),
+                    type: form.attr('method'),
+                    data: $("#FormHangHoaInfo").serialize(),
+                    success: function (data) {
+                        if(data=="ok")
+                        {
+                            SetCloseWindowDatMuaVeXe();
+                            var gridhanghoa = $('#HangHoa_grid').data('kendoGrid');
+                            gridhanghoa.dataSource.page(1);
+                        }
+                        else {
+                            alert("cân nặng, giá trị hàng hóa và giá cước phải ở dạng số");
+                        }
+                    }
+                });
+            }
+        });
+
+    });
+    
+</script>
+@using (Html.BeginForm(Html.BeginForm("HangHoaInfo", "NhaXes", FormMethod.Post, new { id = "FormHangHoaInfo" })))
+{
+    @Html.HiddenFor(model=>model.MaPhieuGuiId)
+    <table>
+    <tr>
+        <td class="adminTitle">
+            @Html.NopLabelFor(model => model.TenHangHoa):
+        </td>
+        <td class="adminData">
+            @Html.EditorFor(model => model.TenHangHoa)
+          
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <table width="100%">
+               
+                <tr>
+                    <td colspan="2" class="adminTitle">
+                        @Html.NopLabelFor(model => model.LoaiHangHoaId):
+                    </td>
+                   
+                </tr>             
+                <tr>
+                    <td colspan="2" class="adminTitle">
+                        
+                        <table>
+                            @foreach(var item in Model.LoaiHangHoas)
+                            {
+                                <tr>
+                                    <td>
+                                        @Html.RadioButtonFor(model=>model.LoaiHangHoaId,item.Value)
+                                       @item.Text
+                                    </td>
+                                </tr>
+                            }
+                        </table>
+                      
+                    </td>
+
+                </tr>   
+            </table>
+        </td>
+        <td>
+            <table width="100%" style="margin-left: 55px;">
+               
+                <tr>
+                    <td class="adminTitle">
+                        @Html.NopLabelFor(model => model.CanNang):
+                    </td>
+                    <td class="adminData">
+                        @Html.EditorFor(model => model.CanNang)
+                      
+                    </td>
+                </tr>
+                <tr>
+                    <td class="adminTitle">
+                        @Html.NopLabelFor(model => model.GiaTri):
+                    </td>
+                    <td class="adminData">
+                        @Html.EditorFor(model => model.GiaTri)
+                       
+                    </td>
+                </tr>
+                <tr>
+                    <td class="adminTitle">
+                        @Html.NopLabelFor(model => model.GiaCuoc):
+                    </td>
+                    <td class="adminData">
+                        @Html.EditorFor(model => model.GiaCuoc)
+                       
+                    </td>
+                </tr>
+
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td  class="adminTitle">
+            @Html.NopLabelFor(model => model.GhiChu):
+        </td>
+        <td class="adminData">
+            @Html.TextAreaFor(model => model.GhiChu)
+
+        </td>
+    </tr>
+</table>
+    <input type="button" id="btnThemHangHoa" value="Hoàn tất" class="btnHoanTat"/>
+}
+
+
+
+

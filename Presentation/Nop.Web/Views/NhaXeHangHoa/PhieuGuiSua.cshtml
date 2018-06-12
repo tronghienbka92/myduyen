@@ -1,0 +1,26 @@
+﻿@model PhieuGuiHangModel
+@using Nop.Web.Models.NhaXes
+@{
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+    //page title
+    ViewBag.Title = "Sửa phiếu gửi";
+}
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "PhieuGuiHang-form" }))
+{
+    <div class="section-header">
+        <div class="title">
+            <img src="@Url.Content("~/Content/chonve/nxmenu/hanhtrinhlichtrinh.png")" alt="" />
+            @T("ChonVe.NhaXe.PhieuGuiHang.TaoMoi") @Html.ActionLink("(Quay về danh sách phiếu gửi hàng)", "QLGuiHang")
+        </div>
+        <div class="options">
+         
+            <a href="/NhaXeCauHinh/InPhieu?MaId=@((int)Nop.Core.Domain.NhaXes.ENNhaXeCauHinh.KY_GUI_PHIEU_GUI_HANG)&Id=@(Model.Id)" target="_blank" class="k-button">Phiếu gửi hàng</a>
+         
+            <input type="submit" name="save" class="k-button" value="@T("Admin.Common.Save")" />
+            <input type="submit" name="save-continue" class="k-button" value="@T("Admin.Common.SaveContinue")" />
+            <span id="PhieuGui-delete" class="k-button">@T("Admin.Common.Delete")</span>
+        </div>
+    </div>
+    @Html.Partial("_PhieuGuiHangChinhSua", Model)
+}
+@Html.DeleteConfirmation("PhieuGuiXoa", "PhieuGui-delete")

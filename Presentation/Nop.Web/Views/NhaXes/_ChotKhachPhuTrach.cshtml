@@ -1,0 +1,177 @@
+﻿@model DiemChotKhachModel
+
+@Html.HiddenFor(model => model.Id)
+<div class="section-header">
+    <div class="options">
+        <input id="btnHoanTat" class="k-button" value="Thoát" />
+    </div>
+</div>
+<table class="adminContent">
+    <tr>
+        <td class="adminTitle">
+            Nhân viên chốt:
+        </td>
+        <td class="adminData">
+            <input id="cbbSearchNguoiChot" style="width:280px" />
+            <input type="hidden" id="NguoiChotId" />
+            <script>
+                $(document).ready(function () {
+                    function dataSearchNguoiGiao() {
+                        var _hovaten = $('#cbbSearchNguoiChot').data("kendoComboBox").text();
+                        return {
+                            SearchKhachhang: _hovaten
+                        };
+                    }
+                    $('#cbbSearchNguoiChot').kendoComboBox({
+                        placeholder: "Tên nhân viên chốt",
+                        dataTextField: "HoTen",
+                        dataValueField: "Id",
+                        filter: "contains",
+                        autoBind: false,
+                        minLength: 2,
+                        dataSource: {
+                            type: "json",
+                            serverFiltering: true,
+                            transport: {
+                                read: {
+                                    url: "@Html.Raw(Url.Action("CBBNhanVienCho", "NhaXes"))",
+                                    data: dataSearchNguoiGiao
+                                }
+                            }
+                        },
+                        change: onChangeChot
+                    });
+                    function onChangeChot(e) {
+                        //alert(e.index);
+                        var DataItem = this.dataItem();
+                        $("#NguoiChotId").val(DataItem.Id);
+
+                    }
+                });
+            </script>
+        </td>
+    </tr>
+    <tr>
+        <td></td>
+        <td>
+            <input id="btnThemMoi" class="k-button" value="Thêm mới" />
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <div id="nhanvienchot-grid"></div>
+        </td>
+    </tr>
+</table>
+
+
+<script>
+    function AddDataGridChotKhach() {
+        return {
+            DiemChotId: $('#@Html.FieldIdFor(model => model.Id)').val()
+        };
+    }
+    function RefreshGrid() {
+        var grid = $('#nhanvienchot-grid').data('kendoGrid');
+        grid.dataSource.read();
+    }
+    $(document).ready(function () {
+        $('#btnThemMoi').click(function () {
+            var nhanvienid = $("#NguoiChotId").val();
+            var diemchotid = $('#@Html.FieldIdFor(model => model.Id)').val();
+            UpdateNhanVienChot(nhanvienid, diemchotid);
+            return false;
+        });
+        $('#btnHoanTat').click(function () {
+            document.location.href = document.location.href;
+            return false;
+        });
+        $("#nhanvienchot-grid").kendoGrid({
+            dataSource: {
+                type: "json",
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("ChotKhachNhanVienList", "NhaXes"))",
+                        type: "POST",
+                        dataType: "json",
+                        data: AddDataGridChotKhach,
+                    },
+                }, schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors"
+                },
+
+                error: function (e) {
+                    display_kendoui_grid_error(e);
+                    // Cancel the changes
+                    this.cancelChanges();
+                },
+                serverPaging: false,
+                serverSorting: false,
+                serverFiltering: false
+            },
+            scrollable: false,
+            columns: [{
+                field: "HoVaTen",
+                title: "@T("ChonVe.NhaXe.NhanVien.HoVaTen")"
+            }, {
+                field: "Email",
+                title: "@T("ChonVe.NhaXe.Email")"
+            }, {
+                field: "NgaySinh",
+                title: "@T("ChonVe.NhaXe.NhanVien.NgaySinh")",
+                width: 100,
+                type: "date",
+                format: "{0:dd/MM/yyyy}"
+            }, {
+                field: "KieuNhanVienText",
+                title: "@T("ChonVe.NhaXe.NhanVien.KieuNhanVienID")"
+            }, {
+                field: "CMT_Id",
+                title: "@T("ChonVe.NhaXe.NhanVien.CMT_Id")"
+            }, {
+                field: "TrangThaiText",
+                title: "@T("ChonVe.NhaXe.NhanVien.TrangThaiID")"
+            }, {
+                field: "Id",
+                title: "&nbsp;",
+                width: 100,
+                template: '<a href="javascript:UpdateNhanVienChot(#=Id#,0)">Xóa</a>'
+            }]
+        });
+    });
+    function UpdateNhanVienChot(NhanVienId, DiemChotId) {
+        if (DiemChotId == 0)
+        {
+            //xoa
+            var _diemchotid = $('#@Html.FieldIdFor(model => model.Id)').val();
+            $.ajax({
+                url: "@Html.Raw(Url.Action("ChotKhachNhanVienXoa", "NhaXes"))",
+                type: "POST",
+            data: {
+                NhanVienId: NhanVienId,
+                DiemChotId: _diemchotid
+            },
+            success: function (data) {
+                RefreshGrid();
+            }
+            });
+        }
+        else
+        {
+            $.ajax({
+                url: "@Html.Raw(Url.Action("ChotKhachNhanVienUpdate", "NhaXes"))",
+                type: "POST",
+            data: {
+                NhanVienId: NhanVienId,
+                DiemChotId: DiemChotId
+            },
+            success: function (data) {
+                RefreshGrid();
+            }
+            });
+        }
+        
+    }
+</script>

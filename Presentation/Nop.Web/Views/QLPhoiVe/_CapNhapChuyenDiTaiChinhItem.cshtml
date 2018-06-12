@@ -1,0 +1,22 @@
+﻿@model ChuyenDiTaiChinhModel.ChuyenDiTaiChinhThuChiModel
+<table class="adminContent">
+    <tr>
+        <td class="adminTitle">
+            @Model.LoaiThuChiText :
+        </td>
+        <td class="adminData">
+            <input type="text" name="txtSoTien_@Model.ChuyenDiTaiChinhId" datastt="@Model.STT" data_typeid="@Model.LoaiThuChiId" value="@Model.SoTien.ToString("###.###")" />
+        </td>
+    </tr>
+    @if (Model.loaithuchi == Nop.Core.Domain.NhaXes.ENLoaiTaiChinhThuChi.CHI_SUA_CHUA_XE)
+    {
+        <tr>
+            <td class="adminTitle">
+                Ghi chú:
+            </td>
+            <td class="adminData">
+                <input type="text" id="txtGhiChu_ChiPhiSuaChua" value="@Model.GhiChu" />
+            </td>
+        </tr>
+    }
+</table>

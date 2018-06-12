@@ -1,0 +1,163 @@
+﻿@model LoaiXeModel.SoDoGheXeModel
+@using Nop.Services.NhaXes
+@using Nop.Core.Domain.NhaXes;
+<div style="width:100%">
+    <div style="position:relative">
+        <div style="padding-left:894px;width: 488px;font-size:15px;top: -71px;text-align:right">
+            <table style="font-size:15px;width: 100%;">
+                <tr>
+                    <td style="text-align:right">
+                        <a href="javascript:ChuyenSoDoGhe()" id="lnkChuyenSoDoGhe" title="chuyển sơ đồ ghế">Chuyển sơ đồ ghế</a>
+                    </td>
+                    <td style="text-align:right">
+                        <a class="k-button" href="javascript:ThietDatChuyenDi_Open(@Model.chuyendihientai.XeVanChuyenId,@Model.chuyendihientai.LaiXeId,@Model.chuyendihientai.PhuXeId)" id="lnkThietDatChuyenDi" title="Thiết đặt thông tin chuyến đi"><img src="~/Content/chonve/nhaxe/edit_action.png" /></a>
+                    </td>
+                    <td style="text-align:left;font-weight:bold">
+                        <span id="spChuyenDi_BienSo">@Model.chuyendihientai.BienSo</span>
+                    </td>
+                    <td style="text-align:left;font-weight:bold">
+                        <span id="spChuyenDi_LaiXe">
+                            @foreach (var lx in Model.chuyendihientai.laivaphuxes)
+                            {
+                                @lx.TenLaiXe
+                                <br />
+                            }
+                        </span>
+                    </td>
+                </tr>
+
+            </table>
+        </div>
+    </div>
+@Html.Partial("_GetInfoSoDoGheXeToDatVe1", Model)
+</div>
+@*<div id="tabPhoiVeBoSung" style="width:100%;margin-top:15px">
+    <div style="margin-top:10px;">
+        <div class="section-header">
+            <div class="title">
+                <img src="@Url.Content("~/Content/chonve/nxmenu/keve_capnhatchuyen.png")" alt="" />
+                Thông tin vé bổ sung từ lái/phụ xe
+            </div>
+            <div class="options">
+                <input type="button" id="btnPhoiVeBoSung_Them" value="Bổ sung vé" class="k-button" onclick="PhoiVeBoSung_Them();" />
+            </div>
+        </div>
+        <div>
+            <div id="grid-phoivebosung"></div>
+            <script>
+                $(document).ready(function () {
+                    $("#grid-phoivebosung").kendoGrid({
+                        dataSource: {
+                            type: "json",
+                            transport: {
+                                read: {
+                                    url: "@Html.Raw(Url.Action("PhoiVeBoSung_List", "QLPhoiVe"))",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: {ChuyenDiId:'@Model.chuyendihientai.Id'}
+                                }
+                            },
+                            schema: {
+                                data: "Data",
+                                total: "Total",
+                                errors: "Errors"
+                            },
+                            error: function(e) {
+                                display_kendoui_grid_error(e);
+                                // Cancel the changes
+                                this.cancelChanges();
+                            },
+                            serverPaging: false,
+                            serverFiltering: false,
+                            serverSorting: false
+                        },
+                        scrollable: false,
+                        columns: [{
+                            field: "TenChang",
+                            title: "Hành trình"
+                        }, {
+                            field: "TenNhanVien",
+                            title: "Nhân viên"
+                        }, {
+                            field: "TenMau",
+                            title: "Mẫu và ký hiệu vé"
+                        }, {
+                            field: "SoLuong",
+                            title: "Số lượng"
+                        }
+                        , {
+                            field: "SeriFrom",
+                            title: "Seri vé từ"
+                        }, {
+                            field: "SeriTo",
+                            title: "Seri vé đến"
+                        },{
+                            title: "",
+                            width: 100,
+                            template: '<a href="javascript:PhoiVeBoSung_Huy(#=NhanVienId#,#=ChangId#,#=MauVeId#,#=SeriFrom#,#=SeriTo#)">Hủy</a>'
+                        },]
+                    });
+                });
+                function PhoiVeBoSung_Load()
+                {
+                    $("#grid-phoivebosung").data('kendoGrid').dataSource.read();
+                    LoadChiPhiChuyenDi();
+                }
+                function PhoiVeBoSung_Huy(_nhanvienid,_changid,_mauid,_serifrom,_serito)
+                {
+                    if(!confirm("Bạn có chắc chắn hủy không"))
+                    {
+                        return;
+                    }
+                    var chuyendiid='@Model.chuyendihientai.Id';
+                    $.ajax({
+                        cache: false,
+                        type: "POST",
+                        data: { "ChuyenDiId": chuyendiid, "ChangId": _changid, "MauVeId": _mauid, "NhanVienId": _nhanvienid, "SeriFrom": _serifrom, "SeriTo": _serito },
+                        dataType: 'json',
+                        url: "@(Url.Action("PhoiVeBoSung_Huy", "QLPhoiVe"))",
+                        success: function (data) {
+                            PhoiVeBoSung_Load();
+                        },
+
+                    });
+                }
+                function PhoiVeBoSung_Them()
+                {
+                    var _formtemp = $("#FormWindowPhoiVeBoSung");
+                    _formtemp.html('');
+                    var chuyendiid='@Model.chuyendihientai.Id';
+                    _formtemp.kendoWindow({
+                        width: "600px",
+                        height: "400px",
+                        title: "Tạo thông tin vé bổ sung",
+                        content: "@(Url.Action("_PhoiVeBoSung_ThemMoi", "QLPhoiVe"))?ChuyenDiId=" + chuyendiid,
+                        modal: true,
+                        actions: [
+                            "Close"
+                        ],
+                    }).data("kendoWindow").center();
+                    _formtemp.data('kendoWindow').open();
+                }
+                
+                function CloseWindowPhoiVeBoSung() {
+                    $("#FormWindowPhoiVeBoSung").data('kendoWindow').close();   
+                    PhoiVeBoSung_Load();
+                    
+                }
+            </script>
+
+        </div>
+    </div>
+</div>*@
+<script>
+    @if(Model.PhanLoai==ENPhanLoaiPhoiVe.PHOI_VE)
+    {
+        <text>
+    $(document).ready(function () {
+        SetSoLuongKhachDatVe(@Model.chuyendihientai.Id,@Model.chuyendihientai.SoNguoi,@Model.chuyendihientai.SoGhe);
+    });
+
+    </text>
+    }
+</script>

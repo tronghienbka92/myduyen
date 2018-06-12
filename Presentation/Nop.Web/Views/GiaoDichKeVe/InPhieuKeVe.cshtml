@@ -1,0 +1,94 @@
+﻿@model GiaoDichKeVeModel
+@Html.ValidationSummary(false)
+@{
+    Layout = null;
+    var nguoinhan = Model.tennguoinhan.ToString();
+    var nguoigiao = Model.tennguoigiao.ToString();
+    var ngayke = Model.NgayKe;
+}
+<div>
+    <div style="padding-left:10px;padding-right:10px;margin:0px auto 0px auto;width:860px">
+
+        <div style="text-align:right;padding-right:30px;width:100%;font-size:10px">
+            Ngày in : @DateTime.Now.ToString("dd/MM/yyyy HH:mm")
+        </div>
+
+        @if (Model.PhanLoaiId == (int)Nop.Core.Domain.NhaXes.ENGiaoDichKeVePhanLoai.KE_VE)
+        {
+            <div style="margin-left:30%; font-weight:bold; text-transform:uppercase;">Kê Vé Ngày @String.Format("{0:dd}", ngayke) tháng @String.Format("{0:MM}", ngayke) năm @String.Format("{0:yyyy}", ngayke) </div>
+        }
+        else
+        {
+            <div style="margin-left:30%; font-weight:bold; text-transform:uppercase;">Giao Dịch Trả Vé Ngày @String.Format("{0:dd}", ngayke) tháng @String.Format("{0:MM}", ngayke) năm @String.Format("{0:yyyy}", ngayke) </div>
+        }
+
+        <br />
+        <table border="1" style="width:100%;">
+            <tr style="height:30px">
+                <td style=" font-weight: bold; text-align: center; width: 55px;">STT</td>
+                <td style=" font-weight: bold; text-align: center; width: 80px;">Mệnh Giá</td>
+                <td style="width: 80px; font-weight: bold; text-align: center;">Số Lượng</td>
+                <td style="width: 150px; font-weight: bold; text-align: center;">Mẫu/ký hiệu</td>
+                <td style=" font-weight: bold; text-align: center; width: 90px;">Từ Số</td>
+                <td style=" font-weight: bold; text-align: center; width: 90px;">Đến Số</td>
+                <td style=" font-weight: bold; text-align: center;">Ghi Chú</td>
+            </tr>
+            @for (int i = 0; i < Model.veluotdi.Count; i++)
+            {
+                var gdmenhgia = Model.veluotdi[i];
+                <tr style="height:30px">
+                    <td align="center">@(i + 1)</td>
+                    <td align="right">@String.Format("{0:0,0}", gdmenhgia.MenhGia)</td>
+                    <td align="right">@gdmenhgia.SoLuong</td>
+                    <td align="right" style="font-size:small">@gdmenhgia.MauVe</td>
+                    <td align="right">@gdmenhgia.SeriFrom</td>
+                    <td align="right">@gdmenhgia.SeriTo</td>
+                    <td align="right">@gdmenhgia.GhiChu</td>
+                </tr>
+            }
+
+
+        </table>
+      
+        <table align="center" style="width:80%;margin-top:10px">
+            <tr>
+                <td align="center" style="width:65%">
+                    Người Nhận
+
+                </td>
+
+                <td align="center">
+                    Người Giao
+
+                </td>
+            </tr>
+
+            <tr>
+                <td align="center">
+                    @if (Model.PhanLoaiId == (int)Nop.Core.Domain.NhaXes.ENGiaoDichKeVePhanLoai.KE_VE)
+                    {
+                        <text>
+                            Nếu thiếu vé bán tôi xin chịu hoàn toàn trách nhiệm
+                        </text>
+                    }
+                    &nbsp;
+                </td>
+
+                <td></td>
+            </tr>
+            <tr>
+                <td colspan="2" style="height:45px">&nbsp;</td>
+            </tr>
+            <tr>
+                <td align="center" style="text-transform: uppercase; font-weight: bold;">@nguoinhan</td>
+
+                <td align="center" style="text-transform: uppercase; font-weight: bold;">@nguoigiao</td>
+            </tr>
+        </table>
+    </div>
+</div>
+<style>
+    table {
+        border-collapse: collapse;
+    }
+</style>

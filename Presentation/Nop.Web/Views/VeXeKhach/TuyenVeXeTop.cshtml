@@ -1,0 +1,14 @@
+﻿@model List<TuyenVeXeModel>
+@using Nop.Web.Models.VeXeKhach
+<div class="brands_products">
+    <div class="brands-name">
+        <ul class="nav nav-pills nav-stacked">
+            @foreach (var item in Model)
+            {
+                <li class="inactive">
+                    @Html.Partial("_TuyenVeXeItemBasic", item)
+                </li>
+            }
+        </ul>
+    </div>
+</div>

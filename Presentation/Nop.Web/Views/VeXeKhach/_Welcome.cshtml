@@ -1,0 +1,69 @@
+﻿<div class="cv-box-introduction">
+    <div class="cv-introduction">
+        <div class="cv-option-intro">
+            <div><img alt="" src="~/Themes/ChonVe/Content/images/icon/intro.png" /></div>
+            <div><p>Hệ thống đặt vé trực tuyến và công thông tin vé xe khách lớn nhất Việt Nam với trên 100 hàng xe.Bạn có thể dễ dàng so sánh bằng giá vé, lịch trình, số điện thoại, địa chỉ cũng như đánh giá về các hãng xe.</p></div>
+        </div>
+    </div>
+    <div class="cv-buy-ticket">
+        <div class="cv-bdvietanm"><img alt="" src="~/Themes/ChonVe/Content/images/icon/bdvietnam.png" /></div>
+        <div class="cv-zoon">
+            <div class="cv-title-action">
+                <h2>Hoạt động của chúng tôi</h2>
+                <span>Xe bus chúng tôi hoạt động trên khắp cả nước</span>
+                <strong>Chọn một khu vực:</strong>
+            </div>
+            <div class="cv-content-active">
+                <a href="#">Miền Bắc</a>
+                <a href="#">Miền Trung</a>
+                <a href="#">Miền Nam</a>
+            </div>
+        </div>
+    </div>
+    <div class="cv-order-ticket">
+        <div class="cv-title-ticket">
+            <h3>Bốn cách dễ dàng mua vé</h3>
+        </div>
+        <div class="cv-content-ticket">
+            <div class="cv-nav-ticket">
+                <ul>
+                    <li data-active=".nav1" class="active">Trực tuyến</li>
+                    <li data-active=".nav2">Điện thoại di động</li>
+                    <li data-active=".nav3">Trên xe buýt</li>
+                    <li data-active=".nav4">Phòng bán vé</li>
+                </ul>
+            </div>
+            <div class="cv-content-tab">
+                <div class="cv-tab nav1 active">
+                    <div><p>Hệ thống 1 đặt vé trực tuyến và công thông tin vé xe khách lớn nhất Việt Nam với trên 100 hàng xe.Bạn có thể dễ dàng so sánh bằng giá vé, lịch trình, số điện thoại, địa chỉ cũng như đánh giá về các hãng xe</p></div>
+                    <div><img alt="" src="~/Themes/ChonVe/Content/images/icon/order1.png" /></div>
+                </div>
+                <div class="cv-tab nav2">
+                    <div><p>Hệ thống 2 đặt vé trực tuyến và công thông tin vé xe khách lớn nhất Việt Nam với trên 100 hàng xe.Bạn có thể dễ dàng so sánh bằng giá vé, lịch trình, số điện thoại, địa chỉ cũng như đánh giá về các hãng xe</p></div>
+                    <div><img alt="" src="~/Themes/ChonVe/Content/images/icon/order1.png" /></div>
+                </div>
+                <div class="cv-tab nav3">
+                    <div><p>Hệ thống 3 đặt vé trực tuyến và công thông tin vé xe khách lớn nhất Việt Nam với trên 100 hàng xe.Bạn có thể dễ dàng so sánh bằng giá vé, lịch trình, số điện thoại, địa chỉ cũng như đánh giá về các hãng xe</p></div>
+                    <div><img alt="" src="~/Themes/ChonVe/Content/images/icon/order1.png" /></div>
+                </div>
+                <div class="cv-tab nav4">
+                    <div><p>Hệ thống 4 đặt vé trực tuyến và công thông tin vé xe khách lớn nhất Việt Nam với trên 100 hàng xe.Bạn có thể dễ dàng so sánh bằng giá vé, lịch trình, số điện thoại, địa chỉ cũng như đánh giá về các hãng xe</p></div>
+                    <div><img alt="" src="~/Themes/ChonVe/Content/images/icon/order1.png" /></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function (e) {        
+        $('.cv-nav-ticket ul li').unbind('click');
+        $('.cv-nav-ticket ul li').click(function (event) {
+            $('.cv-nav-ticket ul li').removeClass('active');
+            $(this).addClass('active');
+            $('.cv-tab').removeClass('active');
+            var tab_active = $(this).data('active');
+            $(tab_active).addClass('active');
+        });
+        
+    });
+</script>

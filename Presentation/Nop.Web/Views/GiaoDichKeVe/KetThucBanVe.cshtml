@@ -1,0 +1,204 @@
+﻿@model KetThucBanVeModel
+@Html.ValidationSummary(false)
+
+@{
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+
+    //page title
+    ViewBag.Title = "Cập nhật thông tin vé theo chuyến";
+}
+
+<div class="section-header">
+    <div class="title">
+        <img src="@Url.Content("~/Content/chonve/nxmenu/phoive.png")" alt="" />
+        @ViewBag.Title
+    </div>
+</div>
+
+<table class="adminContent">
+
+    <tr>
+        <td class="adminTitle">
+            Ngày đi :
+        </td>
+        <td class="adminData">
+
+            @Html.EditorFor(m => m.NgayDi)
+        </td>
+    </tr> 
+</table>
+
+<table class="adminContent">
+    <tr>
+        <td>
+            <div id="gridlist"></div>
+
+            <script>
+                $(document).ready(function () {
+                   
+                    $("#gridlist").kendoGrid({
+                        dataSource: {
+                            type: "json",
+                            transport: {
+                                read: {
+                                    url: "/GiaoDichKeVe/GetAllChuyen",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: additionalData
+                                }
+                            },
+                            schema: {
+                                data: "Data",
+                                total: "Total",
+                                errors: "Errors"
+                            },
+                            error: function (e) {
+                                display_kendoui_grid_error(e);
+                                // Cancel the changes
+                                this.cancelChanges();
+                            },
+                            serverPaging: false,
+                            serverFiltering: false,
+                            serverSorting: false
+                        },
+
+                        scrollable: false,
+                        columns: [
+                                  
+                                  {
+                                      field: "TenBienSoXe", title: "Biển số",
+                                      headerAttributes: { style: "text-align: center;" },
+                                      attributes: { style: "text-align:center" }
+
+                                  },
+                                  {
+                                      field: "TuyenXeChay", title: "Tuyến",
+                                      headerAttributes: { style: "text-align: center;" },
+                                      attributes: { style: "text-align:center" }
+
+                                  },
+                                  {
+                                      field: "GioDi", title: "Giờ xuất bến",
+                                      headerAttributes: { style: "text-align: center;" },
+                                      attributes: { style: "text-align:center" }
+                                  },
+                                   {
+                                       field: "GioDen", title: "Giờ đến",
+                                       headerAttributes: { style: "text-align: center;" },
+                                       attributes: { style: "text-align:center" }
+                                   },
+                                    {
+                                        field: "TenLaiXe1", title: "Lái xe",
+                                        headerAttributes: { style: "text-align: center;" },
+                                        attributes: { style: "text-align:center" }
+                                    },
+                                     {
+                                         field: "TenLaiXe2", title: "NTV",
+                                         headerAttributes: { style: "text-align: center;" },
+                                         attributes: { style: "text-align:center" }
+                                     },
+                                   
+                                       {
+                                           field: "Id",
+                                           title: "Chỉnh sửa",
+                                           width: 100,
+                                           headerAttributes: { style: "text-align: center;" },
+                                           attributes: { style: "text-align:center" },
+                                           template: '<a href="/GiaoDichKeVe/_GetChang?XeXuatBenId=#=Id#" class="k-button"  target="_blank">Chỉnh sửa</a>',
+                                       },
+                                      
+                        ]
+                    });
+
+
+                });
+                function ChiTietGiaoDich(id) {
+                    var formchitiet = $("#ChiTietGiaoDich");
+                    formchitiet.kendoWindow({
+                        width: "700px",
+                        height: "590px",
+                        title: "Chi tiết giao dịch kê vé",
+                        content: "@(Url.Action("ChiTietGiaoDich", "GiaoDichKeVe"))?Id=" + id,
+                        actions: [
+                            "Close"
+                        ],
+                    }).data("kendoWindow").center();
+                    formchitiet.data('kendoWindow').open();
+                }
+
+                function additionalData() {
+                    var data =
+                    {
+                        NgayDi: $('#@Html.FieldIdFor(model => model.NgayDi)').val()
+                       
+                    };
+                    //addAntiForgeryToken(data);
+                    return data;
+                }
+            </script>
+        </td>
+    </tr>
+</table>
+
+<script>
+    $(document).ready(function () {
+        $("#@Html.FieldIdFor(model => model.NgayDi)").change(function () {
+            var grid = $('#gridlist').data('kendoGrid');
+            grid.dataSource.read();
+        });
+       
+    });
+
+    function GetXeXuatBenInfo() {
+       
+
+        var XeXuatBenId = $('#@Html.FieldIdFor(m => m.XeXuatBenId)').val();
+        $.ajax({
+            cache: false,
+            type: "POST",
+            data: {
+                "XeXuatBenId": XeXuatBenId,
+
+            },
+            url: "@(Url.Action("GetXeXuatBenInfo", "GiaoDichKeVe"))",
+            success: function (data) {
+                if (data != "OK") {
+                    alert("Chưa đủ thông tin");
+
+                }
+
+                $("#BangGiaVeInfo").html(data);
+
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                return alert('Error chon ghe');
+            }
+        });
+    }
+    function LoadGiaydiduong() {
+
+        var XeXuatBenId = $('#@Html.FieldIdFor(m => m.XeXuatBenId)').val();
+        $.ajax({
+            cache: false,
+            type: "GET",
+            dataType: "html",
+            contentType: 'application/html;charset=utf-8',
+            data: { "XeXuatBenId": XeXuatBenId },
+            url: "@(Url.Action("_GetChang", "GiaoDichKeVe"))",
+            success: function (data) {
+                if (data != null) {
+                    $("#BangGiaVeInfo").html(data);
+                }
+                else {
+                    $("#BangGiaVeInfo").html("<p>Không có quyền bán vé</p>")
+                }
+
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert('Chưa đủ thông tin');
+            }
+        });
+    }
+
+</script>
+

@@ -1,0 +1,50 @@
+﻿@model Nop.Web.Models.VeXeKhach.XeXuatBenModel
+
+@{
+    Layout = null;   
+}
+<div class="section-header">
+    <div class="options">
+        <input type="button" class="k-button" id="btnUpdNhatKy" value="Lưu thông tin" />
+    </div>
+</div>
+@Html.HiddenFor(model => model.Id)
+<table width="100%">
+    <tr>
+        <td>
+            Nhật ký:
+        </td>
+    </tr>
+    <tr>
+        <td>
+            @Html.TextAreaFor(m => m.GhiChu, new { style="height:200px;width:100%"})
+        </td>
+    </tr>
+</table>
+<script>
+    $(document).ready(function () {
+        $('#btnUpdNhatKy').click(function () {
+            var datamodel = {
+                Id: $("#@Html.FieldIdFor(m=>m.Id)").val(),
+                GhiChu: $("#@Html.FieldIdFor(m => m.GhiChu)").val()
+            }
+            $.ajax({
+                url: "@Html.Raw(Url.Action("AddNhatKyXuatBen", "NhaXes"))",
+                type: "POST",
+                data: datamodel,
+                success: function (data) {
+                    if (data == "OK") {
+                        SetCloseWindowNhatKy();
+                        var grid = $('#XeXuatBen_Grid').data('kendoGrid');
+                        grid.dataSource.page(1);
+                    }
+                    else {
+                        alert("Có lỗi trong quá trình lưu thông tin");
+                    }
+                }
+            });
+
+        });
+
+    });
+</script>

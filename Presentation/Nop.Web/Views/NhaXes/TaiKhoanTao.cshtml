@@ -1,0 +1,21 @@
+﻿@model TaiKhoanModel
+@using Nop.Web.Models.NhaXes
+@{
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+    //page title
+    ViewBag.Title = T("Admin.Customers.Customers.AddNew").Text;
+}
+@using (Html.BeginForm())
+{
+    <div class="section-header">
+        <div class="title">
+        <img src="@Url.Content("~/Content/chonve/nxmenu/nhanvientaikhoan.png")" alt="" />
+            @T("Admin.Customers.Customers.AddNew") @Html.ActionLink("(" + T("Admin.Customers.Customers.BackToList") + ")", "List")
+        </div>
+        <div class="options">
+            <input type="submit" name="save" class="k-button" value="@T("Admin.Common.Save")" />
+            <input type="submit" name="save-continue" class="k-button" value="@T("Admin.Common.SaveContinue")" />
+        </div>
+    </div>
+    @Html.Partial("_TaiKhoanChinhSua", Model)
+}

@@ -1,0 +1,74 @@
+﻿@model OrderModel
+@{
+    //page title
+    ViewBag.Title = T("Admin.Orders.EditOrderDetails").Text;
+}
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "order-form" }))
+{
+    <div class="section-header">
+        <div class="title">
+            <img src="@Url.Content("~/Administration/Content/images/ico-sales.png")" alt="" />
+            @T("Admin.Orders.EditOrderDetails") - @Model.Id @Html.ActionLink("(" + T("Admin.Orders.BackToList") + ")", "List")
+        </div>
+        <div class="options">
+            @if (Model.CanPrintBill)
+            {
+                <a href="@Url.Action("HoaDon", new { orderid = Model.Id })" target="_blank" class="k-button">@T("Admin.Orders.InHoaDon")</a>
+            }
+            @if (Model.CanPrintPhieuChi)
+            {
+                <a href="@Url.Action("PhieuChi", new { orderid = Model.Id })" target="_blank" class="k-button">@T("Admin.Orders.PhieuChi")</a>
+            }
+
+        </div>
+    </div>
+
+    @Html.ValidationSummary(false)//bao loi
+
+    <div id="order-edit">
+        <ul>
+            <li @Html.RenderSelectedTabIndex(0, GetSelectedTabIndex())>
+                @T("Admin.Orders.Info")
+            </li>         
+            @if (!Model.IsLoggedInAsVendor)
+            {
+                <li @Html.RenderSelectedTabIndex(4, GetSelectedTabIndex())>
+                    @T("Admin.Orders.OrderNotes")
+                </li>
+            }           
+        </ul>
+        <div>
+            @TabInfo()
+        </div>           
+        @if (!Model.IsLoggedInAsVendor)
+        {
+            <div>
+                @TabOrderNotes()
+            </div>
+        }        
+    </div>    
+    <script>
+        $(document).ready(function() {
+            $("#order-edit").kendoTabStrip({
+                animation:  {
+                    open: {
+                        effects: "fadeIn"
+                    }
+                },
+                select: tabstrip_on_tab_select
+            });
+        });
+    </script>
+}
+    @*xu ly su kien delete*@
+@Html.DeleteConfirmation("order-delete")
+@helper TabInfo()
+{
+    @Html.Partial("_OrderDetails.Info", Model)
+}
+@helper TabOrderNotes()
+{
+    @Html.Partial("_OrderDetails.Notes", Model)
+   
+}
+

@@ -1,0 +1,20 @@
+﻿@model List<KhachHangMuaVeItem>
+@using Nop.Core.Domain.NhaXes
+<table style="width:100%;border-collapse:collapse;font-style:normal" border="1">
+    <tr style="font-weight:bold">
+        <td>Tên</td>
+        <td>Số điện thoại</td>
+        <td>Thông tin chuyến đi</td>
+    </tr>
+    @foreach (var item in Model)
+    {
+        <text>
+            <tr>
+                <td>@item.TenKhachHang</td>
+                <td>@item.SoDienThoai</td>
+                <td>@item.ThongTinChuyenDi</td>
+    </tr>
+        </text>
+
+    }
+</table>

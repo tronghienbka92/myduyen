@@ -1,0 +1,34 @@
+﻿#window_chat{
+    width:100%;
+    height:100%;
+}
+#headerchat{
+   height: 30px;
+    background: #0B8043;
+    margin: 0px
+}
+.text_header{
+    padding-top: 5px;
+    padding-left: 39px;
+    color: #fff;
+    font-size: 17px;
+}
+body{
+    margin:0px;
+}
+.sectionchat{
+    min-height:310px;
+    background:#a5a1a1
+}
+.chat_box{
+
+}
+.chat_content{
+
+}
+.messenger_box{
+
+}
+.messenger_content{
+
+}

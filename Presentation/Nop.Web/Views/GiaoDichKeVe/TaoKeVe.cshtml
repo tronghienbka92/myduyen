@@ -1,0 +1,46 @@
+﻿@model GiaoDichKeVeModel
+@Html.ValidationSummary(false)
+
+@{
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+
+    //page title
+    ViewBag.Title = "Giao dịch kê Vé";
+}
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "giaodichkeve-form" }))
+{
+    @Html.HiddenFor(m => m.Id)
+    <div class="section-header">
+        <div class="title">
+            <img src="@Url.Content("~/Content/chonve/nxmenu/phoive.png")" alt="" />
+            @ViewBag.Title - @Model.Ma @Html.ActionLink("(Trở lại danh sách giao dịch kê vé)", "List")
+        </div>
+        <div class="options">
+            @if (Model.isEdit)
+            {
+                <text>
+                <input type="submit" id="hoanthanh" name="save" class="k-button" value="Lưu và kết thúc giao dịch" />&nbsp;
+                <a href='/GiaoDichKeVe/InPhieuKeVe?Id=@Model.Id' class="k-button" target="_blank">In Phiếu</a>&nbsp;
+                </text>
+                }
+            @if (Model.TrangThai != Nop.Core.Domain.NhaXes.ENGiaoDichKeVeTrangThai.HOAN_THANH)
+            {
+                <span id="giaodichkeve-delete" class="k-button">Hủy</span>
+            }
+                
+</div>
+    </div>
+    @Html.Partial("_ChinhSuaKeVe", Model)
+
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            $('#hoanthanh').click(function () {
+                return confirm("Bạn có chắc chắn không ?");                
+            });
+
+        });
+    </script>
+}
+
+@Html.DeleteConfirmation("XoaKeVe", "giaodichkeve-delete")

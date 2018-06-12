@@ -1,0 +1,112 @@
+﻿@model Nop.Web.Models.QLPhoiVe.QLChuyenDiModel
+@{
+    ViewBag.Title = "Danh sách chuyến xe";
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+}
+<div class="section-header">
+    <div class="title">
+        <img src="@Url.Content("~/Content/chonve/nxmenu/baocaodoanhthu.png")" alt="" />
+        @ViewBag.Title
+    </div>
+</div>
+<table style="width:100%">
+    <tr>
+        <td align="center" width="15%">
+            <table class="adminContent">
+                <tr>
+                    <td class="adminTitle" style="text-align:right">
+                        Từ ngày:
+                    </td>
+                    <td class="adminData">
+                        @Html.EditorFor(model => model.TuNgay)
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td align="center" width="15%">
+            <table class="adminContent">
+                <tr>
+                    <td class="adminTitle" style="text-align:right">
+                        đến ngày:
+                    </td>
+                    <td class="adminData">
+                        @Html.EditorFor(model => model.DenNgay)
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td align="center" width="25%">
+            <table class="adminContent">
+                <tr>
+                    <td class="adminTitle" style="text-align:right">
+                        Thông tin (Biển số, lái xe):
+                    </td>
+                    <td class="adminData">
+                        @Html.EditorFor(m => m.KeySearch)
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td align="center" width="20%">
+            <table class="adminContent">
+                <tr>
+                    <td class="adminTitle" style="text-align:right">
+                        Tuyến:
+                    </td>
+                    <td class="adminData">
+                        @Html.DropDownListFor(model => model.TuyenId, Model.ListTuyens)
+                    </td>
+                </tr>
+            </table>
+        </td>
+
+        <td style="text-align:left;">
+            <input type="button" id="btnSearch" class="k-button" value="@T("Admin.Common.Search")" />
+        </td>
+        
+    </tr>
+</table>
+<div id="tabChuyenDi"></div>
+<script>
+    function LoadChuyenDi() {
+        $('#tabChuyenDi').html("");
+        var datapost = dataSearchBaoCao();
+        $.ajax({
+            cache: false,
+            type: "POST",
+            data: datapost,
+            url: "@(Url.Action("_DanhSachChuyenDi", "QLPhoiVe"))",
+            success: function (data) {
+                $('#tabChuyenDi').html(data);
+
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                $('#tabChuyenDi').html("Có lỗi trong quá trình load dữ liệu");
+            }
+        });
+    }
+    
+    function dataSearchBaoCao() {
+        var TuNgay = ConvertDateTimeSystem($("#@Html.FieldIdFor(m => m.TuNgay)").val());
+        var DenNgay = ConvertDateTimeSystem($("#@Html.FieldIdFor(m => m.DenNgay)").val());
+        var datapost = {
+            TuNgay: TuNgay,
+            DenNgay: DenNgay,
+            TuyenId: $("#@Html.FieldIdFor(model => model.TuyenId)").val(),
+            KeySearch: $("#@Html.FieldIdFor(model => model.KeySearch)").val(),
+        };
+        return datapost;
+    }
+    $(document).ready(function () {
+        $('#btnSearch').click(function () {
+            //search
+            LoadChuyenDi();
+            return false;
+        });
+       
+        $("#@Html.FieldIdFor(model => model.TuyenId)").change(function () {
+            $("#btnSearch").click();
+        });
+        LoadChuyenDi();
+    });
+</script>

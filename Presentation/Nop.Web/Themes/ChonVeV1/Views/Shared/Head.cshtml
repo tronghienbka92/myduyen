@@ -1,0 +1,32 @@
+﻿@using Nop.Core;
+@using Nop.Core.Infrastructure;
+@using Nop.Web.Framework.UI
+@{
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    var kendoVersion = "2014.1.318";
+    //CSS kendo resources
+    Html.AppendCssFileParts(string.Format("~/Content/kendo/{0}/kendo.rtl.min.css", kendoVersion));
+    Html.AppendCssFileParts(string.Format("~/Content/kendo/{0}/kendo.metro.min.css", kendoVersion));
+    Html.AppendCssFileParts(string.Format("~/Content/kendo/{0}/kendo.metro.mobile.min.css", kendoVersion));
+    Html.AppendCssFileParts(string.Format("~/Content/kendo/{0}/kendo.common.min.css", kendoVersion));
+    Html.AppendCssFileParts("~/Content/jquery-ui-themes/smoothness/jquery-ui-1.10.3.custom.min.css");
+    //css kendo
+    Html.AppendScriptParts(string.Format("~/Scripts/kendo/{0}/kendo.all.min.js", kendoVersion));
+    Html.AppendScriptParts(string.Format("~/Scripts/kendo/{0}/cultures/kendo.culture.vi-VN.min.js", kendoVersion));
+    
+    //CSS resources
+    Html.AppendCssFileParts("~/Themes/ChonVeV1/Content/css/devrama-slider.css");
+    Html.AppendCssFileParts("~/Themes/ChonVeV1/Content/css/jquery.datepick.css");
+    Html.AppendCssFileParts("~/Themes/ChonVeV1/Content/css/font-awesome.min.css");
+    Html.AppendCssFileParts("~/Themes/ChonVeV1/Content/css/responsive.css");
+    Html.AppendCssFileParts("~/Themes/ChonVeV1/Content/css/style_1.css");    
+ 
+    //javascript            
+    Html.AppendScriptParts("~/Themes/ChonVeV1/Content/js/main.js");        
+    Html.AppendScriptParts("~/Themes/ChonVeV1/Content/js/jquery.datepick.js");
+    Html.AppendScriptParts("~/Themes/ChonVeV1/Content/js/jquery.plugin.js");
+    Html.AppendScriptParts("~/Themes/ChonVeV1/Content/js/jquery.devrama.slider-0.9.4.js");
+    Html.AppendScriptParts("~/Themes/ChonVeV1/Content/js/jquery-2.1.1.min.js");
+}

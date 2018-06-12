@@ -1,0 +1,88 @@
+﻿@model CustomerNavigationModel
+@using Nop.Web.Models.Customer;
+@{
+    string currentUrl = HttpContext.Current.Request.Url.PathAndQuery.ToLower();
+    int menuid = 0;
+    if (currentUrl == "/" || string.IsNullOrWhiteSpace(currentUrl))
+    {
+        menuid = 1;
+    }
+    if (currentUrl.IndexOf("Order/History") > 1)
+    {
+        menuid = 2;
+    }
+    else if (currentUrl.IndexOf("Customer/DownloadableProducts") > 1)
+    {
+        menuid = 3;
+    }
+    else if (currentUrl.IndexOf("Customer/ChangePassword") > 1)
+    {
+        menuid = 4;
+    }   
+}
+<div class="block block-account-navigation">
+   
+    <div class="MenuLeft">
+        <ul id="menu_info">
+            @Html.Widget("account_navigation_before")
+            <li style="height:40px"><p> <i class="fa fa-home i_style i_home"></i>TÀI KHOẢN CỦA TÔI</p></li>
+            @if (!Model.HideInfo)
+            {
+                <li class="@if (Model.SelectedTab == CustomerNavigationEnum.Info)
+                                                                   {<text>active</text>}
+                                                                   else
+                                                                   {<text>inactive</text>}">
+                    <a href="@Url.RouteUrl("CustomerInfo")"><i class="fa fa-user i_style"></i>Thông tin cá nhân</a>
+                </li>
+            }
+
+            @if (!Model.HideOrders)
+            {
+                <li class="@if (Model.SelectedTab == CustomerNavigationEnum.Orders)
+                                                                     {<text>active</text>}
+                                                                     else
+                                                                     {<text>inactive</text>}">
+                    <a href="@Url.RouteUrl("CustomerOrders")"> <i class="fa fa-book i_style"></i>Đơn đặt hàng</a>
+                </li>
+            }
+
+            @if (!Model.HideDownloadableProducts)
+            {
+                <li class="@if (Model.SelectedTab == CustomerNavigationEnum.Orders)
+                                                                     {<text>active</text>}
+                                                                     else
+                                                                     {<text>inactive</text>}">
+                    <a href="@Url.RouteUrl("CustomerDownloadableProducts")"><i class="fa fa-gift i_style"></i> Sản phẩm khuyến mãi</a>
+                </li>
+            }
+            
+            @if (!Model.HideChangePassword)
+            {
+                <li class="@if (Model.SelectedTab == CustomerNavigationEnum.ChangePassword)
+                           {<text>active</text>}
+                           else
+                           {<text>inactive</text>}">
+                    <a href="@Url.RouteUrl("CustomerChangePassword")"><i class="fa fa-key i_style"></i> mật khẩu</a>
+                </li>
+            }
+            
+         
+           
+        </ul>
+    </div>
+</div>
+<script>
+    function SetActiveForMenu(intid)
+    {
+        $("#menu_info li").each(function (index) {
+            $(this).removeClass("selected");
+        });
+        $("#menu_info li").each(function (index) {
+            if (index == intid)
+                $(this).addClass("selected");
+        });
+    }
+    $(document).ready(function () {
+        SetActiveForMenu(@(menuid));
+    });
+</script>

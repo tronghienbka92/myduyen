@@ -1,0 +1,158 @@
+﻿@model LoaiXeModel.SoDoGheXeModel
+@using Nop.Web.Models.NhaXes
+@using Nop.Core.Domain.Chonves
+
+@SoDoGhe(1)
+
+@if (Model.SoTang == 2)
+{
+    @SoDoGhe(2)
+}
+@helper SoDoGhe(int tang)
+{
+    <div class="divquytacsodoghe">
+        <h3>@T("ChonVe.LoaiXe.LoaiXe.ChonSoDoGhe.Tang") @tang</h3>
+        <table class="quytacsodoghe">
+            @for (int c = 1; c < Model.SoCot + 1; c++)
+            {
+                <tr>
+                    @for (int h = 1; h < Model.SoHang + 1; h++)
+                    {
+                        @gheInfo(h, c, tang)
+
+                    }
+                </tr>
+            }
+        </table>
+    </div>
+}
+
+
+@helper gheInfo(int h, int c, int tang)
+{
+    var withcol = 100 / Model.SoHang;
+    var _class = "quytacsodoghedamua";
+
+    if (Model.MaTran[h - 1, c - 1] == 1)
+    {
+        ENTrangThaiPhoiVe tt = Model.PhoiVes1[h, c].Info.TrangThai;
+        var kyhieu = Model.PhoiVes1[h, c].KyHieu;
+        var idphoive = Model.PhoiVes1[h, c].Info.Id;
+        if (tang == 2)
+        {
+            kyhieu = Model.PhoiVes2[h, c].KyHieu;
+            tt = Model.PhoiVes2[h, c].Info.TrangThai;
+            idphoive = Model.PhoiVes2[h, c].Info.Id;
+        }
+        var _actionlink = "javascript:void(0);";
+        switch (tt)
+        {
+            case ENTrangThaiPhoiVe.ConTrong:
+                {
+                    _actionlink = string.Format("javascript:ChonGheDatCho('{0}',{1})", kyhieu, tang);
+                    _class = "quytacsodoghecontrong";
+                    break;
+                }
+            case ENTrangThaiPhoiVe.DatCho:
+                {
+                    _actionlink = string.Format("javascript:HuyGheDatCho('{0}')", idphoive);
+                    _class = "quytacsodoghedatcho";
+                    break;
+                }
+            case ENTrangThaiPhoiVe.GiuCho:
+                {
+                    _class = "quytacsodoghedatcho";
+                    break;
+                }
+            case ENTrangThaiPhoiVe.ChoXuLy:
+                {
+                    _class = "quytacsodogheChoXuLy";
+                    break;
+                }
+            case ENTrangThaiPhoiVe.DaGiaoHang:
+                {
+                    _class = "quytacsodoghedamua";
+                    break;
+                }
+        }
+
+        <td style="width:@withcol%">
+            <div>
+                <a href="@_actionlink">
+                    <img src='/Content/Images/sodoghe/gheitemempty.png' />
+                    <br />
+                    <span class=@_class>@kyhieu</span>
+                </a>
+            </div>
+        </td>
+    }
+    else
+    {
+        <td style="width:@withcol%"></td>
+    }
+
+}
+
+
+
+
+
+
+<style>
+    .divquytacsodoghe {
+        width: 1330px;
+        float: left;
+        margin-left: 10px;
+        margin-top: 39px;
+    }
+
+        .divquytacsodoghe h3 {
+            width: 100%;
+            text-align: center;
+            margin-top: 5px;
+        }
+
+    .quytacsodoghe {
+        width: 100%;
+        border: solid 1px #aea8a8;
+    }
+
+        .quytacsodoghe td {
+            vertical-align: middle;
+            text-align: center;
+            height: 50px;
+        }
+
+            .quytacsodoghe td div {
+                border: solid 1px #bebbbb;
+                margin: 2px;
+                padding: 2px;
+                height: 135px;
+            }
+
+                .quytacsodoghe td div table {
+                    width: 100%;
+                    height: 70px;
+                }
+
+                .quytacsodoghe td div img {
+                    width: 50px;
+                    height: 50px;
+                }
+
+    .quytacsodoghecontrong {
+        margin-left: -181px;
+        color: #43a958;
+    }
+
+
+    .quytacsodoghedamua {
+        margin-left: -181px;
+        color: #892b2b;
+    }
+
+    .quytacsodogheChoXuLy {
+        margin-left: -181px;
+        color: #ff0000;
+    }
+</style>

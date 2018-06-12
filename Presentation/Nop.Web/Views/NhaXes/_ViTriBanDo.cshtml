@@ -1,0 +1,172 @@
+﻿@model DiaChiInfoModel
+@using Nop.Web.Models.NhaXes
+<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js"></script>
+<script type="text/javascript">
+    var MapGoogle_map;
+    var MapGoogle_marker;
+    var MapGoogle_geocoder = new google.maps.Geocoder();;
+    var MapGoogle_addresspos = "";
+    var MapGoogle_myCenter;// = new google.maps.LatLng(21.028385, 105.841599); //vi tri Ha Noi
+    function MapGooglegeocodePosition() {
+        if (MapGoogle_geocoder == null)
+            MapGoogle_geocoder = new google.maps.Geocoder();
+        var pos = MapGoogle_marker.getPosition();
+        MapGoogle_geocoder.geocode({
+            'latLng': pos
+        }, function (responses, status) {
+            if (status == google.maps.GeocoderStatus.OK) {
+                if (responses && responses.length > 0) {
+                    MapGoogle_addresspos = responses[0].formatted_address;
+                }
+                var infowindow = new google.maps.InfoWindow({
+                    content: 'Địa chỉ:' + MapGoogle_addresspos + ' <br>Latitude: ' + pos.lat() + '<br>Longitude: ' + pos.lng()
+                });
+                infowindow.open(MapGoogle_map, MapGoogle_marker);
+            }
+        });
+        
+        
+    }
+    function MapGoogleInitialize() {
+        var lat = parseFloat($('#@Html.FieldIdFor(model => model.Latitude)').val());
+        var lng = parseFloat($('#@Html.FieldIdFor(model => model.Longitude)').val());
+        if (lat == 0 || lng == 0) {
+            lat = 21.028385;
+            lng = 105.841599;
+        }
+
+        MapGoogle_myCenter = new google.maps.LatLng(lat, lng);
+
+        var myOptions =
+        {
+            zoom: 13,
+            center: MapGoogle_myCenter,
+            mapTypeId: google.maps.MapTypeId.ROADMAP,
+            disableDefaultUI: true
+        };
+        MapGoogle_map = new google.maps.Map(document.getElementById("googleMap"), myOptions);
+
+        google.maps.event.addListener(MapGoogle_map, 'click', function (event) {
+            MapGoogleplaceMarker(event.latLng);
+        });
+
+        MapGoogleplaceMarker(MapGoogle_myCenter);
+
+
+    }
+    function MapGoogleInitializeNewMap() {
+
+        var myOptions =
+        {
+            zoom: 13,
+            center: MapGoogle_myCenter,
+            mapTypeId: google.maps.MapTypeId.ROADMAP,
+            disableDefaultUI: true
+        };
+        MapGoogle_map = new google.maps.Map(document.getElementById("googleMap"), myOptions);
+        google.maps.event.addListener(MapGoogle_map, 'click', function (event) {
+            MapGoogleplaceMarker(event.latLng);
+        });
+    }
+
+
+    function MapGoogleplaceMarker(location) {
+        
+        if (MapGoogle_marker != null) {
+            MapGoogle_marker.setMap(null);
+            //setAllMap(null);
+        }
+        
+        MapGoogle_marker = new google.maps.Marker({
+            position: location,
+            map: MapGoogle_map,
+        });
+        
+        MapGooglegeocodePosition();
+        
+        $('#@Html.FieldIdFor(model => model.Latitude)').val(MapGoogle_marker.getPosition().lat());
+        $('#@Html.FieldIdFor(model => model.Longitude)').val(MapGoogle_marker.getPosition().lng());
+        
+    }
+
+    function MapGoogleFindLocation() {
+        //geocoder = new google.maps.Geocoder();
+        MapGoogleInitializeNewMap();
+
+        var address = document.getElementById("addressinput").value;
+        if (address == "")
+            address = "Hà Nội, Việt Nam";
+        MapGoogle_geocoder.geocode({ 'address': address }, function (results, status) {
+            if (status == google.maps.GeocoderStatus.OK) {
+                MapGoogle_myCenter = results[0].geometry.location;
+                MapGoogle_map.setCenter(MapGoogle_myCenter);
+                MapGoogleplaceMarker(MapGoogle_myCenter);
+                MapGoogle_addresspos = results[0].formatted_address;
+                
+                var infowindow = new google.maps.InfoWindow({
+                    content: 'Địa chỉ:' + MapGoogle_addresspos + ' <br>Latitude: ' + MapGoogle_myCenter.lat() + '<br>Longitude: ' + MapGoogle_myCenter.lng()
+                });
+                infowindow.open(MapGoogle_map, MapGoogle_marker);
+            }
+            else {
+                alert(@T("ChonVe.NhaXe.VanPhong.BanDo.KoTimThayVitri") +status);
+            }
+        });
+
+    }
+</script>
+
+<script>
+    $(document).ready(function () {
+        MapGoogleInitialize();
+        $("#btnSearchVitri").click(function () {            
+            MapGoogleFindLocation();
+        });
+        //$("#btnSearchVitri").click();
+    });
+</script>
+ 
+<table class="adminContent">
+    <tr>
+        <td class="adminTitle">
+            @T("ChonVe.NhaXe.VanPhong.BanDo.ThongTinVitri"):
+        </td>
+        <td class="adminData">
+            <input id="addressinput" type="text" style="width: 300px" class="text-box single-line" />  <input id="btnSearchVitri" type="button" value="@T("Admin.Common.Search")" class="k-button" />
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <table>
+                <tr>
+                    <td style="width:500px">
+                        <div id="googleMap" style="width:500px;height:380px;"></div>
+                    </td>
+                    <td style="vertical-align:top">
+                        <table class="adminContent">
+                            <tr>
+                                <td class="adminTitle">
+                                    @Html.NopLabelFor(model => model.Latitude):
+                                </td>
+                                <td class="adminData">
+                                    @Html.TextBoxFor(model => model.Latitude)
+                                    @Html.ValidationMessageFor(model => model.Latitude)
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="adminTitle">
+                                    @Html.NopLabelFor(model => model.Longitude):
+                                </td>
+                                <td class="adminData">
+                                    @Html.TextBoxFor(model => model.Longitude)
+                                    @Html.ValidationMessageFor(model => model.Longitude)
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+
+        </td>
+    </tr>
+</table>

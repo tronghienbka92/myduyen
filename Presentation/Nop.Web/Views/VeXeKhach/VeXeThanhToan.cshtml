@@ -1,0 +1,33 @@
+﻿@model ThanhToanVeXeModel
+@using Nop.Web.Models.VeXeKhach
+@using (Html.BeginForm(null, null, FormMethod.Post))
+{
+    @Html.HiddenFor(model=>model.nguonvexe.Id)
+    <div class="row">
+        <div class="col-md-12">
+            <h1>Thanh toan</h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="enter-address">
+                <div class="message-error">
+                    @Html.ValidationSummary(true)
+                </div>
+                <div class="enter-address-body">
+                    @{
+                        var dataDictAddress = new ViewDataDictionary();
+                        //Merge ModelState (required for validation)
+                        dataDictAddress.ModelState.Merge(ViewData.ModelState);
+                        dataDictAddress.TemplateInfo.HtmlFieldPrefix = "diachigiaohang.Address";
+                        @Html.Partial("_CreateOrUpdateAddress", Model.diachigiaohang.Address, dataDictAddress)
+                    }
+                </div>
+            </div>
+        </div>
+
+    </div>    
+    <div class="buttons">
+        <input type="submit" name="nextstep" value="@T("Checkout.NextButton")" class="button-1 new-address-next-step-button" />
+    </div>
+}

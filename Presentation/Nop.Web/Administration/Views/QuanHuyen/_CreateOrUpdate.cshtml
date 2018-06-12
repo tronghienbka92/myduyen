@@ -1,0 +1,76 @@
+﻿@model QuanHuyenModel
+@using Nop.Admin.Models.ChonVes 
+@Html.ValidationSummary(false)
+@Html.HiddenFor(model => model.Id)
+
+
+<div id="currency-edit">
+    <ul>
+        <li @Html.RenderSelectedTabIndex(0, GetSelectedTabIndex())>
+            @T("Admin.Configuration.Currencies.Info")
+        </li>
+    </ul>
+    <div>
+        @TabInfo()
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#currency-edit").kendoTabStrip({
+            animation: {
+                open: {
+                    effects: "fadeIn"
+                }
+            },
+            select: tabstrip_on_tab_select
+        });
+    });
+</script>
+
+@{
+    //custom tabs
+    var eventMessage = new AdminTabStripCreated(this.Html, "currency-edit");
+    EngineContext.Current.Resolve<IEventPublisher>().Publish(eventMessage);
+    foreach (var eventBlock in eventMessage.BlocksToRender)
+    {
+        @eventBlock
+    }
+}
+
+
+@*save selected tab index*@
+<input type="hidden" id="selected-tab-index" name="selected-tab-index" value="@(GetSelectedTabIndex())">
+
+@helper TabInfo()
+{
+ 
+    <table class="adminContent">
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.ProvinceID):
+            </td>
+            <td class="adminData">
+                @Html.DropDownListFor(model => model.ProvinceID, Model.AvailableStates)
+                @Html.ValidationMessageFor(model => model.ProvinceID)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.Ma):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.Ma)
+                @Html.ValidationMessageFor(model => model.Ma)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.Ten):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.Ten)
+                @Html.ValidationMessageFor(model => model.Ten)
+            </td>
+        </tr>     
+    </table>
+}

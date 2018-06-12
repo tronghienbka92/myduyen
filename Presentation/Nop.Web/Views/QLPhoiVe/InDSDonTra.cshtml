@@ -1,0 +1,95 @@
+﻿@model ChuyenDiModel
+
+@{
+    Layout = "~/Views/Shared/_Print.cshtml";
+    //page title
+    ViewBag.Title = "In phiếu";
+    int i = 0;
+    string Ten = "Đón Khách";
+    if (Model.istra)
+    {
+        Ten = "Trả Khách";
+    }
+        
+}
+<table style="height: 145px; width: 860px; font-size: 13px; text-align: left;">
+    <tbody>
+        <tr>
+            <td style="width: 150px; vertical-align: top; text-align: center;"></td>
+            <td style="vertical-align: top;">
+                <table style="width: 100%;">
+                    <tbody>
+                        <tr>
+                            <td style="text-align: center; font-size: 23px; font-weight: bold;">Danh Sách @Ten</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: center; font-style: italic;">Ng&agrave;y @DateTime.Now.Day th&aacute;ng @DateTime.Now.Month năm @DateTime.Now.Year</td>
+                        </tr>
+                       
+                    </tbody>
+                </table>
+            </td>
+            <td style="vertical-align: top;">
+                <table style="width: 100%;">
+                    <tbody>
+                        <tr>
+                            <td style="text-align: left;"><strong>Giờ chạy:</strong>@Model.chuyendihientai.NgayDi.ToString("HH:mm")</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left;"><strong>VP:</strong>@Model.TenVanPhong</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="3">
+                <table style="width: 100%; border-collapse: collapse; text-align: center;" border="1">
+                    <thead>
+                        <tr style="text-align: center;">
+                            <td>TT</td>
+                            <td>TÊN KHÁCH HÀNG</td>
+                            <td >SDT</td>
+                            <td>SỐ LƯỢNG</td>
+                            @if (!Model.istra)
+                            {
+                                <td>ĐIỂM ĐÓN</td>
+                            }
+                            else
+                            {
+                                <td>ĐIỂM TRẢ</td>
+                            }
+                            
+                            <td >GHI CHÚ</td>
+                           
+                        </tr>
+                    </thead>
+                    <tbody>
+                      @foreach (var item in Model.phoives)
+                      {
+                          i++;
+                          
+                        <tr>
+                            <td>@i</td>
+                            <td>@item.TenKhachHang</td>
+                            <td>@item.SoDienThoai</td>
+                            <td>@item.SoLuong</td>
+                            @if (!Model.istra)
+                            {
+                                <td>@item.ViTriLenXe</td>
+                            }
+                            else
+                            {
+                                <td>@item.ViTriXuongXe</td>
+                            }
+                           
+                           
+                            <td>@item.GhiChu</td>
+                        </tr>
+                      }
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+    </tbody>
+</table>

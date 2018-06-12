@@ -1,0 +1,15 @@
+﻿@model BlogPostListModel
+@using Nop.Web.Extensions;
+@using Nop.Web.Models.Blogs;
+<ul>
+    @foreach (var item in Model.BlogPosts)
+    {
+        <li><a href="@Url.RouteUrl("BlogPost", new {SeName = item.SeName})">@item.Title</a></li>
+    }
+</ul>
+
+
+
+
+
+

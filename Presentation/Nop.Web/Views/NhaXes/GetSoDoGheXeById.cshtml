@@ -1,0 +1,107 @@
+﻿@model LoaiXeModel.SoDoGheXeModel
+@using Nop.Web.Models.NhaXes
+
+@SoDoGhe(1)
+
+@if (Model.SoTang == 2)
+{
+    @SoDoGhe(2)
+}
+@helper SoDoGhe(int tang)
+{
+    <div class="divquytacsodoghe">
+        <div style=' width:100%;text-align:right;'>
+            <a href='javascript:CapNhatTheoQuyTac(@tang,@Model.SoCot,@Model.SoHang);' class='k-button'>@T("ChonVe.LoaiXe.LoaiXe.QuyTac.CapNhat")</a>&nbsp;
+            <select id='selectquytac_@tang' class='valid'><option value='1'>@T("ChonVe.LoaiXe.LoaiXe.QuyTac.CapNhat.Cot_Hang")</option><option value='2'>@T("ChonVe.LoaiXe.LoaiXe.QuyTac.CapNhat.Hang_Cot")</option></select>
+        </div>
+        <h3>@T("ChonVe.LoaiXe.LoaiXe.ChonSoDoGhe.Tang") @tang</h3>
+        <table class="quytacsodoghe">
+            @for (int h = 0; h < Model.SoHang + 1; h++)
+            {
+                <tr>
+                    @for (int c = 0; c < Model.SoCot + 1; c++)
+                    {
+                        @gheInfo(h, c, tang)
+                    }
+                </tr>
+            }
+        </table>
+    </div>
+}
+@helper gheInfo(int h, int c, int tang)
+{
+    var widthcol = 100 / Model.SoCot;
+    var kyhieu = Model.PhoiVes1[h, c].KyHieu;
+    if (tang == 2)
+    {
+        kyhieu = Model.PhoiVes2[h, c].KyHieu;
+    }
+
+    if (h == 0 || c == 0)
+    {
+        <td style='@widthcol%;vertical-align:bottom;padding:4px;'>
+            @if (h + c > 0)
+            {
+                <input type='text' name='sodoghexequytac_@(tang)' id='sodoghexequytac_@(tang)_@(h)_@(c)' value='@kyhieu' class='text-box single-line' style='width:40px;text-align:center'>
+            }
+        </td>
+    }
+    else
+    {
+        <td style='@(widthcol)%;'>
+            @if (Model.MaTran[h-1, c-1] == 1)
+            {
+                <div>
+                    <img src='/Content/Images/sodoghe/gheitemempty.png' style='width:48px;height:54px' /><br />
+                    <input type='text' name='gheitemkyhieughe_@(tang)' id='gheitemkyhieughe_@(tang)_@(h)_@(c)' value='@kyhieu' class='text-box single-line' style='width:40px;text-align:center'>
+                </div>
+            }
+        </td>
+    }
+}
+<script>
+    function CapNhatTheoQuyTac(tang, socot, sohang) {
+
+        for (var i = 1; i < sohang + 1; i++) {
+            for (var j = 1; j < socot + 1; j++) {
+                var kyhieughe = $("#sodoghexequytac_" + tang + "_0_" + j).val() + $("#sodoghexequytac_" + tang + "_" + i + "_0").val();
+                if ($("#selectquytac_" + tang).val() == "2")
+                    kyhieughe = $("#sodoghexequytac_" + tang + "_" + i + "_0").val() + $("#sodoghexequytac_" + tang + "_0_" + j).val();
+
+                $("#gheitemkyhieughe_" + tang + "_" + i + "_" + j).val(kyhieughe);
+            }
+        }
+
+    }
+</script>
+
+<style>
+    .divquytacsodoghe {
+        width: 450px;
+        float: left;
+        margin-left: 10px;
+    }
+
+        .divquytacsodoghe h3 {
+            width: 100%;
+            text-align: center;
+            margin-top: 5px;
+        }
+
+    .quytacsodoghe {
+        width: 100%;
+        border: solid 1px #aea8a8;
+    }
+
+        .quytacsodoghe td {
+            vertical-align: middle;
+            text-align: center;
+            height: 70px;
+        }
+
+            .quytacsodoghe td div {
+                border: solid 1px #bebbbb;
+                margin: 2px;
+                padding: 2px;
+            }
+</style>

@@ -1,0 +1,212 @@
+﻿@model KetThucBanVeModel
+@using Nop.Web.Models.NhaXeBanVe
+@using Nop.Core.Infrastructure
+@using Nop.Web.Framework.Events
+@using Nop.Services.Events
+@Html.ValidationSummary(false)
+@{
+    Layout = null;
+
+    //page title
+    ViewBag.Title = "Thông tin Giấy đi đường";
+}
+
+    <form id="formupdategiave">
+        @Html.HiddenFor(model => model.SoDiemDon)
+        @Html.HiddenFor(model => model.SeriText)
+        @Html.HiddenFor(model => model.Id)
+        @Html.HiddenFor(model => model.XeXuatBenId)
+        @Html.HiddenFor(model => model.arrChangDi)
+        @Html.HiddenFor(model => model.arrChangVe)
+
+
+        <div class="section-header">
+            <div class="title">
+                <img src="@Url.Content("~/Content/chonve/nxmenu/nhanvienquanly.png")" alt="" />
+                @ViewBag.Title
+            </div>
+            <div class="options">
+                <input type="button" id="BtnCapNhat" value="Cập nhật" class="k-button" />
+                <input type="button" id="BtnClose" value="Đóng" class="k-button" />
+              
+            </div>
+        </div>
+        <table>
+            <tr>
+                <td>
+                    Nhập Seri quầy:
+                </td>
+                <td>
+                    <textarea id="SeriQuay" rows="5" cols="120">@Model.SeriQuay</textarea>
+                </td>
+            </tr>
+        </table>
+        <div id="GiayDiDuongSeri">
+            <ul>
+                <li @Html.RenderSelectedTabIndex(0, GetSelectedTabIndex())>
+                    Lượt đi
+                </li>
+                <li @Html.RenderSelectedTabIndex(1, GetSelectedTabIndex())>
+                    Lượt về
+                </li>
+
+            </ul>
+            <div>
+                @TabLuotDi()
+            </div>
+            <div>
+                @TabLuotVe()
+            </div>
+
+        </div>
+        <input type="hidden" id="selected-tab-index" name="selected-tab-index" value="@(GetSelectedTabIndex())">
+        @{
+            //custom tabs
+            var eventMessage = new AdminTabStripCreated(this.Html, "GiayDiDuongSeri");
+        EngineContext.Current.Resolve<IEventPublisher>().Publish(eventMessage);
+        foreach (var eventBlock in eventMessage.BlocksToRender)
+        {
+            @eventBlock
+        }
+        }
+
+
+        @helper TabLuotDi()
+{
+        <h3 style="text-align:center">Lượt đi</h3>
+   
+        <table class="BangGiaVe">
+            @for (int i = 0; i < Model.SoDiemDon + 1; i++)
+        {
+                <tr>
+                    @for (int j = 0; j < Model.SoDiemDon + 1; j++)
+                {
+                    var withcol = 100 / (Model.SoDiemDon + 1);
+                        <td style="width:@withcol%;">
+                            @if (i == 0 && j > 0)
+                        {
+                                <span> @Model.arrChangDi[0, j].TenToDiemDon</span>
+
+                        }
+                            @if (j == 0 && i > 0)
+                        {
+                                <span> @Model.arrChangDi[i, 0].TenFromDiemDon</span>
+
+                        }
+                            @if (i > 0 && j > 0 && j > i)
+                        {
+                                <textarea name="SeriInput" rows="3" id='vitrihanhtrinhgiave_@(Model.arrChangDi[i, j].HanhTrinhGiaVeId)' class='text-box single-line' style='width:100px;text-align:center'>@Model.arrChangDi[i, j].DaySeri </textarea>
+
+
+
+                        }
+                        </td>
+                }
+
+                </tr>
+        }
+        </table>
+}
+        @helper TabLuotVe()
+{
+        <h3 style="text-align:center">Lượt về</h3>
+        <table class="BangGiaVe">
+            @for (int i = 0; i < Model.SoDiemDon + 1; i++)
+        {
+                <tr>
+                    @for (int j = 0; j < Model.SoDiemDon + 1; j++)
+                {
+                    var withcol = 100 / (Model.SoDiemDon + 1);
+                        <td style="width:@withcol%;">
+                            @if (i == 0 && j > 0)
+                        {
+                                <span> @Model.arrChangVe[0, j].TenToDiemDon</span>
+
+                        }
+                            @if (j == 0 && i > 0)
+                        {
+                                <span> @Model.arrChangVe[i, 0].TenFromDiemDon</span>
+
+                        }
+                            @if (i > 0 && j > 0 && j > i)
+                        {
+                                <textarea rows="3" name="SeriInput" id='vitrihanhtrinhgiave_@(Model.arrChangVe[i, j].HanhTrinhGiaVeId)' class='text-box single-line' style='width:100px;text-align:center'>@Model.arrChangVe[i, j].DaySeri</textarea>
+
+
+                        }
+                        </td>
+                }
+
+                </tr>
+        }
+        </table>
+}
+
+    </form>
+
+<script>
+    $(document).ready(function () {
+        $("#GiayDiDuongSeri").kendoTabStrip({
+            animation: {
+                open: {
+                    effects: "fadeIn"
+                }
+            }
+        });
+    });
+</script>
+
+<script type="text/javascript">
+    function LuuThongTingiave() {
+
+        //luu theo cu phap IdDiemDon;IdDiemDen;GiaVe|IdDiemDon;IdDiemDen;GiaVe
+        var thongtingiave = $("#SeriQuay").val()+"|";
+
+        $("textarea[name='SeriInput']").each(function () {
+
+            var input = $(this);
+            var idinfo = input.attr('id');
+            idinfo = idinfo.replace("vitrihanhtrinhgiave_", "");
+            idinfo = idinfo.replace(/_/g, ";");
+            thongtingiave = thongtingiave + idinfo + ";" + input.val() + "|";
+
+        });
+
+        $('#@Html.FieldIdFor(model => model.SeriText)').val(thongtingiave);
+
+    }
+
+    $(document).ready(function () {
+
+        $('#BtnCapNhat').click(function () {
+            if (!confirm("@T("Common.areyousure")")) {
+                return;
+            }
+            LuuThongTingiave();
+
+            var data = $("form").serialize();
+             $.ajax({
+            cache: false,
+            type: "POST",
+            data: data,
+            url: "@(Url.Action("HoanTatBanVe", "GiaoDichKeVe"))",
+            success: function (data) {
+                if (data != "OK") {
+                    alert("Chưa đủ thông tin");
+
+                }
+                document.location.href = "/GiaoDichKeVe/KetThucBanVe";
+
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                return alert('Error chon ghe');
+            }
+        });
+
+        });
+        $('#BtnClose').click(function () {
+            CloseWindowKetThucBanVe();
+
+    });
+    });
+</script>

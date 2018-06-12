@@ -1,0 +1,21 @@
+﻿@model Nop.Admin.Models.ChonVes.XuLyHopDongModel.KhachHangModel
+@Html.HiddenFor(model => model.Id)
+@Html.HiddenFor(model => model.HopDongId)
+@{
+    ViewBag.Title = T("Admin.Customers.Customers.AddNew").Text;
+    }
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "hopdong-form" }))
+{
+   <div class="section-header">
+        <div class="title">
+            <img src="@Url.Content("~/Administration/Content/images/ico-customers.png")" alt="" />
+            @T("Admin.Customers.Customers.AddNew")
+        </div>
+        <div class="options">
+            <input type="submit" id="btnAddTaiKhoan" class="k-button" value="@T("Admin.Common.Save")"/> 
+           
+        </div>
+    </div>
+    
+    @Html.Partial("_ChinhSuaTaiKhoan", Model)
+}

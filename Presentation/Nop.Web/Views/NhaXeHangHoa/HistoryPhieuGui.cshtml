@@ -1,0 +1,378 @@
+﻿@model HoaDonListModel
+@using Nop.Web.Models.NhaXes
+@using Nop.Core.Domain.NhaXes
+@using Nop.Core.Infrastructure
+@Html.ValidationSummary(false)
+@{
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+    var defaultGridPageSize = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().DefaultGridPageSize;
+    var gridPageSizes = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().GridPageSizes;
+
+    //page title
+    ViewBag.Title = "Lịch sử phiếu hàng";
+}
+<style>
+    .PhieuGuiStatus {
+        border-top-left-radius: 55px;
+        border-bottom-right-radius: 55px;
+        height: 25px;
+        cursor: pointer;
+        font-size: medium;
+        color: #ffffff;
+        list-style: none;
+        padding: 5px 3px 6px 0;
+    }
+    .td {
+        text-align: center;
+    }
+
+    .divcount {
+        font-weight: bolder;
+        text-align: center;
+    }
+</style>
+@Html.HiddenFor(model => model.TrangThaiVanChuyenId)
+<div class="section-header">
+    <div class="title">
+        <img src="@Url.Content("~/Content/chonve/nxmenu/hanhtrinhlichtrinh.png")" alt="" />
+        Danh sách phiếu hàng được gửi đến
+    </div>   
+</div>
+<table style="width:100%;margin-bottom:15px">
+    <tr>
+        <td style="width:25%">
+            <table class="adminContent">
+                <tr>
+                    <td class="adminTitle" style="text-align:right">
+                        Tên người gửi (hoặc nhận):
+                    </td>
+                    <td class="adminContent">
+                        @Html.EditorFor(model => model.TenNguoiGui)
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td style="width:25%">
+            <table class="adminContent">
+                <tr>
+                    <td class="adminTitle" style="text-align:right">
+                        Mã phiếu:
+                    </td>
+                    <td class="adminContent">
+                        @Html.EditorFor(model => model.MaPhieu)
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td style="width:35%">
+            <table style="width:100%">
+                <tr>
+                    <td id="vanphongnhan">
+                        <table class="adminContent">
+                            <tr>
+                                <td class="adminTitle" style="text-align:right">
+                                    VP nhận:
+                                </td>
+                                <td class="adminContent">
+                                    @Html.DropDownListFor(model => model.VanPhongNhanId, Model.VanPhongs)
+                                </td>
+                            </tr>
+                        </table>
+                       
+                    </td>
+                    <td id="vanphonggui" style="display:none">
+                        <table class="adminContent">
+                            <tr>
+                                <td class="adminTitle" style="text-align:right">
+                                    VP gửi:
+                                </td>
+                                <td class="adminContent">
+                                    @Html.DropDownListFor(model => model.VanPhongGuiId, Model.VanPhongs)
+                                </td>
+                            </tr>
+                        </table>
+                        
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td>
+            <input type="button" id="btnSearch" class="k-button" value="@T("Admin.Common.Search")" />
+        </td>
+
+    </tr>
+</table>
+
+<table style="width:100%">
+    <tr>
+        <td class="PhieuGuiStatus" style="background: #F44336" id="PhieuDangVanChuyen">
+            <img style="margin-left:30px" src="@Url.Content("~/Administration/Content/images/icon_pendding.png")" alt="" />
+
+            Phiếu đang vận chuyển <span class="divcount">(@Model.CountPhieuDangGui)</span>
+        </td>
+        <td class="PhieuGuiStatus" style="background: #216516" id="PhieuDaVanChuyen">
+            <img style="margin-left:30px" src="@Url.Content("~/Administration/Content/images/ico_processing.png")" alt="" />
+
+           Phiếu đã vận chuyển <span class="divcount">(@Model.CountPhieuDaNhan)</span>
+        </td>
+        <td class="PhieuGuiStatus" style="background: #216516" id="PhieuDaKetThuc">
+            <img style="margin-left:30px" src="@Url.Content("~/Administration/Content/images/ico_processing.png")" alt="" />
+
+            Phiếu đã kết thúc <span class="divcount">(@Model.CountPhieuKetThuc)</span>
+        </td>
+        <td style="width:40%;"></td>
+    </tr>
+</table>
+<table class="adminContent">
+    <tr>
+        <td>
+            <div id="danhsach-grid"></div>
+
+            <script>
+
+    $(document).ready(function () {
+
+
+        $("#danhsach-grid").kendoGrid({
+            dataSource: {
+                type: "json",
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("HistoryPhieuGui", "NhaXeHangHoa"))",
+                        type: "POST",
+                        dataType: "json",
+                        data: additionalData
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors"
+                },
+                error: function(e) {
+                    display_kendoui_grid_error(e);
+                    // Cancel the changes
+                    this.cancelChanges();
+                },
+                pageSize: @(defaultGridPageSize),
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true
+            },
+            pageable: {
+                refresh: true,
+                pageSizes: [@(gridPageSizes)],
+                messages: {
+                    display: "@T("Nop.Common.KendoGrid.display")", //{0} is the index of the first record on the page, {1} - index of the last record on the page, {2} is the total amount of records
+                    empty: "@T("Nop.Common.KendoGrid.Empty")",
+                    page: "@T("Nop.Common.KendoGrid.Page")",
+                    of: "@T("Nop.Common.KendoGrid.Of")", //{0} is total amount of pages
+                    itemsPerPage: "@T("Nop.Common.KendoGrid.itemsPerPage")",
+                    first: "@T("Nop.Common.KendoGrid.first")",
+                    previous: "@T("Nop.Common.KendoGrid.previous")",
+                    next: "@T("Nop.Common.KendoGrid.next")",
+                    last: "@T("Nop.Common.KendoGrid.last")",
+                    refresh: "@T("Nop.Common.KendoGrid.refresh")"
+                }
+            },
+            editable: {
+                confirmation: false,
+                mode: "inline"
+            },
+            scrollable: false,
+            dataBound: onDataBound,
+            columns: [{
+                field: "Id",
+                headerTemplate: "<input id='mastercheckbox' type='checkbox'/>",
+                headerAttributes: { style: "text-align:center" },
+                attributes: { style: "text-align:center" },
+                template: "<input type='checkbox' value='#=Id#' class='checkboxGroups'/>",
+                width: 50
+            },{
+                field: "MaPhieu",
+                title: "Mã phiếu",
+                template:'#="<a href=\'javascript:ChiTietPGH("+Id+")\'>"+MaPhieu+"</a>"#'
+            }, {
+                field: "VanPhongNhan.TenVanPhong",
+                title: "Tên văn phòng nhận"
+            },{
+                field: "VanPhongGui.TenVanPhong",
+                title: "Tên văn phòng Gửi"
+            }, {
+                field: "NguoiGui.HoTen",
+                title: "Tên người gửi"
+            }, {
+                field: "NguoiNhan.HoTen",
+                title: "Tên người nhận"
+            },{
+                field: "HangHoaInfo",
+                title: "Thông tin hàng hóa"
+            },{
+                field: "NgayDi",
+                title: "Ngày gửi",
+                type: "date",
+                format: "{0:dd/MM/yyyy}"
+
+            },  {
+                field: "TenNguoiKiemTraHang",
+                title: "Người kiểm tra hàng",
+
+            },{
+                field: "Id",
+                title: "Phiếu",
+                width: 100,
+                template: '<a href="/NhaXeCauHinh/InPhieu?MaId=@((int)Nop.Core.Domain.NhaXes.ENNhaXeCauHinh.KY_GUI_PHIEU_GUI_HANG)&Id=#=Id#" class="k-button" target="_blank">In phiếu</a>'
+            },]
+        });
+    });
+    function additionalData() {
+        return {
+            MaPhieu: $('#@Html.FieldIdFor(model => model.MaPhieu)').val(),
+            TenNguoiGui: $('#@Html.FieldIdFor(model => model.TenNguoiGui)').val(),
+                        VanPhongNhanId: $('#@Html.FieldIdFor(model => model.VanPhongNhanId)').val(),
+            VanPhongGuiId: $('#@Html.FieldIdFor(model => model.VanPhongGuiId)').val(),
+            TrangThaiVanChuyenId: $('#@Html.FieldIdFor(model => model.TrangThaiVanChuyenId)').val(),
+
+        };
+    }
+
+
+            </script>
+
+        </td>
+    </tr>
+</table>
+
+<script type="text/javascript">
+
+    var selectedIds = [];
+
+    $(document).ready(function () {
+        var _grid = $('#danhsach-grid').data('kendoGrid');
+        _grid.hideColumn("VanPhongGui.TenVanPhong");
+
+        $('#btnSearch').click(function () {
+            var grid = $('#danhsach-grid').data('kendoGrid');
+            grid.dataSource.page(1); //new search. Set page size to 1
+
+            $('.checkboxGroups').attr('checked', false).change();
+            selectedIds = [];
+            return false;
+        });
+
+        $("#@Html.FieldIdFor(model => model.VanPhongNhanId)").change(function () {
+            $("#btnSearch").click();
+            return false;
+        });
+        $("#@Html.FieldIdFor(model => model.VanPhongGuiId)").change(function () {
+            $("#btnSearch").click();
+            return false;
+        });
+        $("#@Html.FieldIdFor(model => model.TrangThaiVanChuyenId)").change(function () {
+            $("#btnSearch").click();
+            return false;
+        });
+
+        $("#@Html.FieldIdFor(model => model.MaPhieu)").keydown(function (event) {
+            if (event.keyCode == 13) {
+                $("#btnSearch").click();
+                return false;
+            }
+        });
+        $("#@Html.FieldIdFor(model => model.TenNguoiGui)").keydown(function (event) {
+            if (event.keyCode == 13) {
+                $("#btnSearch").click();
+                return false;
+            }
+        });
+        $('#PhieuDangVanChuyen').click(function() {
+            $('#@Html.FieldIdFor(model => model.TrangThaiVanChuyenId)').val(@((int)ENTinhTrangVanChuyen.DangVanChuyen))
+            $(this).css('background', '#F44336');
+            $('#PhieuDaVanChuyen').css('background', '#216516');
+            $('#PhieuDaKetThuc').css('background', '#216516');
+            $("#btnSearch").click();
+            DisplayFieldFollowStatus(false);
+            return false;
+        });
+        $('#PhieuDaVanChuyen').click(function() {
+            $('#@Html.FieldIdFor(model => model.TrangThaiVanChuyenId)').val(@((int)ENTinhTrangVanChuyen.NhanHang))
+            $(this).css('background', '#F44336');
+            $('#PhieuDangVanChuyen').css('background', '#216516');
+            $('#PhieuDaKetThuc').css('background', '#216516');
+            $("#btnSearch").click();
+            DisplayFieldFollowStatus(false);
+
+            return false;
+        });
+        $('#PhieuDaKetThuc').click(function() {
+            $('#@Html.FieldIdFor(model => model.TrangThaiVanChuyenId)').val(@((int)ENTinhTrangVanChuyen.KetThuc))
+            $(this).css('background', '#F44336');
+            $('#PhieuDangVanChuyen').css('background', '#216516');
+            $('#PhieuDaVanChuyen').css('background', '#216516');
+
+            $("#btnSearch").click();
+            DisplayFieldFollowStatus(true);
+            return false;
+        });
+        $('#mastercheckbox').click(function () {
+            $('.checkboxGroups').attr('checked', $(this).is(':checked')).change();
+        });
+
+        //wire up checkboxes.
+        $('#danhsach-grid').on('change', 'input[type=checkbox][id!=mastercheckbox]', function (e) {
+            var $check = $(this);
+            if ($check.is(":checked") == true) {
+                var checked = jQuery.inArray($check.val(), selectedIds);
+                if (checked == -1) {
+                    //add id to selectedIds.
+                    selectedIds.push($check.val());
+                }
+            }
+            else {
+                var checked = jQuery.inArray($check.val(), selectedIds);
+                if (checked > -1) {
+                    //remove id from selectedIds.
+                    selectedIds = $.grep(selectedIds, function (item, index) {
+                        return item != $check.val();
+                    });
+                }
+            }
+            updateMasterCheckbox();
+        });
+    });
+    function DisplayFieldFollowStatus(editmode) {
+        var phieugrid = $('#danhsach-grid').data('kendoGrid');
+        if (editmode) {
+
+            $('#vanphongnhan').hide();
+            $('#vanphonggui').show();
+            phieugrid.showColumn("VanPhongGui.TenVanPhong");
+            phieugrid.hideColumn("VanPhongNhan.TenVanPhong");
+
+        } else {
+            $('#vanphongnhan').show();
+            $('#vanphonggui').hide();
+            phieugrid.hideColumn("VanPhongGui.TenVanPhong");
+            phieugrid.showColumn("VanPhongNhan.TenVanPhong");
+        }
+    }
+    function onDataBound(e) {
+
+        $('#danhsach-grid input[type=checkbox][id!=mastercheckbox]').each(function () {
+            var currentId = $(this).val();
+            var checked = jQuery.inArray(currentId, selectedIds);
+            //set checked based on if current checkbox's value is in selectedIds.
+            $(this).attr('checked', checked > -1);
+        });
+
+        updateMasterCheckbox();
+    }
+
+    function updateMasterCheckbox() {
+        var numChkBoxes = $('#danhsach-grid input[type=checkbox][id!=mastercheckbox]').length;
+        var numChkBoxesChecked = $('#danhsach-grid input[type=checkbox][checked][id!=mastercheckbox]').length;
+        $('#mastercheckbox').attr('checked', numChkBoxes == numChkBoxesChecked && numChkBoxes > 0);
+    }
+
+</script>
+@Html.Partial("_PhieuGuiHangWindow")

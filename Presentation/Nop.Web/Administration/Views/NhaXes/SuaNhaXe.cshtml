@@ -1,0 +1,22 @@
+﻿@model NhaXeModel
+@using Nop.Admin.Models.NhaXes
+@{
+    //page title
+    ViewBag.Title = T("Admin.ChonVe.NhaXe.TaoMoi").Text;
+}
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "nhaxe-form" }))
+{
+    <div class="section-header">
+        <div class="title">
+            <img src="@Url.Content("~/Administration/Content/images/ico-dashboard.png")" alt="" />
+            @T("Admin.ChonVe.NhaXe.ChiTiet") - @Model.MaNhaXe @Html.ActionLink("(" + T("Admin.ChonVe.NhaXe.BackToList") + ")", "ListNhaXe")
+        </div>
+        <div class="options">
+            <input type="submit" name="save" class="k-button" value="@T("Admin.Common.Save")" />
+            <input type="submit" name="save-continue" class="k-button" value="@T("Admin.Common.SaveContinue")" />
+            <span id="nhaxe-delete" class="k-button">@T("Admin.Common.Delete")</span>
+        </div>
+    </div>
+    @Html.Partial("ChinhSuaNhaXe", Model)
+}
+@Html.DeleteConfirmation("XoaNhaXe","nhaxe-delete")

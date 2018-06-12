@@ -1,0 +1,21 @@
+﻿@model TimVeXeModel
+@using Nop.Web.Models.VeXeKhach
+<div class="total-resul">Có @Model.NguoVeXes.Count kết quả</div>
+<div class="tab-resul">
+    <div class="tab nav1 active">
+        @foreach (var item in Model.NguoVeXes)
+        {
+            @Html.Partial("_VeXeItemBasic", item)
+        }
+    </div>
+</div>
+<script>
+    $(document).ready(function () {       
+        $("a[name='datmuavexe-button']").each(function () {
+            $(this).click(function () {
+                var _id = $(this).attr("itemdata");
+                DatMuaVe(_id);
+            })
+        });
+    });
+</script>

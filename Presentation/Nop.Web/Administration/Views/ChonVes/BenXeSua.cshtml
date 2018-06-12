@@ -1,0 +1,22 @@
+﻿@model BenXeModel
+@using Nop.Admin.Models.ChonVes
+@{
+    //page title
+    ViewBag.Title = T("ChonVe.BenXe.Sua").Text;
+}
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "BenXe-form" }))
+{
+    <div class="section-header">
+        <div class="title">
+            <img src="@Url.Content("~/Administration/Content/images/ico-configuration.png")" alt="" />
+            @T("ChonVe.BenXe.Sua") - @Model.TenBenXe @Html.ActionLink("(" + T("ChonVe.BenXe.BackToList") + ")", "BenXeList")
+        </div>
+        <div class="options">
+            <input type="submit" name="save" class="k-button" value="@T("Admin.Common.Save")" />
+            <input type="submit" name="save-continue" class="k-button" value="@T("Admin.Common.SaveContinue")" />
+            <span id="BenXe-delete" class="k-button">@T("Admin.Common.Delete")</span>
+        </div>
+    </div>
+    @Html.Partial("_BenXeChinhSua", Model)
+}
+@Html.DeleteConfirmation("BenXeXoa", "BenXe-delete")

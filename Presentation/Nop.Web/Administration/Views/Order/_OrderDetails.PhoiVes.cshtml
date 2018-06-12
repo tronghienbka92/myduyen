@@ -1,0 +1,23 @@
+﻿@model OrderModel
+@using Nop.Core.Domain.Tax;
+@using Nop.Core.Domain.Catalog;
+@{
+    var defaultGridPageSize = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().DefaultGridPageSize;
+    var gridPageSizes = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().GridPageSizes;
+}
+<div id="divthongbao"></div>
+
+@*<input type="submit" name="btnDeleteOrderItem@(item.Id)" value="@T("Admin.Common.Delete")" id="btnDeleteOrderItem@(item.Id)" class="adminButton" onclick="return confirm('@T("Admin.Common.AreYouSure")'); " />*@
+
+@Html.HiddenFor(model => model.Id)
+@Html.HiddenFor(model => model.NhaXeId)
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#btnDoiVe').click(function () {
+            DoiPhoiVe();
+        });
+    });
+    
+
+</script>

@@ -1,0 +1,425 @@
+﻿@model LichTrinhModel
+@using Nop.Web.Models.NhaXes
+@using Nop.Core.Infrastructure
+@using Nop.Web.Framework.Events
+@using Nop.Services.Events
+@Html.ValidationSummary(false)
+@Html.HiddenFor(model => model.Id)
+@Html.HiddenFor(model => model.HanhTrinhId)
+@Html.HiddenFor(model => model.NguonVes)
+<div id="modeldetail-edit">
+    <ul>
+        <li @Html.RenderSelectedTabIndex(0, GetSelectedTabIndex())>
+            @T("ChonVe.NhaXe.TabThongTin")
+        </li>
+        <li @Html.RenderSelectedTabIndex(1, GetSelectedTabIndex())>
+            @T("ChonVe.NhaXe.LichTrinh.GiaVe")
+        </li>
+        <li @Html.RenderSelectedTabIndex(2, GetSelectedTabIndex())>
+            @T("ChonVe.NhaXe.LichTrinh.NguonVe")
+        </li>
+    </ul>
+    <div>
+        @TabInfo()
+    </div>
+    <div>
+        @TabGiaVe()
+    </div>
+    <div>
+        @TabNguonVe()
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#modeldetail-edit").kendoTabStrip({
+            animation: {
+                open: {
+                    effects: "fadeIn"
+                }
+            },
+            select: tabstrip_on_tab_select
+        });
+    });
+</script>
+@{
+    //custom tabs
+    var eventMessage = new AdminTabStripCreated(this.Html, "modeldetail-edit");
+    EngineContext.Current.Resolve<IEventPublisher>().Publish(eventMessage);
+    foreach (var eventBlock in eventMessage.BlocksToRender)
+    {
+        @eventBlock
+    }
+}
+
+@*save selected tab index*@
+<input type="hidden" id="selected-tab-index" name="selected-tab-index" value="@(GetSelectedTabIndex())">
+@helper TabInfo()
+{
+    <table class="adminContent">
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.HanhTrinhId):
+            </td>
+            <td class="adminData">
+                @Model.HanhTrinhText
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.MaLichTrinh):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.MaLichTrinh)
+                @Html.ValidationMessageFor(model => model.MaLichTrinh)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.LoaiXeId):
+            </td>
+            <td class="adminData">
+                @Html.DropDownListFor(model => model.LoaiXeId, Model.LoaiXes)
+                @Html.ValidationMessageFor(model => model.LoaiXeId)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.ThoiGianDi):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.ThoiGianDi, "TimePicker")
+                @Html.ValidationMessageFor(model => model.ThoiGianDi)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.SoGioChay):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.SoGioChay)
+
+            </td>
+        </tr>
+
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.GiaVeToanTuyen):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.GiaVeToanTuyen)
+                @Html.ValidationMessageFor(model => model.GiaVeToanTuyen)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.TimeOpenOnline):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.TimeOpenOnline)
+                @Html.ValidationMessageFor(model => model.TimeOpenOnline)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.TimeCloseOnline):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.TimeCloseOnline)
+                @Html.ValidationMessageFor(model => model.TimeCloseOnline)
+            </td>
+        </tr>
+    </table>
+}
+
+@helper TabGiaVe()
+{
+    if (Model.Id > 0)
+    {
+        <form id="formupdategiave">
+            @Html.HiddenFor(model => model.SoDiemDon)
+            @Html.HiddenFor(model => model.NguonVeResult)
+            <div id="subdanhsach-grid">
+                <input type="button" id="btnupdategiave" value="Cập nhật" class="SuaGiaVe" />
+                <table class="BangGiaVe">
+                    @for (int i = 0; i < Model.SoDiemDon + 1; i++)
+                    {
+                        <tr>
+                            @for (int j = 0; j < Model.SoDiemDon + 1; j++)
+                            {
+                                var withcol = 100 / (Model.SoDiemDon + 1);
+                                <td style="width:@withcol%;">
+                                    @if (i == 0 && j > 0)
+                                    {
+                                        <span> @Model.NguonVes[0, j].TenToDiemDon</span>
+
+                                    }
+                                    @if (j == 0 && i > 0)
+                                    {
+                                        <span> @Model.NguonVes[i, 0].TenFromDiemDon</span>
+
+                                    }
+                                    @if (i > 0 && j > 0 && j > i)
+                                    {
+                                        <input type='text' name="nguonveinput" id='vitringuonve_@(Model.NguonVes[i, j].FromDiemDonId)_@(Model.NguonVes[i, j].ToDiemDonId)_@(Model.NguonVes[i, j].NguonVeXeId)' value='@(Model.NguonVes[i,j].GiaNguonVe)' class='text-box single-line' style='width:100px;text-align:center'>
+
+                                    }
+                                </td>
+                            }
+
+                        </tr>
+                    }
+                </table>
+            </div>
+            <script type="text/javascript">
+                function LuuThongTinNguonVe()
+                {
+                    
+                    //luu theo cu phap IdDiemDon;IdDiemDen;GiaVe|IdDiemDon;IdDiemDen;GiaVe
+                    var thongtinnv="";
+                    
+                        $("input[name='nguonveinput']").each(function() {
+                            var input = $(this);
+                            var idinfo=input.attr('id');
+                            idinfo=idinfo.replace("vitringuonve_","");
+                            idinfo=idinfo.replace(/_/g,";");
+                            thongtinnv=thongtinnv+idinfo+";"+input.val() +"|";
+                        });
+
+                    $('#@Html.FieldIdFor(model => model.NguonVeResult)').val(thongtinnv);
+                   
+                }
+
+                $(document).ready(function () {
+
+                    $('#btnupdategiave').click(function () {
+                        if (!confirm("@T("Common.areyousure")")) {
+                            return;
+                        }
+                        LuuThongTinNguonVe();
+                        var data = $("form").serialize();
+
+                        $.ajax({
+                            cache: false,
+                            type: "POST",
+                            data: data,
+                            dataType: 'json',
+                            url: "@(Url.Action("UpdateGiaVeChang", "NhaXes"))",
+                            success: function (data) {
+                               
+                                var id=$('#@Html.FieldIdFor(model => model.Id)').val();
+                                document.location.href = "/NhaXes/LichTrinhSua/" +id ;
+                            },
+                            error: function (xhr, ajaxOptions, thrownError) {
+
+                            }
+
+                        });
+                    });
+
+                });
+            </script>
+        </form>
+
+
+
+    }
+
+    else
+    {
+        @T("ChonVe.NhaXe.LichTrinh.GiaVe.SaveBeforeEdit")
+    }
+
+}
+
+@helper TabNguonVe()
+{
+    if (Model.Id > 0)
+    {
+        
+        <div id="subdanhsachnguonve-grid"></div>
+        <script>
+            $(document).ready(function () {
+                
+                $("#subdanhsachnguonve-grid").kendoGrid({
+                    dataSource: {
+                        type: "json",
+                        transport: {
+                            read: {
+                                url: "@Html.Raw(Url.Action("NguonVeXeList", "NhaXes", new { LichTrinhID = Model.Id }))",
+                                type: "POST",
+                                dataType: "json"
+                            },
+                            update: {
+                                url:"@Html.Raw(Url.Action("NguonVeXeUpdate", "NhaXes"))",
+                                type: "POST",
+                                dataType: "json"
+                            },
+                            
+                        },
+                        schema: {
+                            data: "Data",
+                            total: "Total",
+                            errors: "Errors",
+                            model: {
+                                id: "Id",
+                                fields: {
+                                    TenDiemDon: { editable: false, type: "string" },
+                                    TenDiemDen: { editable: false, type: "string" },
+                                    ThoiGianDi: { editable: false, type: "date" },
+                                    SoGioChay: { editable: false, type: "number" },
+                                    ThoiGianDen: { editable: false, type: "date" },
+                                    GiaVeMoi: { editable: false, type: "number" },
+                                    GiaVeMoiText: { editable: false, type: "string" },
+                                    HienThi: { editable: true, type: "boolean" },
+                                    ToWeb: { editable: true, type: "boolean" },
+                                    Id: { editable: false, type: "number" }
+                                }
+                            }
+                        },
+                        requestEnd: function (e) {
+                            if (e.type == "create" || e.type == "update") {
+                                this.read();
+                            }
+                        },
+                        error: function (e) {
+                            display_kendoui_grid_error(e);
+                            // Cancel the changes
+                            this.cancelChanges();
+                        },
+                        serverPaging: true,
+                        serverFiltering: true,
+                        serverSorting: true
+                    },
+                    pageable: {
+                        refresh: true,
+                        numeric: false,
+                        previousNext: false,
+                        info: false,
+                        messages: {
+                            display: "@T("Nop.Common.KendoGrid.display")", //{0} is the index of the first record on the page, {1} - index of the last record on the page, {2} is the total amount of records
+                            empty: "@T("Nop.Common.KendoGrid.Empty")",
+                            page: "@T("Nop.Common.KendoGrid.Page")",
+                            of: "@T("Nop.Common.KendoGrid.Of")", //{0} is total amount of pages
+                            itemsPerPage: "@T("Nop.Common.KendoGrid.itemsPerPage")",
+                            first: "@T("Nop.Common.KendoGrid.first")",
+                            previous: "@T("Nop.Common.KendoGrid.previous")",
+                            next: "@T("Nop.Common.KendoGrid.next")",
+                            last: "@T("Nop.Common.KendoGrid.last")",
+                            refresh: "@T("Nop.Common.KendoGrid.refresh")"
+                        }
+                    },
+                    edit: function(e) {
+                    },
+                    editable: {
+                        confirmation: "@T("Admin.Common.AreYouSure")",
+                        mode: "inline"
+                    },
+                    scrollable: false,
+                    columns: [{
+                        field: "TenDiemDon",
+                        title: "@T("ChonVe.NhaXe.VeXeKhach.DiemDonId")",
+                    },{
+                        field: "TenDiemDen",
+                        title: "@T("ChonVe.NhaXe.VeXeKhach.DiemDenId")",
+                    }, {
+                        field: "ThoiGianDi",
+                        title: "@T("ChonVe.NhaXe.VeXeKhach.ThoiGianDi")",
+                        width: 100,
+                        type: "date",
+                        attributes: { style: "text-align:center" },
+                        format: "{0:HH:mm}"
+                    },{
+                        field: "SoGioChay",
+                        title: "@T("ChonVe.NhaXe.VeXeKhach.SoGioChay")",
+                        width: 100,
+                    }, {
+                        field: "ThoiGianDen",
+                        title: "@T("ChonVe.NhaXe.VeXeKhach.ThoiGianDen")",
+                        width: 100,
+                        type: "date",
+                        attributes: { style: "text-align:center" },
+                        format: "{0:HH:mm}"
+                    }, {
+
+                        field: "GiaVeMoi",
+                        title: "@T("ChonVe.NhaXe.VeXeKhach.GiaVeMoi")",
+                        headerAttributes: { style: "text-align:right" },
+                        attributes: { style: "text-align:right" },
+                        width: 200,
+                        //integer format
+                        template: "#:GiaVeMoiText#"
+
+                    },{
+                        field: "HienThi",
+                        title: "@T("ChonVe.NhaXe.VeXeKhach.HienThi")",
+                        width: 200,
+                        headerAttributes: { style: "text-align:center" },
+                        attributes: { style: "text-align:center" },
+                        template: '<img src="@Url.Content("~/Administration/Content/images/")active-#=HienThi#.gif" />'
+                    },{
+                        field: "ToWeb",
+                        title: "Cho phép bán trên web",
+                        width: 200,
+                        headerAttributes: { style: "text-align:center" },
+                        attributes: { style: "text-align:center" },
+                        template: '<img src="@Url.Content("~/Administration/Content/images/")active-#=ToWeb#.gif" />'
+                    }, {
+                        command: [{
+                            name: "edit",
+                            text: "@T("Admin.Common.Edit")"
+                        }],
+                        width: 200
+                    }]
+                });
+            });
+
+        </script>
+    }
+    else
+    {
+        @T("ChonVe.NhaXe.LichTrinh.GiaVe.SaveBeforeEdit")
+    }
+
+}
+
+
+<style>
+    .BangGiaVe {
+        width: 100%;
+        padding: 2px;
+    }
+
+        .BangGiaVe td {
+            border: 1px solid #A9A2A2;
+            text-align: center;
+            height: 50px;
+        }
+
+    .SuaGiaVe {
+        float: right;
+        background: #0e97f2;
+        background-image: -webkit-linear-gradient(top, #0e97f2, #1c7dba);
+        background-image: -moz-linear-gradient(top, #0e97f2, #1c7dba);
+        background-image: -ms-linear-gradient(top, #0e97f2, #1c7dba);
+        background-image: -o-linear-gradient(top, #0e97f2, #1c7dba);
+        background-image: linear-gradient(to bottom, #0e97f2, #1c7dba);
+        -webkit-border-radius: 28;
+        -moz-border-radius: 28;
+        border-radius: 28px;
+        font-family: Arial;
+        color: #ffffff;
+        font-size: 13px;
+        padding: 8px 13px 7px 15px;
+        text-decoration: none;
+    }
+
+        .SuaGiaVe:hover {
+            background: #3cb0fd;
+            background-image: -webkit-linear-gradient(top, #3cb0fd, #3498db);
+            background-image: -moz-linear-gradient(top, #3cb0fd, #3498db);
+            background-image: -ms-linear-gradient(top, #3cb0fd, #3498db);
+            background-image: -o-linear-gradient(top, #3cb0fd, #3498db);
+            background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
+            text-decoration: none;
+        }
+</style>

@@ -1,0 +1,342 @@
+﻿@model ConvertationModel
+@using Nop.Admin.Models.Chat
+@{
+
+    ViewBag.Title = "Danh sách chat";
+    Layout = "~/Administration/Views/Shared/_ChatAdminLayout.cshtml";
+}
+<div class="section-header">
+    <div class="title">
+        <img src="@Url.Content("~/Administration/Content/images/ico-dashboard.png")" alt="" />
+        Danh sách cuộc trò chuyện
+    </div>
+    <div class="options">
+        <button onclick="load_listconvertation()" class="button button5">Refresh</button>
+    </div>
+
+</div>
+<style>
+    .table_ListChat {
+        border: 1px solid rgba(150, 142, 142, 0.46);
+        width: 100%;
+        border-radius: 5px;
+    }
+
+    .header_table {
+        background: #0A8043;
+    }
+
+        .header_table tr {
+            height: 33px;
+        }
+
+            .header_table tr td {
+                color: #fff;
+                text-align: center;
+            }
+
+    .body_table {
+    }
+
+        .body_table tr {
+            height: 30px;
+            background: hsla(0, 3%, 70%, 0.18);
+        }
+
+            .body_table tr td {
+                text-align: center;
+                font-size: 13px;
+                font-family: inherit;
+            }
+
+    .button {
+        background-color: #4CAF50; /* Green */
+        border: none;
+        color: white;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 4px 2px;
+        cursor: pointer;
+    }
+
+    .button5 {
+        border-radius: 50%;
+    }
+
+    .button6 {
+        border-radius: 50%;
+        background-color: #E43F03;
+    }
+
+    .button_newChat {
+        background-color: #f44336;
+        color: white;
+        padding: 10px 15px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        border-radius: 10px;
+    }
+
+        .button_newChat:hover {
+            color: white;
+        }
+</style>
+<table class="table_ListChat">
+    <tbody class="body_table"></tbody>
+</table>
+<button onclick="load_HistoryConversation()" class="button button5">Xem cũ hơn</button>
+<script>
+    $(document).ready(function () {
+        load_listconvertation();
+        var divconver = $(".table_ListChat");
+        var thread = ' <thead class="header_table">' +
+                      '<tr>' +
+                        '<td width="20%">Mã chat</td>' +
+                         '<td width="20%">Chat</td>' +
+                         '<td width="20%">Khách hàng</td>' +
+                         '<td width="20%">Nhân viên CSKH</td>' +
+                         '<td width="20%">Ngày tạo</td>'
+        ' </tr>'
+        ' </thead>'
+        divconver.append(thread);
+        var refreshConvertation = setInterval(function () {
+            load_listconvertation();
+        }, 30000);
+       
+    });
+    function load_listconvertation() {
+        var tbody = $(".body_table");
+        // tbody.html("");
+        var contenthtml = "";
+        $.ajax({
+            cache: false,           
+            type: "GET",          
+            url: "@(Url.Action("_ListConvertation", "Chat"))",
+            dataType: 'json',
+            success: function (data) {
+                $.each(data, function (id, option) {                   
+                    var item = ' <tr>  <td>Khách hàng_' + option.Id + '</td><td>'
+                    if (option.IsNewConvertation) {                       
+                        item = item + '<button onclick="Agents_WindowChat(' + option.Id + ')" class="button button6"><img src="@Url.Content("~/Administration/Content/images/ico_new.png")"/></button><div id="Window_' + option.Id + '"></div>'
+                    }
+                    else {
+                        item = item + '<button onclick="Agents_WindowChat(' + option.Id + ')" class="button button5">Xem</button><div id="Window_' + option.Id + '"></div>'                       
+                        
+                    }
+                    item = item + '</td>' +
+                        ' <td>' + option.TenKhachHang + '</td>' +
+                        '<td>' + option.AgentsNickName + '</td>' +
+                        '<td>' + option.NgayTaoText + '</td>'
+                    '</tr>'
+                    //tbody.append(item);
+                    contenthtml = contenthtml + item;
+                });
+                tbody.html(contenthtml);
+                divconver.append(tbody);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                // alert("Mất kết nối");
+
+            }
+        });
+    }
+    function load_HistoryConversation() {
+        var tbody = $(".body_table");
+        // tbody.html("");
+        var ViewOldContent = "";
+        $.ajax({
+            cache: false,           
+            type: "GET",           
+            url: "@(Url.Action("Load_Historyconversation", "Chat"))",
+            dataType: 'json',
+        success: function (data) {
+            $.each(data, function (id, option) {                   
+                var item = ' <tr>  <td>Khách hàng_' + option.Id + '</td><td>'               
+                    item = item + '<button onclick="Agents_WindowChat(' + option.Id + ')" class="button button5">Xem</button><div id="Window_' + option.Id + '"></div>'                       
+                     item = item + '</td>' +
+                    ' <td>' + option.TenKhachHang + '</td>' +
+                    '<td>' + option.AgentsNickName + '</td>' +
+                    '<td>' + option.NgayTaoText + '</td>'
+                '</tr>'              
+                ViewOldContent = ViewOldContent + item;
+            });
+            tbody.html(ViewOldContent);
+            divconver.append(tbody);
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+            
+        }
+    });
+    }
+</script>
+<script>
+    function refresh_windowchat(ConvertationId) {
+        var _chatcontent = $("#conten_chat_" + ConvertationId);
+        var classmessenger = "";
+        var text = "";
+        var MessengerLastId = $("#MessengerLastId_" + ConvertationId).val();
+        $.ajax({
+            cache: false,
+            type: "Get",
+            data: { "ConvertationId": ConvertationId, "MessengerLastId": MessengerLastId },
+            url: "@(Url.Action("GetHistoryConvertation", "Chat"))",
+            dataType: 'json',
+            success: function (data) {
+                if (data == "noconver" || data == "nomsg") {
+                }
+                else {
+                    $.each(data, function (id, option) {
+                        if (option.Isagents) {
+                            classmessenger = "message_agents"                            
+                        }
+                        else {
+                            classmessenger = "message_client"                           
+                        }
+                        var messenger = ' <div class="' + classmessenger + '">' +                                            
+                                               '<p class="content">' + option.Text + '</p>'
+                        '</div>';
+                        _chatcontent.append(messenger);
+
+                        $("#MessengerLastId_" + ConvertationId).val(option.Id);
+                    });
+                    _chatcontent.animate({ scrollTop: $(document).height() }, "fast");
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                //  alert("Mất kết nối");
+
+            }
+        });
+    }
+    function Agents_WindowChat(Id) {
+
+        var formopen = $("#Window_" + Id + "");
+
+        formopen.kendoWindow({
+            width: "288px",
+            title: "Khách hàng_" + Id,
+            content: "@(Url.Action("WindowsChatAgents", "Chat"))?ConvertationId=" + Id,
+            pinned: true,
+            resizable: false,
+            close: function (e) {
+                setTimeout("StopTimeoutChat_" + Id + "()", 10);
+            },
+            animation: {
+                close: {
+                    duration: 200
+                }
+            },
+        });
+        formopen.data('kendoWindow').open();
+    }
+</script>
+
+<style>
+    .visitor_left {
+        top: 10px;
+        bottom: 10px;
+        left: 10px;
+        right: 300px;
+    }
+
+    .visitor_right {
+        position: absolute;
+        top: 10px;
+        bottom: 10px;
+        right: 0;
+        width: 280px;
+        padding-right: 10px;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .chat_log {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        min-height: 300px;
+        bottom: 130px;
+        background: #ffffff;
+        padding: 10px;
+        border: 1px solid #c5c5c5;
+        overflow-y: auto;
+    }
+
+    .chat_input {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 36px;
+        border: 1px solid #c5c5c5;
+    }
+
+        .chat_input textarea {
+            height: 52%;
+            width: 94%;
+            border: 0;
+            padding: 8px;
+        }
+
+    .message_client {
+        background: #E6E6E6;
+        padding: 4px;
+        display: inline-block;
+        margin: 0 0 8px 0;
+        clear: both;
+        float: right;
+        text-align: right;
+    }
+
+    .message_agents {
+        background: rgba(246, 129, 63, 0.21);
+        padding: 4px;
+        display: inline-block;
+        margin: 0 0 8px 0;
+        clear: both;
+        float: left;
+        text-align: left;
+    }
+
+    .message.a {
+        float: left;
+    }
+
+    .message .author {
+        font-weight: bold;
+    }
+
+    .message .content {
+        margin: 6px 0 0 0;
+    }
+
+    .notification {
+        text-align: center;
+        margin: 0 0 8px 0;
+        color: grey;
+        text-transform: uppercase;
+        width: 100%;
+        float: left;
+    }
+
+    .j-submit {
+        display: none;
+        width: 60px;
+        margin: 5px 0;
+        /*border: 1px solid #ccc;*/
+        border: 0;
+        -ms-border-radius: 0;
+        border-radius: 0;
+        padding: 10px;
+        cursor: pointer;
+        color: #000;
+        position: absolute;
+        bottom: 60px;
+        right: 18px;
+    }
+</style>

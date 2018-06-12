@@ -1,0 +1,14 @@
+﻿@using System.Globalization
+@model DateTime
+<input id="@ViewData.TemplateInfo.GetFullHtmlFieldId(string.Empty)" name="@ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty)" value="@((Model > DateTime.MinValue ? Model : DateTime.Today).ToShortDateString())" />
+<script>
+    $(document).ready(function () {
+       
+        $("#@ViewData.TemplateInfo.GetFullHtmlFieldId(string.Empty)").kendoDatePicker({
+            format: "@(CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern)",           
+            month: {
+                empty: '<span style="color:\\#ccc;padding:0 .45em 0 .1em;">#= data.value #</span>'
+            }
+        });
+    });
+</script>

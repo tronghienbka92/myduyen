@@ -1,0 +1,4 @@
+﻿@model NguonVeXeModel
+@using Nop.Web.Models.VeXeKhach
+<span style="color:white">@Model.ThoiGianDi.ToString("HH:mm") : @Model.ThoiGianDen.ToString("HH:mm") | @Model.NhaXeInfo.TenNhaXe | @Model.TenLoaiXe | đi từ  @Model.TenDiemDon --> đến @Model.TenDiemDen : @Model.GiaVeMoiText</span>
+<input type="button" name="datmuavexe-button" itemdata="@Model.Id" class="btn btn-default btn-sm active" value="@T("common.select")"/>

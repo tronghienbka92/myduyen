@@ -1,0 +1,112 @@
+﻿@model Nop.Admin.Models.ChonVes.XuLyHopDongModel.KhachHangModel
+@using Nop.Core.Infrastructure
+@using Nop.Web.Framework.Events
+@using Nop.Services.Events
+@Html.ValidationSummary(false)
+@Html.HiddenFor(model => model.Id)
+@Html.HiddenFor(model => model.HopDongId)
+
+<div id="customer-edit">
+    <ul>
+        <li @Html.RenderSelectedTabIndex(0, GetSelectedTabIndex())>
+            @T("Admin.Customers.Customers.Info")
+        </li>      
+    </ul>
+    <div>
+        @TabInfo()
+    </div>
+   
+</div>
+<script>
+    $(document).ready(function() {
+        $("#customer-edit").kendoTabStrip({
+            animation:  {
+                open: {
+                    effects: "fadeIn"
+                }
+            },
+            select: tabstrip_on_tab_select
+        });
+
+    });
+</script>
+
+@{
+    //custom tabs
+    var eventMessage = new AdminTabStripCreated(this.Html, "customer-edit");
+    EngineContext.Current.Resolve<IEventPublisher>().Publish(eventMessage);
+    foreach (var eventBlock in eventMessage.BlocksToRender)
+    {
+        @eventBlock
+    }
+}
+
+@*save selected tab index*@
+<input type="hidden" id="selected-tab-index" name="selected-tab-index" value="@(GetSelectedTabIndex())">
+
+@helper TabInfo()
+{
+
+    <table class="adminContent customer-info-tab">
+      
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.Email):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.Email)
+                @Html.ValidationMessageFor(model => model.Email)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.Password):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.Password, new { autocomplete = "off", @class = "text-box single-line" })
+                @Html.ValidationMessageFor(model => model.Password)
+               
+            </td>
+        </tr>
+      
+           <tr>
+               <td class="adminTitle">
+                   @Html.NopLabelFor(model=>model.ConfirmPassword):
+               </td>
+               <td class="adminData" >
+                   @Html.EditorFor(model => model.ConfirmPassword)
+                   @Html.ValidationMessageFor(model => model.ConfirmPassword)
+               </td>
+           </tr>
+       
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.FirstName):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.FirstName)
+                @Html.ValidationMessageFor(model => model.FirstName)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.LastName):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.LastName)
+                @Html.ValidationMessageFor(model => model.LastName)
+            </td>
+        </tr>
+        @*<tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.Active):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.Active)
+                @Html.ValidationMessageFor(model => model.Active)
+            </td>
+        </tr>*@
+    </table>
+
+}
+

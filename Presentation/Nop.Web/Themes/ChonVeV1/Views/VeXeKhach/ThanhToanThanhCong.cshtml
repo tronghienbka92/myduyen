@@ -1,0 +1,110 @@
+﻿@model ThanhToanVeXeModel
+@using Nop.Web.Models.VeXeKhach;
+@Html.Partial("_StepMuaVe", 4)
+@{
+    var _hinhthucthanhtoan="";
+}
+
+<div class="row row-content">
+    <div class="container">
+        <p class="fs30 f_bold t_uper m_color">QUÝ KHÁCH ĐÃ ĐẶT VÉ THÀNH CÔNG!</p>
+        <div class="clearfix">
+            <div class="w50 f_left m_bg w_color f_bold fs22 p10 mb00">
+                Thông tin đặt vé
+            </div>
+            <div class="w50 f_right m_bg w_color p10 mb00 t_right fs18">
+                Mã vé: <strong class="fs22">@ViewBag.OrderId</strong>
+            </div>
+        </div>
+        <div id="step_payment_box">
+            <div class="row">
+                <div class="col-xs-7">
+                    <p class="fs22 f_bold pl05">1. Thông tin vé</p>
+                    <div class="pl20 pr20">
+                        <div class="row">
+                            <p class="col-xs-4">Tuyến đường :</p>
+                            <p class="col-xs-8 f_bold">@Model.nguonvexeinfo.TenDiemDon - @Model.nguonvexeinfo.TenDiemDen</p>
+                        </div>
+                        <div class="row">
+                            <p class="col-xs-4">Hãng xe :</p>
+                            <p class="col-xs-8 f_bold">@Model.nhaxeinfo.TenNhaXe</p>
+                        </div>
+                        <div class="row">
+                            <p class="col-xs-4">Đón khách :</p>
+                            <p class="col-xs-8 f_bold">
+                                @Model.nguonvexeinfo.TenDiemDon
+                            </p>
+                        </div>
+                        <div class="row">
+                            <p class="col-xs-4">Trả khách :</p>
+                            <p class="col-xs-8 f_bold">
+                                @Model.nguonvexeinfo.TenDiemDen
+                            </p>
+                        </div>
+                        <div class="row">
+                            <p class="col-xs-4">Giờ khởi hành :</p>
+                            <p class="col-xs-8 f_bold">@Model.NgayDi.ToString("HH:mm - dd/MM/yyyyy")</p>
+                        </div>
+                        <div class="row">
+                            <p class="col-xs-4">Giờ đến :</p>
+                            <p class="col-xs-8 f_bold">
+                                @Model.NgayVe.ToString("HH:mm - dd/MM/yyyyy")
+                            </p>
+                        </div>
+                        <div class="row">
+                            <p class="col-xs-4">Số lượng :</p>
+                            <p class="col-xs-8 f_bold">
+                                @Model.phoiveinfos.Count chỗ - <span>(@Model.KyHieuGhe)</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xs-5">
+                    <p class="fs22 f_bold pl05">2. Thông tin khách</p>
+                    <div class="pl20 pr20 ">
+                        <div class="row">
+                            <p class="col-xs-5">Tên khách :</p>
+                            <p class="col-xs-7 f_bold">@Model.diachigiaohang.FullName</p>
+                        </div>
+                        <div class="row">
+                            <p class="col-xs-5">Số điện thoại :</p>
+                            <p class="col-xs-7 f_bold">@Model.diachigiaohang.PhoneNumber</p>
+                        </div>
+                        <div class="row">
+                            <p class="col-xs-5">Email :</p>
+                            <p class="col-xs-7 f_bold">@Model.diachigiaohang.Email</p>
+                        </div>
+                        <div class="row">
+                            <p class="col-xs-5">Hình thức thanh toán :</p>
+                            <p class="col-xs-7 f_bold">
+                                
+                                @switch (@Model.HinhThucThanhToan)
+                                {
+                                    case "NL":
+                                        _hinhthucthanhtoan = "Thanh toán qua số dư ngân lượng";
+                                        break;
+                                    case "CHONVE":
+                                        _hinhthucthanhtoan = "Thanh toán trực tiếp với chonve.vn";
+                                        break;
+                                    case "ATM_ONLINE":
+                                        _hinhthucthanhtoan = "Thanh toán ATM online";
+                                        break;
+                                    case "VISA":
+                                        _hinhthucthanhtoan = "Thanh toán qua thẻ tín dụng VISA";
+                                        break;
+                                }
+                                @_hinhthucthanhtoan
+                            </p>
+                        </div>
+                        <div class="row bor_t pt10">
+                            <p class="col-xs-5 f_bold">Tổng tiền :</p>
+                            <p class="col-xs-7 f_bold s_color">@Model.TongTien.ToString("###,###,##0") (VNĐ)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <p class="t_center mt30">Cảm ơn bạn đã đặt mua vé, chúng tôi sẽ liên lạc với bạn trong thời gian sớm nhất <br /> Bạn gặp khó khăn khi đặt vé? Gọi <strong class="m_color fs18 f_bold">0918737899</strong> để được hỗ trợ nhanh nhất</p>
+    </div>
+</div>

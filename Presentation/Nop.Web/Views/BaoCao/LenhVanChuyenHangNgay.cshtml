@@ -1,0 +1,172 @@
+﻿@model BaoCaoNhaXeModel
+@using Nop.Web.Models.NhaXes
+@using Nop.Core.Infrastructure
+@{
+    ViewBag.Title = "BÁO CÁO CHUYỂN PHÁT HÀNG NGÀY ";
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+}
+<div class="section-header">
+    <div class="title">
+        <img src="@Url.Content("~/Content/chonve/nxmenu/baocaodoanhthu.png")" alt="" />
+        @ViewBag.Title
+    </div>
+</div>
+<table style="width:100%">
+    <tr>
+        <td align="center" width="25%" >
+            <table class="adminContent">
+                <tr>
+                    <td class="adminTitle" style="text-align:right">
+                        Ngày ký gửi:
+                    </td>
+                    <td class="adminData">
+                        @Html.EditorFor(model => model.NgayGuiHang)
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td align="center" width="10%" >
+            <table class="adminContent">
+                <tr>
+                    <td class="adminTitle" style="text-align:right">
+                        Số lệnh:
+                    </td>
+                    <td class="adminData">
+                        @Html.EditorFor(model => model.SoLenh)
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td align="center" width="10%">
+            <table class="adminContent">
+                <tr>
+                    <td class="adminTitle" style="text-align:right">
+                        Biển số:
+                    </td>
+                    <td class="">
+                        @Html.EditorFor(model => model.BienSoXe)
+                    </td>
+                </tr>
+            </table>
+        </td>
+
+        <td align="center" width="15%">
+            <table class="adminContent">
+                <tr>
+                    <td class="adminTitle" style="text-align:right">
+                        Tuyến:
+                    </td>
+                    <td class="adminData">
+                        @Html.DropDownListFor(model => model.TuyenId, Model.ListTuyens)
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td align="center" width="15%">
+            <table class="adminContent">
+                <tr>
+                    <td class="adminTitle" style="text-align:right">
+                        Văn phòng gửi:
+                    </td>
+                    <td class="adminData">
+                        @Html.DropDownListFor(model => model.VanPhongId, Model.VanPhongs)
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td style="text-align:left;width:15%">
+            <input type="button" id="btnSearch" class="k-button" value="@T("Admin.Common.Search")" />
+        </td>
+       
+    </tr>
+    <tr>
+        <td colspan="6" style="text-align:right">
+            <input type="button" id="btnExport" class="k-button" value="Xuất ra file Excel" />
+            @using (Html.BeginForm("_ExportBaoCao", "BaoCao", FormMethod.Post, new { id = "export-xml-selected-form" }))
+            {
+                <input type="hidden" id="NgayGuiHang" name="NgayGuiHang" value="" />
+                <input type="hidden" id="SoLenh" name="SoLenh" value="" />
+                <input type="hidden" id="BienSoXe" name="BienSoXe" value="" />
+                <input type="hidden" id="TuyenId" name="TuyenId" value="" />
+                <input type="hidden" id="VanPhongId" name="VanPhongId" value="" />
+                <input type="hidden" id="LoaiBaoCaoId" name="LoaiBaoCaoId" value="@Model.LoaiBaoCaoId" />
+            }
+        </td>
+    </tr>
+</table>
+<div id="tabBaoCao"></div>
+<script>
+    function LoadBaoCao() {
+        $('#tabBaoCao').html("");
+        var datapost = dataSearchBaoCao();
+        $.ajax({
+            cache: false,
+            type: "POST",
+            data: datapost,
+            url: "@(Url.Action("_BaoCaoTongHop", "BaoCao"))",
+            success: function (data) {
+                $('#tabBaoCao').html(data);
+
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                $('#tabBaoCao').html("Có lỗi trong quá trình load dữ liệu");
+            }
+        });
+    }
+    function ExportBaoCao() {
+        var NgayGuiHang = $("#@Html.FieldIdFor(model => model.NgayGuiHang)").val();
+        var SoLenh = $("#@Html.FieldIdFor(model => model.SoLenh)").val();
+        var BienSoXe = $("#@Html.FieldIdFor(model => model.BienSoXe)").val();
+        var TuyenId = $("#@Html.FieldIdFor(model => model.TuyenId)").val();
+        var VanPhongId = $("#@Html.FieldIdFor(model => model.VanPhongId)").val();
+
+        var LoaiBaoCaoId = $("#@Html.FieldIdFor(model => model.LoaiBaoCaoId)").val();
+
+        $('#export-xml-selected-form #NgayGuiHang').val(NgayGuiHang);
+        $('#export-xml-selected-form #SoLenh').val(SoLenh);
+        $('#export-xml-selected-form #BienSoXe').val(BienSoXe);
+        $('#export-xml-selected-form #TuyenId').val(TuyenId);
+        $('#export-xml-selected-form #VanPhongId').val(VanPhongId);
+        $('#export-xml-selected-form #LoaiBaoCaoId').val('@Model.LoaiBaoCaoId');
+        $('#export-xml-selected-form').submit();
+    }
+    function dataSearchBaoCao() {
+        var datapost = {
+            NgayGuiHang: $("#@Html.FieldIdFor(model => model.NgayGuiHang)").val(),
+            SoLenh: $("#@Html.FieldIdFor(model => model.SoLenh)").val(),
+            BienSoXe: $("#@Html.FieldIdFor(model => model.BienSoXe)").val(),
+            TuyenId: $("#@Html.FieldIdFor(model => model.TuyenId)").val(),
+            VanPhongId: $("#@Html.FieldIdFor(model => model.VanPhongId)").val(),
+            LoaiBaoCaoId: '@Model.LoaiBaoCaoId'
+        };
+        return datapost;
+    }
+    $(document).ready(function () {
+
+        $('#btnSearch').click(function () {
+            //search
+            LoadBaoCao();
+            return false;
+        });
+        $('#btnExport').click(function () {
+            ExportBaoCao();
+            return false;
+        });
+        $("#@Html.FieldIdFor(model => model.NgayGuiHang)").change(function () {
+            $("#btnSearch").click();
+        });
+        $("#@Html.FieldIdFor(model => model.TuyenId)").change(function () {
+            $("#btnSearch").click();
+        });
+        $("#@Html.FieldIdFor(model => model.VanPhongId)").change(function () {
+            $("#btnSearch").click();
+        });
+        $("#@Html.FieldIdFor(model => model.SoLenh)").change(function () {
+            $("#btnSearch").click();
+        });
+        $("#@Html.FieldIdFor(model => model.BienSoXe)").change(function () {
+            $("#btnSearch").click();
+        });
+        LoadBaoCao();
+    });
+</script>

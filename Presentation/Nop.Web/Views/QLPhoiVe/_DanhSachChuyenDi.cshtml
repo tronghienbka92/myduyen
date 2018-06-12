@@ -1,0 +1,141 @@
+﻿@model Nop.Web.Models.QLPhoiVe.QLChuyenDiModel
+@{
+    
+}
+<table id="BangDanhSach">
+    <thead>
+        <tr>
+            <td>STT  </td>
+            <td>Hành trình</td>
+            <td>Ngày đi  </td>
+            <td>Giờ xuất phát  </td>           
+            <td>Trạng thái</td>
+            <td style="width:120px">Biển số</td>
+            <td style="width:270px">Lái xe</td>
+            <td style="width:270px">Phụ xe</td>
+            <td style="width:120px">Doanh thu</td>
+            <td style="width:120px">Tổng chi</td>
+            <td></td>  
+            <td>Doanh thu chặng</td>          
+        </tr>
+    </thead>
+    <tbody>
+        @for (int i = 0; i < Model.lschuyendi.Count(); i++)
+        {
+            var xexuatben = Model.lschuyendi[i].xexuatben;
+            var chuyenditc = Model.lschuyendi[i].chuyenditc;
+            var doanhthu=Model.lschuyendi[i].DoanhThu.ToString("###,###,##0");
+
+            var _class = "";
+            if (i % 2 == 0)
+            {
+                _class = "RowColor";
+            }
+            if (xexuatben.NgayDi.Date.AddDays(4) < DateTime.Now.Date && (chuyenditc==null || (chuyenditc!=null && !chuyenditc.isCapNhat)))
+            {
+                _class = _class + " RowOverdue";
+            }
+            <tr class="@_class">
+                <td>
+                    @(i + 1)
+                </td>
+                <td>
+                    @xexuatben.TuyenXeChay
+                </td>
+                <td>
+                    @xexuatben.NgayDi.ToString("dd-MM-yyyy")
+                </td>
+                <td>
+                    @xexuatben.GioDi
+                </td>              
+                <td>
+                    @xexuatben.TrangThaiText
+                </td>
+                <td>
+                    @xexuatben.BienSo
+                </td>
+                <td>
+                    @if (xexuatben.laivaphuxes.Count > 0)
+                    {
+                        <span>@xexuatben.laivaphuxes.First().TenLaiXe</span>
+                    }
+                </td>
+                <td>
+                    @if (xexuatben.laivaphuxes.Count > 1)
+                    {
+                        <span>@xexuatben.laivaphuxes[1].TenLaiXe</span>
+                    }
+                </td>
+
+                <td style="text-align:right;padding:3px;">
+                    @doanhthu
+                </td>
+                <td style="text-align:right;padding:3px;">
+                    @(chuyenditc!=null? Math.Abs(chuyenditc.GiaoDichThuChis.Sum(c => c.SoTien)).ToString("###,###,##0"): "0")
+                </td>
+                <td>
+                    @( chuyenditc!=null && chuyenditc.isCapNhat ? "Đã thu" : "Chưa thu")
+                </td>
+                <td>
+                    <span  id="lnkxemnhatky_@xexuatben.Id"><a href="javascript:XemDoanhThuChang(@xexuatben.Id)">Xem DT chặng</a></span>
+                    <a href="/QLPhoiVe/ExportExcelLenhPhu?Id=@xexuatben.Id" class="k-button">Xuất excel</a>  
+                </td>
+            </tr>
+        }
+
+    </tbody>
+</table>
+<div id="divDoanhThuChang"></div>
+<script>
+    function XemDoanhThuChang(Id)
+    {
+
+        var windownhatky = $("#divDoanhThuChang");
+        windownhatky.html("");
+
+        windownhatky.kendoWindow({
+            modal: true,
+            width: "500px",
+            height:"350px",
+            title: "Doanh thu chặng",
+            content: "@(Url.Action("_DoanhThuChang", "QLPhoiVe"))" + "?Id=" + Id,
+            actions: ["Close"]
+    });
+
+    windownhatky.data('kendoWindow').center().open();
+    }
+</script>
+<style>
+    h3 {
+        text-align: center;
+    }
+
+    .RowColor {
+        background-color: #f5f5f5;
+    }
+    .RowOverdue {
+        color: red;
+    }
+    #BangDanhSach {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        #BangDanhSach thead {
+            font-weight: 700;
+            text-align: center;
+        }
+
+        #BangDanhSach, #BangDanhSach tr, #BangDanhSach tr td {
+            border: 1px solid #cccccc;
+            text-align: center;
+        }
+
+            #BangDanhSach tr {
+                height: 45px;
+            }
+
+    .khonghienthi {
+        display: none;
+    }
+</style>

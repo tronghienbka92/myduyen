@@ -1,0 +1,7 @@
+﻿@model TuyenVeXeModel
+@using Nop.Web.Models.VeXeKhach
+<div class="box-tick-map-t">
+    <div class="tick-map-t"><span>@(Model.TenTinhDi)</span><i class="icon-long-arrow-right"></i><strong>@Model.TenTinhDen</strong></div>
+    <div class="price-t">@Model.PriceNew <span>đ</span>/vé</div>    
+    <div class="order-t"><a href="@Url.RouteUrl("TuyenVeXe", new { SeName = Model.SeName })">Chọn</a></div>
+</div>

@@ -1,0 +1,317 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>UserAgentStringLibrary.Fakes</name>
+    </assembly>
+    <members>
+        <member name="T:UserAgentStringLibrary.Fakes.ShimUasParser">
+            <summary>Shim type of UserAgentStringLibrary.UasParser</summary>
+        </member>
+        <member name="M:UserAgentStringLibrary.Fakes.ShimUasParser.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:UserAgentStringLibrary.Fakes.ShimUasParser.#ctor(UserAgentStringLibrary.UasParser)">
+            <summary>Initializes a new shim for the given instance</summary>
+        </member>
+        <member name="M:UserAgentStringLibrary.Fakes.ShimUasParser.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:UserAgentStringLibrary.Fakes.ShimUasParser.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Fakes.ShimUasParser.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Fakes.ShimUasParser.ConstructorString">
+            <summary>Sets the shim of UasParser.UasParser(String dataFile)</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Fakes.ShimUasParser.IsBotString">
+            <summary>Sets the shim of UasParser.IsBot(String uas)</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Fakes.ShimUasParser.ParseBotString">
+            <summary>Sets the shim of UasParser.ParseBot(String uas)</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Fakes.ShimUasParser.ParseString">
+            <summary>Sets the shim of UasParser.Parse(String uas)</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Fakes.ShimUasParser.UpdateStringString">
+            <summary>Sets the shim of UasParser.Update(String dataUrl, String dataFile)</summary>
+        </member>
+        <member name="T:UserAgentStringLibrary.Fakes.ShimUasParser.AllInstances">
+            <summary>Define shims for all instances members</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Fakes.ShimUasParser.AllInstances.IsBotString">
+            <summary>Sets the shim of UasParser.IsBot(String uas)</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Fakes.ShimUasParser.AllInstances.ParseBotString">
+            <summary>Sets the shim of UasParser.ParseBot(String uas)</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Fakes.ShimUasParser.AllInstances.ParseString">
+            <summary>Sets the shim of UasParser.Parse(String uas)</summary>
+        </member>
+        <member name="T:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo">
+            <summary>Shim type of UserAgentStringLibrary.Models.UserAgentStringInfo</summary>
+        </member>
+        <member name="M:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.#ctor">
+            <summary>Initializes a new shim instance</summary>
+        </member>
+        <member name="M:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.#ctor(UserAgentStringLibrary.Models.UserAgentStringInfo)">
+            <summary>Initializes a new shim for the given instance</summary>
+        </member>
+        <member name="M:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.BehaveAsCurrent">
+            <summary>Assigns the &apos;Current&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="M:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.BehaveAsNotImplemented">
+            <summary>Assigns the &apos;NotImplemented&apos; behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.Behavior">
+            <summary>Assigns the behavior for all methods of the shimmed type</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.CompanyGet">
+            <summary>Sets the shim of UserAgentStringInfo.get_Company()</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.CompanySetString">
+            <summary>Sets the shim of UserAgentStringInfo.set_Company(String AutoPropertyValue)</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.CompanyUrlGet">
+            <summary>Sets the shim of UserAgentStringInfo.get_CompanyUrl()</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.CompanyUrlSetString">
+            <summary>Sets the shim of UserAgentStringInfo.set_CompanyUrl(String AutoPropertyValue)</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.Constructor">
+            <summary>Sets the shim of UserAgentStringInfo.UserAgentStringInfo()</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.DeviceIconGet">
+            <summary>Sets the shim of UserAgentStringInfo.get_DeviceIcon()</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.DeviceIconSetString">
+            <summary>Sets the shim of UserAgentStringInfo.set_DeviceIcon(String AutoPropertyValue)</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.DeviceInfoUrlGet">
+            <summary>Sets the shim of UserAgentStringInfo.get_DeviceInfoUrl()</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.DeviceInfoUrlSetString">
+            <summary>Sets the shim of UserAgentStringInfo.set_DeviceInfoUrl(String AutoPropertyValue)</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.DeviceTypeGet">
+            <summary>Sets the shim of UserAgentStringInfo.get_DeviceType()</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.DeviceTypeSetString">
+            <summary>Sets the shim of UserAgentStringInfo.set_DeviceType(String AutoPropertyValue)</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.FamilyGet">
+            <summary>Sets the shim of UserAgentStringInfo.get_Family()</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.FamilySetString">
+            <summary>Sets the shim of UserAgentStringInfo.set_Family(String AutoPropertyValue)</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.IconGet">
+            <summary>Sets the shim of UserAgentStringInfo.get_Icon()</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.IconSetString">
+            <summary>Sets the shim of UserAgentStringInfo.set_Icon(String AutoPropertyValue)</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.InfoUrlGet">
+            <summary>Sets the shim of UserAgentStringInfo.get_InfoUrl()</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.InfoUrlSetString">
+            <summary>Sets the shim of UserAgentStringInfo.set_InfoUrl(String AutoPropertyValue)</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.IsRobotGet">
+            <summary>Sets the shim of UserAgentStringInfo.get_IsRobot()</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.IsRobotSetBoolean">
+            <summary>Sets the shim of UserAgentStringInfo.set_IsRobot(Boolean AutoPropertyValue)</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.NameGet">
+            <summary>Sets the shim of UserAgentStringInfo.get_Name()</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.NameSetString">
+            <summary>Sets the shim of UserAgentStringInfo.set_Name(String AutoPropertyValue)</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.OsCompanyGet">
+            <summary>Sets the shim of UserAgentStringInfo.get_OsCompany()</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.OsCompanySetString">
+            <summary>Sets the shim of UserAgentStringInfo.set_OsCompany(String AutoPropertyValue)</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.OsCompanyUrlGet">
+            <summary>Sets the shim of UserAgentStringInfo.get_OsCompanyUrl()</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.OsCompanyUrlSetString">
+            <summary>Sets the shim of UserAgentStringInfo.set_OsCompanyUrl(String AutoPropertyValue)</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.OsFamilyGet">
+            <summary>Sets the shim of UserAgentStringInfo.get_OsFamily()</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.OsFamilySetString">
+            <summary>Sets the shim of UserAgentStringInfo.set_OsFamily(String AutoPropertyValue)</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.OsIconGet">
+            <summary>Sets the shim of UserAgentStringInfo.get_OsIcon()</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.OsIconSetString">
+            <summary>Sets the shim of UserAgentStringInfo.set_OsIcon(String AutoPropertyValue)</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.OsNameGet">
+            <summary>Sets the shim of UserAgentStringInfo.get_OsName()</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.OsNameSetString">
+            <summary>Sets the shim of UserAgentStringInfo.set_OsName(String AutoPropertyValue)</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.OsUrlGet">
+            <summary>Sets the shim of UserAgentStringInfo.get_OsUrl()</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.OsUrlSetString">
+            <summary>Sets the shim of UserAgentStringInfo.set_OsUrl(String AutoPropertyValue)</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.TypeGet">
+            <summary>Sets the shim of UserAgentStringInfo.get_Type()</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.TypeIdGet">
+            <summary>Sets the shim of UserAgentStringInfo.get_TypeId()</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.TypeIdSetInt32">
+            <summary>Sets the shim of UserAgentStringInfo.set_TypeId(Int32 AutoPropertyValue)</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.TypeSetString">
+            <summary>Sets the shim of UserAgentStringInfo.set_Type(String AutoPropertyValue)</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.UrlGet">
+            <summary>Sets the shim of UserAgentStringInfo.get_Url()</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.UrlSetString">
+            <summary>Sets the shim of UserAgentStringInfo.set_Url(String AutoPropertyValue)</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.VersionGet">
+            <summary>Sets the shim of UserAgentStringInfo.get_Version()</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.VersionSetString">
+            <summary>Sets the shim of UserAgentStringInfo.set_Version(String AutoPropertyValue)</summary>
+        </member>
+        <member name="T:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.AllInstances">
+            <summary>Define shims for all instances members</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.AllInstances.CompanyGet">
+            <summary>Sets the shim of UserAgentStringInfo.get_Company()</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.AllInstances.CompanySetString">
+            <summary>Sets the shim of UserAgentStringInfo.set_Company(String AutoPropertyValue)</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.AllInstances.CompanyUrlGet">
+            <summary>Sets the shim of UserAgentStringInfo.get_CompanyUrl()</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.AllInstances.CompanyUrlSetString">
+            <summary>Sets the shim of UserAgentStringInfo.set_CompanyUrl(String AutoPropertyValue)</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.AllInstances.DeviceIconGet">
+            <summary>Sets the shim of UserAgentStringInfo.get_DeviceIcon()</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.AllInstances.DeviceIconSetString">
+            <summary>Sets the shim of UserAgentStringInfo.set_DeviceIcon(String AutoPropertyValue)</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.AllInstances.DeviceInfoUrlGet">
+            <summary>Sets the shim of UserAgentStringInfo.get_DeviceInfoUrl()</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.AllInstances.DeviceInfoUrlSetString">
+            <summary>Sets the shim of UserAgentStringInfo.set_DeviceInfoUrl(String AutoPropertyValue)</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.AllInstances.DeviceTypeGet">
+            <summary>Sets the shim of UserAgentStringInfo.get_DeviceType()</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.AllInstances.DeviceTypeSetString">
+            <summary>Sets the shim of UserAgentStringInfo.set_DeviceType(String AutoPropertyValue)</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.AllInstances.FamilyGet">
+            <summary>Sets the shim of UserAgentStringInfo.get_Family()</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.AllInstances.FamilySetString">
+            <summary>Sets the shim of UserAgentStringInfo.set_Family(String AutoPropertyValue)</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.AllInstances.IconGet">
+            <summary>Sets the shim of UserAgentStringInfo.get_Icon()</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.AllInstances.IconSetString">
+            <summary>Sets the shim of UserAgentStringInfo.set_Icon(String AutoPropertyValue)</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.AllInstances.InfoUrlGet">
+            <summary>Sets the shim of UserAgentStringInfo.get_InfoUrl()</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.AllInstances.InfoUrlSetString">
+            <summary>Sets the shim of UserAgentStringInfo.set_InfoUrl(String AutoPropertyValue)</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.AllInstances.IsRobotGet">
+            <summary>Sets the shim of UserAgentStringInfo.get_IsRobot()</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.AllInstances.IsRobotSetBoolean">
+            <summary>Sets the shim of UserAgentStringInfo.set_IsRobot(Boolean AutoPropertyValue)</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.AllInstances.NameGet">
+            <summary>Sets the shim of UserAgentStringInfo.get_Name()</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.AllInstances.NameSetString">
+            <summary>Sets the shim of UserAgentStringInfo.set_Name(String AutoPropertyValue)</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.AllInstances.OsCompanyGet">
+            <summary>Sets the shim of UserAgentStringInfo.get_OsCompany()</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.AllInstances.OsCompanySetString">
+            <summary>Sets the shim of UserAgentStringInfo.set_OsCompany(String AutoPropertyValue)</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.AllInstances.OsCompanyUrlGet">
+            <summary>Sets the shim of UserAgentStringInfo.get_OsCompanyUrl()</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.AllInstances.OsCompanyUrlSetString">
+            <summary>Sets the shim of UserAgentStringInfo.set_OsCompanyUrl(String AutoPropertyValue)</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.AllInstances.OsFamilyGet">
+            <summary>Sets the shim of UserAgentStringInfo.get_OsFamily()</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.AllInstances.OsFamilySetString">
+            <summary>Sets the shim of UserAgentStringInfo.set_OsFamily(String AutoPropertyValue)</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.AllInstances.OsIconGet">
+            <summary>Sets the shim of UserAgentStringInfo.get_OsIcon()</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.AllInstances.OsIconSetString">
+            <summary>Sets the shim of UserAgentStringInfo.set_OsIcon(String AutoPropertyValue)</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.AllInstances.OsNameGet">
+            <summary>Sets the shim of UserAgentStringInfo.get_OsName()</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.AllInstances.OsNameSetString">
+            <summary>Sets the shim of UserAgentStringInfo.set_OsName(String AutoPropertyValue)</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.AllInstances.OsUrlGet">
+            <summary>Sets the shim of UserAgentStringInfo.get_OsUrl()</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.AllInstances.OsUrlSetString">
+            <summary>Sets the shim of UserAgentStringInfo.set_OsUrl(String AutoPropertyValue)</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.AllInstances.TypeGet">
+            <summary>Sets the shim of UserAgentStringInfo.get_Type()</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.AllInstances.TypeIdGet">
+            <summary>Sets the shim of UserAgentStringInfo.get_TypeId()</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.AllInstances.TypeIdSetInt32">
+            <summary>Sets the shim of UserAgentStringInfo.set_TypeId(Int32 AutoPropertyValue)</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.AllInstances.TypeSetString">
+            <summary>Sets the shim of UserAgentStringInfo.set_Type(String AutoPropertyValue)</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.AllInstances.UrlGet">
+            <summary>Sets the shim of UserAgentStringInfo.get_Url()</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.AllInstances.UrlSetString">
+            <summary>Sets the shim of UserAgentStringInfo.set_Url(String AutoPropertyValue)</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.AllInstances.VersionGet">
+            <summary>Sets the shim of UserAgentStringInfo.get_Version()</summary>
+        </member>
+        <member name="P:UserAgentStringLibrary.Models.Fakes.ShimUserAgentStringInfo.AllInstances.VersionSetString">
+            <summary>Sets the shim of UserAgentStringInfo.set_Version(String AutoPropertyValue)</summary>
+        </member>
+    </members>
+</doc>

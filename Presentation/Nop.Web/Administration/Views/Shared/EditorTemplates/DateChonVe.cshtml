@@ -1,0 +1,21 @@
+﻿@using System.Globalization
+@model DateTime
+<input id="@ViewData.TemplateInfo.GetFullHtmlFieldId(string.Empty)" name="@ViewData.TemplateInfo.GetFullHtmlFieldName(string.Empty)" value="@((Model > DateTime.MinValue ? Model : DateTime.Today).ToShortDateString())" style="height:24px" />
+<script>
+    $(document).ready(function () {
+
+        var today = new Date();
+        var maxday = new Date();
+        maxday.setDate(maxday.getDate() + 15);
+        $("#@ViewData.TemplateInfo.GetFullHtmlFieldId(string.Empty)").kendoDatePicker({
+            format: "@(CultureInfo.CurrentCulture.DateTimeFormat.ShortDatePattern)",
+            min: today,
+            max:maxday,
+            month: {
+                empty: '<span style="color:\\#ccc;padding:0 .45em 0 .1em;">#= data.value #</span>'
+            }
+        });
+        
+
+    });
+</script>

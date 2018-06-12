@@ -1,0 +1,15 @@
+﻿@model FooterModel
+@using Nop.Web.Extensions
+@using Nop.Web.Models.Common;
+@using Nop.Core
+@using Nop.Core.Domain.Tax
+@using Nop.Core.Infrastructure
+
+@Html.Partial("_BoxGioiThieu")
+@*@Html.Partial("_BoxTuyenBenXe")*@
+@Html.Action("_BoxTuyenBenXe", "Common")
+<footer id="footer">
+    <!--Footer-->
+  @Html.Partial("_BoxFooter")
+</footer>
+<!--/Footer-->

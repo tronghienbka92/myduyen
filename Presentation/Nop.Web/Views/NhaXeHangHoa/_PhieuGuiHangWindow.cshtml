@@ -1,0 +1,23 @@
+﻿<div id="formphieuguihangchitiet" style="display:none">
+</div>
+<script>
+    function ChiTietPGH(Id) {
+        
+        var formtemp = $("#formphieuguihangchitiet");
+        formtemp.html("");
+        if (formtemp.data("kendoWindow"))
+            formtemp.data("kendoWindow").destroy()
+        formtemp.kendoWindow({
+            modal: true,
+            width: "800px",
+            title: "Thông tin phiếu gửi hàng",
+            content: "@(Url.Action("PhieuGuiChiTiet", "NhaXeHangHoa"))" + "?Id=" + Id,
+            actions: ["Close"]
+    });
+    formtemp.data('kendoWindow').center().open();
+    }
+    function SetWindowPhieuCTCenter()
+    {
+        $("#formphieuguihangchitiet").data("kendoWindow").center();
+    }
+</script>

@@ -1,0 +1,194 @@
+﻿@using Nop.Core.Domain.Customers
+@using Nop.Core.Domain.Localization
+@using Nop.Web.Framework.UI;
+@using Nop.Core;
+@using Nop.Core.Domain.Common;
+@using Nop.Services.Security;
+@using Nop.Core.Infrastructure;
+@{
+    var currentCustomer = this.WorkContext.CurrentCustomer;
+    var usernamesEnabled = EngineContext.Current.Resolve<CustomerSettings>().UsernamesEnabled;
+    var currentVersion = NopVersion.CurrentVersion;
+    var kendoVersion = "2014.1.318";
+    var supportRtl = EngineContext.Current.Resolve<IWorkContext>().WorkingLanguage.Rtl &&
+        !EngineContext.Current.Resolve<LocalizationSettings>().IgnoreRtlPropertyForAdminArea;
+
+
+    //CSS resources
+    Html.AppendCssFileParts(string.Format("~/Content/kendo/{0}/kendo.custom.css", kendoVersion));
+    Html.AppendCssFileParts(string.Format("~/Content/kendo/{0}/kendo.rtl.min.css", kendoVersion));
+    Html.AppendCssFileParts(string.Format("~/Content/kendo/{0}/kendo.metro.min.css", kendoVersion));
+    Html.AppendCssFileParts(string.Format("~/Content/kendo/{0}/kendo.common.min.css", kendoVersion));
+
+    Html.AppendCssFileParts("~/Content/jquery-ui-themes/smoothness/jquery-ui-1.10.3.custom.min.css");
+    if (supportRtl)
+    {
+        Html.AppendCssFileParts("~/Administration/Content/styles.rtl.css");
+    }
+    else
+    {
+        Html.AppendCssFileParts("~/Administration/Content/styles.css?v=1");
+    }
+    Html.AppendScriptParts("~/Scripts/jquery.countdown.min.js");
+    Html.AppendScriptParts("~/Scripts/jquery.plugin.min.js");
+    Html.AppendScriptParts(string.Format("~/Scripts/kendo/{0}/kendo.all.min.js", kendoVersion));
+    Html.AppendScriptParts(string.Format("~/Scripts/kendo/{0}/cultures/kendo.culture.vi-VN.min.js", kendoVersion));
+    Html.AppendScriptParts("~/Scripts/admin.common.js");
+    Html.AppendScriptParts("~/Scripts/chonve.js");
+    Html.AppendScriptParts("~/Scripts/jquery-migrate-1.2.1.min.js");
+    Html.AppendScriptParts("~/Scripts/jquery-ui-1.10.3.custom.min.js");
+    Html.AppendScriptParts("~/Scripts/jquery.validate.unobtrusive.min.js");
+    Html.AppendScriptParts("~/Scripts/jquery.validate.min.js");
+    Html.AppendScriptParts("~/Scripts/jquery-1.10.2.min.js");
+
+    //page title
+    string adminPageTitle = "";
+    if (!String.IsNullOrWhiteSpace(ViewBag.Title))
+    {
+        adminPageTitle = ViewBag.Title + " / ";
+    }
+    adminPageTitle += T("NhaXe.PageTitle").Text;
+
+    //has "Manage Maintenance" permission?
+    var canManageMaintenance = EngineContext.Current.Resolve<IPermissionService>()
+        .Authorize(StandardPermissionProvider.ManageMaintenance);
+
+    //X-UA-Compatible tag
+    var commonSettings = EngineContext.Current.Resolve<CommonSettings>();
+    if (commonSettings.RenderXuaCompatible)
+    {
+        Html.AppendHeadCustomParts(string.Format("<meta http-equiv=\"X-UA-Compatible\" content=\"{0}\"/>", commonSettings.XuaCompatibleValue));
+    }
+}
+<!DOCTYPE html>
+<html @(supportRtl ? Html.Raw("dir=\"rtl\"") : null)>
+<head>
+    <title>@adminPageTitle</title>
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+    @Html.NopHeadCustom()
+    @Html.NopCssFiles(this.Url, ResourceLocation.Head)
+    @Html.NopScripts(this.Url, ResourceLocation.Head)
+</head>
+<body @(supportRtl ? Html.Raw("class=\"k-rtl\"") : null)>
+    <div id="ajaxBusy">
+        <span>&nbsp;</span>
+    </div>
+    <div class="master-wrapper-page k-content">
+        <div class="master-wrapper-content">
+            @if (IsSectionDefined("header"))
+            {
+                @RenderSection("header")
+            }
+            else
+            {
+                <div class="header">
+                    <a class="logo" href="@Url.RouteUrl("HomePage")"></a>
+                    @Html.Widget("admin_header_before")
+                    <div class="languageselector" style="color:white;font-weight:bold;font-size:smaller">
+                        @(EngineContext.Current.Resolve<Nop.Services.Helpers.IDateTimeHelper>().ConvertToUserTime(DateTime.Now).ToString("f"))
+                    </div>
+                    <div style="position: absolute;
+    top: 13px;
+    text-align: left;
+    left: 271px;
+    font-size: 16px;
+    color: white;
+    font-weight: 600;
+    width: 600px;">
+                        <table width="100%">
+                            <tr>
+                                <td>
+                                    BƯỚC 1: TẠO PHIẾU BIÊN NHẬN.
+                                </td>
+                                <td>BƯỚC 3: GÁN CHUYẾN.</td>
+                            </tr>
+                            <tr>
+                                <td>BƯỚC 2: XẾP PHIẾU VẬN CHUYỂN.</td>
+                                <td>BƯỚC 4: NHẬN/TRẢ HÀNG</td>
+                            </tr>
+                        </table>
+
+                    </div>
+                    @Html.Widget("admin_header_middle")
+                    <div class="links">
+                        @Html.ActionLink(T("account.myaccount").Text, "Info", "Customer", new { area = "" }, new { @class = "link-function" })
+                    </div>
+                    <div class="login-info">
+                        @if (currentCustomer != null && currentCustomer.IsRegistered())
+                        {
+                            @String.Format(T("Admin.Header.LoggedInAs").Text, usernamesEnabled ? currentCustomer.Username : currentCustomer.Email)
+                            <text>, </text> @Html.ActionLink(T("Admin.Header.Logout").Text, "Logout", "Customer", new { area = "" }, new { @class = "link-function" })
+                        }
+                    </div>
+                    @Html.Widget("admin_header_after")
+                </div>
+            }
+            @if (IsSectionDefined("headermenu"))
+            {
+                @RenderSection("headermenu")
+            }
+            else
+            {
+                <div class="header-menu" style="font-size:14px">
+                    @Html.Partial("NhaXeMenu")
+                </div>
+            }
+
+            <div class="content">
+                @Html.Partial("Notifications")
+                <div class="cph">
+                    @RenderBody()
+                </div>
+            </div>
+            <div class="throbber">
+                <div class="curtain">
+                </div>
+                <div class="curtain-content">
+                    <div>
+                        <h1 class="throbber-header">Wait...</h1>
+                        <p>
+                            <img src="@Url.Content("~/administration/content/images/throbber-synchronizing.gif")" alt="" />
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div id="boxmouserighthint"></div>
+            <div id="divLoadingContent" style="display:none">
+                <div style='width:100%;text-align:center'><img src='/Content/kendo/2014.1.318/Flat/loading-image.gif' /></div>
+            </div>
+            <div id="tabChiTietPhieuBienNhan" style="display:none"></div>
+            <script>
+                function ViewPBN(id) {
+                    var windowchitietphieu = $("#tabChiTietPhieuBienNhan");
+                    windowchitietphieu.html($("#divLoadingContent").html());
+                    if (windowchitietphieu.data("kendoWindow"))
+                        windowchitietphieu.data("kendoWindow").destroy();
+                    windowchitietphieu.kendoWindow({
+                        modal: true,
+                        width: "860px",
+                        height: "550px",
+                        title: "Thông tin phiếu biên nhận",
+                        content: "@(Url.Action("_ChiTietPhieuBienNhan", "HangHoa"))" + "?Id=" + id,
+                        actions: ["Close"]
+                    });
+
+                    windowchitietphieu.data('kendoWindow').center().open();
+                }
+                $(document).ready(function () {
+                    $("#boxmouserighthint").kendoNotification({
+                        allowHideAfter: 100
+                    });
+                });
+                function ShowHintMouseRightClick(strmsg) {
+                    $("#boxmouserighthint").kendoNotification().data("kendoNotification").show(strmsg);
+                }
+                function ShowSoTienBangChu(ctl, sotien) {
+                    $("#" + ctl).html(DocTienBangChu(sotien));
+                }
+            </script>
+        </div>
+    </div>
+    @Html.NopCssFiles(this.Url, ResourceLocation.Foot)
+    @Html.NopScripts(this.Url, ResourceLocation.Foot)
+</body>
+</html>

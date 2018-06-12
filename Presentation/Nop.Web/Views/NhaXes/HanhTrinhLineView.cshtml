@@ -1,0 +1,39 @@
+﻿@model HanhTrinhModel
+@using Nop.Web.Models.NhaXes
+@if (Model.DiemDons.Count > 0)
+{
+    <div id="diemdonstart_point" class="startend-diemdon diemdonstart_view" diemdonid_select="@Model.DiemDons[0].DiemDonId"
+         diemdonthutu_select="@Model.DiemDons[0].ThuTu" diemdonkhoangcach_select="@Model.DiemDons[0].KhoangCach" id_select="@Model.DiemDons[0].Id">
+        @Model.DiemDons[0].DiemDonText
+    </div>
+}
+else
+{
+    <div class="startend-diemdon diemdonstart_view" diemdonid_select="-1" id="diemdonstart_point">
+        <span>&nbsp;</span>
+    </div>
+}
+
+@for (int i = 1; i < Model.DiemDons.Count - 1; i++)
+{
+    int _distance = (Model.WIDTH_OF_LINE * Model.DiemDons[i].KhoangCach) / Model.TongKhoangCach;
+    _distance = _distance - 2*36;
+    <div class="startend-diemdon diemdon_view" style="left:@(_distance)px" diemdonid_select="@Model.DiemDons[i].DiemDonId"
+         diemdonthutu_select="@Model.DiemDons[i].ThuTu" diemdonkhoangcach_select="@Model.DiemDons[i].KhoangCach" id_select="@Model.DiemDons[i].Id">
+        @Model.DiemDons[i].DiemDonText
+    </div>
+}
+
+@if (Model.DiemDons.Count > 1)
+{
+    <div id="diemdonend_point" class="startend-diemdon diemdonend_view" diemdonid_select="@Model.DiemDons[Model.DiemDons.Count - 1].DiemDonId"
+         diemdonthutu_select="@Model.DiemDons[Model.DiemDons.Count - 1].ThuTu" diemdonkhoangcach_select="@Model.DiemDons[Model.DiemDons.Count - 1].KhoangCach" id_select="@Model.DiemDons[Model.DiemDons.Count - 1].Id">
+        @Model.DiemDons[Model.DiemDons.Count - 1].DiemDonText
+    </div>
+}
+else
+{
+    <div class="startend-diemdon diemdonend_view" diemdonid_select="-2" id="diemdonend_point">
+        <span>&nbsp;</span>
+    </div>
+}

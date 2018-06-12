@@ -1,0 +1,49 @@
+﻿@model NhaXeCauHinhModel
+@using Nop.Web.Models.NhaXes
+@{
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+    //page title
+    ViewBag.Title = "Chỉnh sửa mẫu lệnh đón khách";
+}
+@using (Html.BeginForm(null, null, FormMethod.Post))
+{
+    @Html.HiddenFor(m=>m.KieuDuLieuId)
+    @Html.HiddenFor(m => m.MaId)
+    @Html.HiddenFor(m => m.Id)
+    @Html.HiddenFor(m => m.Ten)
+    <div class="section-header">
+        <div class="title">
+            <img src="@Url.Content("~/Content/chonve/nxmenu/nhaxeinfomaulenhxexuatben.png")" alt="" />
+            @ViewBag.Title
+        </div>
+        <div class="options">
+            <input type="submit" name="save" class="k-button" style="width:150px;" value="@T("Admin.Common.Save")" />
+        </div>
+    </div>
+    <table class="adminContent">
+        <tr>
+            <td class="adminTitle" style="vertical-align:top">
+                Nội dung:
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(x => x.GiaTri, "RichEditor")
+            </td>
+        </tr>  
+        <tr>
+            <td class="adminTitle" style="vertical-align:top">
+                Chuỗi ký tự bắt đầu/kết thúc:
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(x => x.KyTuRepeatStart) / @Html.EditorFor(x => x.KyTuRepeatEnd)
+            </td>
+        </tr>   
+        <tr>
+            <td class="adminTitle" style="vertical-align:top">
+                Số hàng tối đa trên trang:
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(x => x.ItemPerPage)
+            </td>
+        </tr>            
+    </table>
+  }

@@ -1,0 +1,35 @@
+﻿@model NguonVeXeModel
+         
+<div class="row row-tb">
+    <div class="col-md-5">
+        <div class="begin-destination">
+            <span>@Model.ThoiGianDi.ToString("HH:mm") Xuất phát từ @Model.TenDiemDon</span>
+            <strong><i class="icon-long-arrow-down"></i> @Model.TenDiemDon</strong>
+            <span>@Model.ThoiGianDen.ToString("HH:mm") Đến @Model.TenDiemDen</span>
+            <strong>@Model.TenDiemDen</strong>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="hangxe">
+            <span>Hãng xe</span>
+            <strong>@Model.NhaXeInfo.TenNhaXe</strong>
+            <span>@Model.TenLoaiXe</span>
+            <a href="#">Xem chi tiết</a>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="price-saerch">
+            <span>Giá vé</span>
+            <strong>@Model.GiaVeMoiText</strong>
+            <i>(Đã bao gồm VAT)</i>            
+            <a href="javascript:;" name="datmuavexe-button" itemdata="@Model.Id" >
+                Chọn vé này 
+               
+            </a>
+        </div>
+    </div>
+</div>
+<div id="ChonCho_DatMuaVeXe_@Model.Id" class="ChonChoDatVe" >
+</div>
+
+

@@ -1,0 +1,53 @@
+﻿@model Nop.Web.Models.NhaXes.QuanlyPhoiVeModel.KhachHangDatMuaVeModel
+@Html.HiddenFor(m => m.NgayDiDangChon)
+<table style="text-align:left;">
+    <tr>
+        <td class="adminTitle">
+            Tuyến vé:
+        </td>
+        <td class="adminData">
+           
+                @Html.DropDownListFor(m => m.NguonVeXeIdDangChon, Model._nguonves)
+          
+        </td>
+    </tr>   
+    <tr>
+        <td></td>
+        <td class="adminData">
+            <input type="button" class="k-button" id="BtnThanhToanNhanh" value="@T("common.yes")" />
+        </td>
+    </tr>
+</table>
+
+<script type="text/javascript">
+    $(document).ready(function () {       
+        $('#BtnThanhToanNhanh').click(function () {
+            
+            var paradata = additionalData();
+            $.ajax({
+                cache: false,
+                type: "POST",
+                data: paradata,
+                dataType: 'json',
+                url: "@(Url.Action("DatVeNhanh", "NhaXes"))",
+                success: function (data) {
+                    CloseWindowDatVeNhanh(true);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    return alert('Error while process ThanhToanGiuCho');
+                    $('#BtnThanhToanNhanh').attr('disabled', false);
+                }
+
+            });
+        });
+        function additionalData() {
+            return {
+                "NguonVeXeIdDangChon": $('#@Html.FieldIdFor(model => model.NguonVeXeIdDangChon)').val(),                
+               
+            };
+        }
+
+    });
+
+
+</script>

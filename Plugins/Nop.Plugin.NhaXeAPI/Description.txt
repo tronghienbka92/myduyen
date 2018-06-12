@@ -1,0 +1,8 @@
+﻿Group: Misc
+FriendlyName: Xu ly cac hang API cho mobile
+SystemName: Nop.Plugin.NhaXeAPI
+Version: 1.00
+SupportedVersions: 3.50
+Author: Nguyen Tat Le
+DisplayOrder: 1
+FileName: Nop.Plugin.NhaXeAPI.dll

@@ -1,0 +1,246 @@
+﻿@model NguonVeListModel
+@using Nop.Web.Models.NhaXes
+@using Nop.Core.Infrastructure
+@Html.ValidationSummary(false)
+@{
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+    var defaultGridPageSize = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().DefaultGridPageSize;
+    var gridPageSizes = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().GridPageSizes;
+
+    //page title
+    ViewBag.Title = T("ChonVe.NhaXe.NguonVe.List.Title").Text;
+}
+<div class="section-header">
+    <div class="title">
+        <img src="@Url.Content("~/Content/chonve/nxmenu/hanhtrinhnguonve.png")" alt="" />
+        @T("ChonVe.NhaXe.NguonVe.List.Title")
+    </div>
+</div>
+<table width="100%">
+    <tr>
+        <td>
+            <table>
+                <tr>
+                    <td class="adminTitle">
+                        @Html.NopLabelFor(model => model.HanhTrinhId):
+                    </td>
+                    <td class="adminData">
+                        @Html.DropDownListFor(model => model.HanhTrinhId, Model.HanhTrinhs)
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td>
+            <table>
+                <tr>
+                    <td class="adminTitle">
+                        @Html.NopLabelFor(model => model.NgayDiFrom):
+                    </td>
+                    <td class="adminData">
+                        @Html.EditorFor(model => model.NgayDiFrom)
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td>
+            <table>
+                <tr>
+                    <td class="adminTitle">
+                        @Html.NopLabelFor(model => model.NgayDiTo):
+                    </td>
+                    <td class="adminData">
+                        @Html.EditorFor(model => model.NgayDiTo)
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    @*<tr>
+        <td colspan="2">
+            <input type="button" id="btnSearch" class="k-button" value="@T("Admin.Common.Search")" />
+        </td>
+    </tr>*@
+</table>
+<form id="formupdategiave">
+    @Html.HiddenFor(model => model.NgayDi)
+    @Html.HiddenFor(model => model.HanhTrinhId)
+    @Html.HiddenFor(model => model.SoNguonVe)
+    @Html.HiddenFor(model => model.XeXuatBenResult)
+    <div id="subdanhsach-grid">
+        <input type="button" id="btnupdategiave" value="Cập nhật" class="SuaGiaVe" />
+        <table id="BangGiaVe">
+            @for (int i = 0; i < Model.SoNguonVe + 1; i++)
+            {
+                <tr>
+                    @for (int j = 0; j < Model.SoNgay; j++)
+                    {
+                        var withcol = 100 / (Model.SoNgay);
+                        <td style="width:">
+                            @if (i == 0 && j > 0)
+                            {
+                                <span class="date"> @Model.XepXeTheoNgay[0, j].NgayXuatBen.ToString("dd/MM")</span>
+
+                            }
+                            @if (j == 0 && i > 0)
+                            {
+                                <span> @Model.XepXeTheoNgay[i, 0].GioLichTrinh</span>
+
+                            }
+                            @if (i > 0 && j > 0)
+                            {
+                                <input name="BienSoInput" id='vitribienso_@(Model.XepXeTheoNgay[i, j].NgayXuatBen.ToString("ddMMyyyy"))_@(Model.XepXeTheoNgay[i, j].NguonVeId)' value="@Model.XepXeTheoNgay[i, j].BienSo" />
+                                @Html.HiddenFor(model => model.XepXeTheoNgay[i, j].XeVanChuyenId)
+                                @*@Html.DropDownListFor(model => model.XepXeTheoNgay[i, j].XeVanChuyenId, Model.BienSoXes, new { @Name = "BienSoInput", @Id = "vitribienso_" + Model.XepXeTheoNgay[i, j].NgayXuatBen.ToString() + "_" + Model.XepXeTheoNgay[i, j].NguonVeId + "_" + Model.XepXeTheoNgay[i, j].XeVanChuyenId })*@
+                                @*<input type='text' name="BienSoInput" id='vitribienso_@(Model.XepXeTheoNgay[i, j].NgayXuatBen)_@(Model.XepXeTheoNgay[i, j].NguonVeId)_@(Model.XepXeTheoNgay[i, j].XeVanChuyenId)' value='@(Model.XepXeTheoNgay[i, j].BienSo)' class='text-box single-line' style='width:100px;text-align:center'>*@
+
+                            }
+                        </td>
+                    }
+
+                </tr>
+            }
+        </table>
+    </div>
+    <script type="text/javascript">
+        function LuuThongTinNguonVe() {
+
+            //luu theo cu phap ngayxuatben;nguonveid|xevanchuyenid
+            var thongtinbs = "";
+
+            $("input[name='BienSoInput']").each(function () {
+                var input = $(this);
+                var idinfo = input.attr('id');
+                idinfo = idinfo.replace("vitribienso_", "");
+                idinfo = idinfo.replace(/_/g, ";");
+                if (input.val() == "")
+                    input.val(0);
+                thongtinbs = thongtinbs + idinfo + ";" + input.val() + "|";
+            });
+
+            $('#@Html.FieldIdFor(model => model.XeXuatBenResult)').val(thongtinbs);
+
+        }
+        function ThongTinBienSo() {
+            
+            $("input[name='BienSoInput']").each(function () {
+                var input = $(this);
+                var idinfo = input.attr('id');                
+                var res = idinfo.split("_");
+                
+              
+                $('#' + idinfo + '').kendoComboBox({
+                    placeholder: "Chọn biển số",
+                    dataTextField: "Text",
+                    dataValueField: "Text",
+                    filter: "contains",
+                    autoBind: false,
+                    minLength: 1,
+                    dataSource: {
+                        type: "json",
+                        serverFiltering: true,
+                        transport: {
+                            read: {
+                                url: "@Html.Raw(Url.Action("BienSoList", "NhaXes"))",
+                                data: additionalData
+                            }
+                        }
+                    },
+                    change: function (e) {
+                        var value = this.value();
+                        input.value = value;
+                    }
+                });
+                
+                function additionalData() {
+                    return {
+                        BienSoText: $('#' + idinfo + '').data("kendoComboBox").text()
+                    };
+                }
+            });
+
+
+        }
+       
+        $(document).ready(function () {
+            ThongTinBienSo();
+            $('#btnupdategiave').click(function () {
+                if (!confirm("@T("Common.areyousure")")) {
+                    return;
+                }
+                var hanhtrinhid = $('#@Html.FieldIdFor(model => model.HanhTrinhId)').val();
+                var ngaydifrom = $('#@Html.FieldIdFor(model => model.NgayDiFrom)').val();
+                var ngaydito = $('#@Html.FieldIdFor(model => model.NgayDiTo)').val();
+                LuuThongTinNguonVe();
+                var data = $("form").serialize();
+
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    data: data,
+                    dataType: 'json',
+                    url: "@(Url.Action("XepLichXeXuatBen", "NhaXes"))",
+                    success: function (data) {
+                        document.location.href = "/NhaXes/XepLichXeXuatBen?hanhtrinhid=" + hanhtrinhid + "&ngaydifrom=" + ngaydifrom+"&ngaydito="+ngaydito;
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+
+                    }
+
+                });
+            });
+
+        });
+    </script>
+</form>
+
+<style>
+    #BangGiaVe {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+        #BangGiaVe, #BangGiaVe tr, #BangGiaVe tr td {
+            border: 1px solid black;
+        }
+
+            #BangGiaVe tr {
+                height: 45px;
+            }
+
+                #BangGiaVe tr td {
+                    text-align: center;
+                }
+
+    .date {
+        background: rgba(216, 210, 210, 0.61);
+    }
+
+    .SuaGiaVe {
+        margin-bottom: 10px;
+        background: #3498db;
+        background-image: -webkit-linear-gradient(top, #3498db, #2980b9);
+        background-image: -moz-linear-gradient(top, #3498db, #2980b9);
+        background-image: -ms-linear-gradient(top, #3498db, #2980b9);
+        background-image: -o-linear-gradient(top, #3498db, #2980b9);
+        background-image: linear-gradient(to bottom, #3498db, #2980b9);
+        -webkit-border-radius: 28;
+        -moz-border-radius: 28;
+        border-radius: 28px;
+        font-family: Arial;
+        color: #ffffff;
+        font-size: 14px;
+        padding: 10px 20px 10px 20px;
+        text-decoration: none;
+        float: right;
+    }
+
+        .SuaGiaVe:hover {
+            background: #3cb0fd;
+            background-image: -webkit-linear-gradient(top, #3cb0fd, #3498db);
+            background-image: -moz-linear-gradient(top, #3cb0fd, #3498db);
+            background-image: -ms-linear-gradient(top, #3cb0fd, #3498db);
+            background-image: -o-linear-gradient(top, #3cb0fd, #3498db);
+            background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
+            text-decoration: none;
+        }
+</style>

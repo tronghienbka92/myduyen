@@ -1,0 +1,23 @@
+﻿@model LoaiXeModel
+@using Nop.Web.Models.NhaXes
+@{
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+    //page title
+    ViewBag.Title = T("ChonVe.NhaXe.LoaiXe.Sua").Text;
+}
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "LoaiXe-form" }))
+{
+    <div class="section-header">
+        <div class="title">
+            <img src="@Url.Content("~/Content/chonve/nxmenu/quanlyxeloaixe.png")" alt="" />
+            @T("ChonVe.NhaXe.LoaiXe.Sua") - @Model.TenLoaiXe @Html.ActionLink("(" + T("ChonVe.NhaXe.LoaiXe.BackToList") + ")", "LoaiXeList")
+        </div>
+        <div class="options">
+            <input type="submit" name="save" class="k-button" value="@T("Admin.Common.Save")" />
+            <input type="submit" name="save-continue" class="k-button" value="@T("Admin.Common.SaveContinue")" />
+            <span id="LoaiXe-delete" class="k-button">@T("Admin.Common.Delete")</span>
+        </div>
+    </div>
+    @Html.Partial("_LoaiXeChinhSua", Model)
+}
+@Html.DeleteConfirmation("LoaiXeXoa", "LoaiXe-delete")

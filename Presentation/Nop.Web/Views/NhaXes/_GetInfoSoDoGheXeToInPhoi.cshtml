@@ -1,0 +1,422 @@
+﻿@model LoaiXeModel.SoDoGheXeModel
+@using Nop.Web.Models.NhaXes
+@using Nop.Core.Domain.Chonves
+@using Nop.Core.Domain.NhaXes;
+@{
+    var widthcol = 100 / (Model.SoCot + 1);
+}
+@if (Model.SoTang == 1)
+{
+
+    <div style="border:1px solid #0e6780">
+        <table style="width:100%">
+            <tr>
+                <td>
+                    @SoDoGheInPhoi(1)
+
+                </td>
+            </tr>
+        </table>
+        <table class="TongKetBang">
+            @for (int m = 0; m < Model.SoDiemDon + 1; m++)
+            {
+                <tr>
+                    @for (int n = 1; n < Model.SoCot + 2; n++)
+                    {
+                        if (m == Model.SoDiemDon)
+                        {
+                            if (n == Model.SoCot + 1)
+                            {
+                                <td width="@widthcol%">
+                                    <span>
+                                        Tổng khách  :@Model.TongKet[m, n].TongKhach
+                                    </span>
+                                    <br />
+                                    <span>
+                                        Tổng tiền:@Model.TongKet[m, n].TongTienText
+                                    </span>
+                                </td>
+                            }
+                            else
+                            {
+                                <td width="@widthcol%">Tổng tiền:@Model.TongKet[m, n].TongTienText</td>
+                            }
+
+                        }
+                        else if (n == Model.SoCot + 1)
+                        {
+                            <td width="@widthcol%">Tổng Khách:@Model.TongKet[m, n].TongKhach</td>
+                        }
+                        else
+                        {
+                            <td width="@widthcol%" >
+                                @Model.TongKet[m, n].TenDiemDon:@Model.TongKet[m, n].SoKhachXuong
+                            </td>
+                        }
+
+                    }
+                </tr>
+            }
+        </table>
+
+    </div>
+}
+else
+{
+    <div style="text-align:center">        
+        <div style="border:2px solid #808080;padding-right:12px;">
+            @SoDoGheInPhoi(1)
+        </div>
+    </div>
+    <div style="text-align:center">        
+        <div style="border:2px solid #808080;padding-right:12px;">
+            @SoDoGheInPhoi(2)
+        </div>
+    </div>
+    <table class="TongKetBang">
+        @for (int m = 0; m < Model.SoDiemDon + 1; m++)
+        {
+            <tr>
+                @for (int n = 1; n < Model.SoCot + 2; n++)
+                {
+                    if (m == Model.SoDiemDon)
+                    {
+                        if (n == Model.SoCot + 1)
+                        {
+                            <td width="@widthcol%">
+                                <span>
+                                    Tổng khách  :@Model.TongKet[m, n].TongKhach
+                                </span>
+                                <br />
+                                <span>
+                                    Tổng tiền:@Model.TongKet[m, n].TongTienText
+                                </span>
+                            </td>
+                        }
+                        else
+                        {
+                            <td width="@widthcol%">Tổng tiền:@Model.TongKet[m, n].TongTienText</td>
+                        }
+
+                    }
+                    else if (n == Model.SoCot + 1)
+                    {
+                        <td width="@widthcol%">Tổng Khách:@Model.TongKet[m, n].TongKhach</td>
+                    }
+                    else
+                    {
+                        <td width="@widthcol%" style="text-align:center">
+                            @Model.TongKet[m, n].TenDiemDon:@Model.TongKet[m, n].SoKhachXuong
+                        </td>
+                    }
+
+                }
+            </tr>
+        }
+    </table>
+
+}
+
+@helper SoDoGheInPhoi(int tang)
+{
+
+    <div class="divquytacsodoghe">
+        <table class="quytacsodoghe">
+            @for (int h = 1; h < Model.SoHang + 1; h++)
+            {
+                <tr>
+                    @for (int c = 1; c < Model.SoCot + 1; c++)
+                    {
+
+                        @gheInfo(h, c, tang, true)
+
+                    }
+                </tr>
+            }
+        </table>
+    </div>
+}
+
+
+@helper gheInfo(int h, int c, int tang, bool inphoi)
+{
+    var withcol = 100 / Model.SoHang;
+    if (inphoi)
+    {
+        withcol = 100 / Model.SoCot;
+    }
+
+
+    var _class = "quytacsodoghedamua";
+    var _classmenucontext = "phoive_menucontext_datve";
+    var _classbg = "ghenam_cell_noprint_giuongnam";
+    if (Model.PhanLoai == ENPhanLoaiPhoiVe.IN_PHOI_VE) //for print
+    {
+        _classbg = "ghenam_cell_print";
+    }
+    else
+    {
+        _classbg = "ghenam_cell_noprint_giuongnam";
+        if (Model.SoTang == 1)
+        {
+            _classbg = "ghenam_cell_noprint_ghengoi";
+        }
+    }
+
+    if (Model.MaTran[h - 1, c - 1] == 1)
+    {
+        ENTrangThaiPhoiVe tt = Model.PhoiVes1[h, c].Info.TrangThai;
+        var kyhieu = Model.PhoiVes1[h, c].KyHieu;
+        var MaVe = Model.PhoiVes1[h, c].Info.MaVe;
+        var idphoive = Model.PhoiVes1[h, c].Info.Id;
+        var khachhang_name = Model.PhoiVes1[h, c].TenKhachHang;
+        var khachhang_dienthoai = Model.PhoiVes1[h, c].SoDienThoai;
+        var TenChang = Model.PhoiVes1[h, c].TenChang;
+        var VeYeuCauHuy = Model.PhoiVes1[h, c].Info.IsRequireCancel;
+        var GiaVe = Model.PhoiVes1[h, c].GiaVe;
+        var LoaiKhach = Model.PhoiVes1[h, c].LoaiKhach;
+        var ghichu = Model.PhoiVes1[h, c].Info.GhiChu;
+        if (tang == 2)
+        {
+            kyhieu = Model.PhoiVes2[h, c].KyHieu;
+            MaVe = Model.PhoiVes2[h, c].Info.MaVe;
+            tt = Model.PhoiVes2[h, c].Info.TrangThai;
+            idphoive = Model.PhoiVes2[h, c].Info.Id;
+            khachhang_name = Model.PhoiVes2[h, c].TenKhachHang;
+            khachhang_dienthoai = Model.PhoiVes2[h, c].SoDienThoai;
+            VeYeuCauHuy = Model.PhoiVes2[h, c].Info.IsRequireCancel;
+            TenChang = Model.PhoiVes2[h, c].TenChang;
+            GiaVe = Model.PhoiVes2[h, c].GiaVe;
+            LoaiKhach = Model.PhoiVes2[h, c].LoaiKhach;
+            ghichu = Model.PhoiVes2[h, c].Info.GhiChu;
+        }
+        
+        switch (tt)
+        {
+            case ENTrangThaiPhoiVe.ConTrong:
+                {                    
+                    _classmenucontext = "phoive_menucontext_datve";
+                    _class = "";
+                    break;
+                }
+           
+            case ENTrangThaiPhoiVe.ChoXuLy:
+                {
+                    _class = "ghenam_cell_giuve";
+                    _classmenucontext = "phoive_menucontext_nghiepvu";
+                    break;
+                }
+            case ENTrangThaiPhoiVe.DaGiaoHang:
+                {
+                    if (VeYeuCauHuy)
+                    {
+                        _class = "ghenam_cell_VeYeuCauHuy";
+                    }
+                    else
+                    {
+                        _class = "ghenam_cell_thanhtoan";
+                    }
+                    if (Model.CanYeuCauHuy)
+                    {
+                        _classmenucontext = "phoive_nghiepvu_YeuCauHuy";
+                    }
+                    else
+                    {
+                        _classmenucontext = "phoive_menucontext_nghiepvu";
+                    }
+
+                    break;
+                }
+        }
+        if (Model.PhanLoai != ENPhanLoaiPhoiVe.PHOI_VE)
+        {
+            _classmenucontext = "";
+        }
+        <td style="width:@withcol%;">
+            @if (!string.IsNullOrWhiteSpace(kyhieu))
+            {
+                <div class="@_classmenucontext">
+                   
+                        <div class="ghenam_cell @_classbg @_class">
+                            <div class="ghenam_cell_kyhieu">@kyhieu</div>
+                            <div class="ghenam_cell_thongtin">
+                                @if (tt == ENTrangThaiPhoiVe.DaGiaoHang || tt == ENTrangThaiPhoiVe.ChoXuLy || tt == ENTrangThaiPhoiVe.GiuCho)
+                                {
+                                    if (@MaVe != null)
+                                    {
+                                        <span> MV: @MaVe</span><br />
+                                    }
+                                    <span>
+                                        Kh:  @khachhang_name
+                                        @if (@khachhang_dienthoai != null)
+                                        {
+                                            <span>(@khachhang_dienthoai)</span>
+                                        }
+                                    </span><br />
+
+                                    <span>Chặng: @TenChang</span><br />
+                                    <span>
+                                        Giá: @GiaVe
+                                        @if (tt == ENTrangThaiPhoiVe.DaGiaoHang)
+                                        {
+                                            <span>(Đã TT)</span>
+                                        }
+                                        else
+                                        {
+                                            <span>(Chưa TT)</span>
+                                        }
+                                    </span><br />
+                                    if (LoaiKhach != "")
+                                    {
+                                        <span>Lưu ý: @LoaiKhach </span>
+                                    }
+                                    if (!string.IsNullOrEmpty(ghichu))
+                                    {
+                                        <span>(@ghichu)</span><br />
+                                    }
+
+                                }
+                            </div>
+                        </div>
+                    
+                </div>
+            }
+            else
+            {
+                <div style="width:100%;height:68px" class="ghenam_cell"></div>
+            }
+
+        </td>
+    }
+    else
+    {
+        <td style="width:@withcol%"></td>
+    }
+
+}
+
+
+<style>
+    .divquytacsodoghe {
+        width: 100%;
+        padding: 2px;
+    }
+
+    
+       
+    .ghenam_cell {
+        width: 100%;
+        position: relative;
+        border: solid 1px #000;
+       
+    }
+
+    .ghenam_cell_print {
+        height: 60px;
+    }
+
+    .ghenam_cell_noprint_giuongnam {
+        background: url(/Content/chonve/nhaxe/giuongnambgv80.png) no-repeat bottom right;
+        height: 68px;
+    }
+
+    .ghenam_cell_noprint_ghengoi {
+        background: url(/Content/chonve/nhaxe/ghengoibgv80.png) no-repeat bottom right;
+        height: 68px;
+    }
+
+    .ghenam_cell_datve {
+        background-color: rgb(119, 146, 167);
+    }
+
+    .ghenam_cell_giuve {
+        background-color: rgba(238, 233, 129, 0.25);
+    }
+
+    .ghenam_cell_thanhtoan {
+        background-color: rgba(192, 248, 200, 0.25);
+    }
+
+    .ghenam_cell_VeYeuCauHuy {
+        background-color: #f00;
+    }
+
+    .ghenam_cell_kyhieu {
+        
+        color: #000;
+        font-size: 15px;
+        height: 18px;
+        width: 25px;
+        position: absolute;
+        float: right;
+        top: 1px;
+        right: 1px;
+        text-align: center;
+        font-weight: bold;
+        border-radius: 5px;
+        padding-top: 3px;
+    }
+
+    .ghenam_cell_thongtin {
+        font-size: 10px;
+        height: 18px;
+        width: 25px;
+        position: absolute;
+        float: left;
+        top: 2px;
+        left: 1%;
+        text-align: left;
+        width: 100%;
+        color: #000;
+    }
+
+    .trangthaithanhtoan_chua {
+        color: #891515;
+        font-weight: bold;
+    }
+
+    .trangthaithanhtoan_ok {
+        color: #094e0a;
+        font-weight: bold;
+    }
+
+    .cell_lai_xe_ghe_ngoi {
+        background: url(/Content/chonve/nhaxe/laixe1.png) no-repeat center;
+        width: 100px;
+        height: 104px;
+        position: absolute;
+        left: -90px;
+        float: right;
+    }
+
+    .cell_lai_xe_giuong_nam {
+        background: url(/Content/chonve/nhaxe/laixe1.png) no-repeat right;
+        width: 100px;
+        height: 104px;
+    }
+
+    .TongKetBang {
+        width: 100%;
+        border: 1px solid #000;
+        border-collapse: collapse;
+    }
+
+        .TongKetBang tr, .TongKetBang tr td {
+            border: 1px solid #000;
+        }
+
+        .TongKetBang tr {
+            height: 22px;
+        }
+            .TongKetBang tr td {
+                text-align: center;
+                font-size: 12px;
+            }
+    .quytacsodoghe {
+        width: 100%;
+        
+    }
+
+      
+    
+</style>

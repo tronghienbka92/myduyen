@@ -1,0 +1,155 @@
+﻿@model NhaXeInfoModel
+@using Nop.Web.Models.NhaXes
+@if (Model.Id > 0)
+{
+    <div>
+        <div id="nhaxepictures-grid"></div>
+
+        <script>
+            $(document).ready(function () {
+                $("#nhaxepictures-grid").kendoGrid({
+                    dataSource: {
+                        type: "json",
+                        transport: {
+                            read: {
+                                url: "@Html.Raw(Url.Action("NhaXePictureList", "NhaXes"))",
+                                type: "POST",
+                                dataType: "json"
+                            },
+                            update: {
+                                url:"@Html.Raw(Url.Action("NhaXePictureUpdate", "NhaXes"))",
+                                type: "POST",
+                                dataType: "json"
+                            },
+                            destroy: {
+                                url: "@Html.Raw(Url.Action("NhaXePictureDelete", "NhaXes"))",
+                                type: "POST",
+                                dataType: "json"
+                            }
+                        },
+                        schema: {
+                            data: "Data",
+                            total: "Total",
+                            errors: "Errors",
+                            model: {
+                                id: "Id",
+                                fields: {
+                                    PictureUrl: {editable: false, type: "string" },
+                                    DisplayOrder: {editable: true, type: "number" }
+                                }
+                            }
+                        },
+                        requestEnd: function(e) {
+                            if(e.type=="update") {
+                                this.read();
+                            }
+                        },
+                        error: function(e) {
+                            display_kendoui_grid_error(e);
+                            // Cancel the changes
+                            this.cancelChanges();
+                        },
+                        serverPaging: true,
+                        serverFiltering: true,
+                        serverSorting: true
+                    },
+                    pageable: {
+                        refresh: true,
+                        numeric: false,
+                        previousNext: false,
+                        info: false
+                    },
+                    editable: {
+                        confirmation: false,
+                        mode: "inline"
+                    },
+                    scrollable: false,
+                    columns: [{
+                        field: "PictureUrl",
+                        title: "@T("Admin.Catalog.nhaxes.Pictures.Fields.Picture")",
+                        template: '<a href="#=PictureUrl#" target="_blank"><img alt="#=Picture_Id#" src="#=PictureUrl#" width="150" /><a/>',
+                        width: 200
+                    }, {
+                        field: "DisplayOrder",
+                        title: "@T("Admin.Catalog.nhaxes.Pictures.Fields.DisplayOrder")",
+                        //integer format
+                        format: "{0:0}",
+                        width: 150
+                    }, {
+                        command: [{
+                            name: "edit",
+                            text: "@T("Admin.Common.Edit")"
+                        }, {
+                            name: "destroy",
+                            text: "@T("Admin.Common.Delete")"
+                        }],
+                        width: 200
+                    }]
+                });
+            });
+        </script>
+    </div>
+    <p>
+        <strong>@T("Admin.Catalog.nhaxes.Pictures.AddNew")</strong>
+    </p>
+    <script type="text/javascript">
+     
+        $(document).ready(function () {
+            $('#addnhaxePicture').click(function () {
+                var pictureId = $("#@Html.FieldIdFor(model => model.AddPictureModel.Picture_Id)").val();
+                var displayOrder = $("#@Html.FieldIdFor(model => model.AddPictureModel.DisplayOrder)").val();
+                
+                if (pictureId == 0) {
+                    alert('Upload picture first');
+                    return;
+                }
+
+                $('#addnhaxePicture').attr('disabled', true);
+                $.ajax({
+                    cache:false,
+                    type: "POST",
+                    url: "@(Url.Action("NhaXePictureAdd", "NhaXes"))",
+                    data: { "pictureId": pictureId, "displayOrder": displayOrder },
+                    success: function (data) {
+                        var grid = $("#nhaxepictures-grid");
+                        grid.data('kendoGrid').dataSource.read();
+                        $('#addnhaxePicture').attr('disabled', false);
+                    },
+                    error:function (xhr, ajaxOptions, thrownError){
+                        alert('Failed to add nhaxe picture.');
+                        $('#addnhaxePicture').attr('disabled', false);
+                    }  
+                });
+            });
+        });
+    </script>        
+    <table class="adminContent">
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.AddPictureModel.Picture_Id):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.AddPictureModel.Picture_Id)
+                @Html.ValidationMessageFor(model => model.AddPictureModel.Picture_Id)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.AddPictureModel.DisplayOrder):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.AddPictureModel.DisplayOrder)
+                @Html.ValidationMessageFor(model => model.AddPictureModel.DisplayOrder)
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" align="left">
+                <input type="button" id="addnhaxePicture" class="k-button" value="@T("Admin.Catalog.nhaxes.Pictures.AddButton")" />
+            </td>
+        </tr>
+    </table>
+}
+else
+{
+    @T("Admin.Catalog.nhaxes.Pictures.SaveBeforeEdit")
+}

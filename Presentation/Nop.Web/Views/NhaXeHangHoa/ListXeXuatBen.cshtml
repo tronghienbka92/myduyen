@@ -1,0 +1,65 @@
+﻿@model PhieuGuiHangModel
+@using Nop.Web.Models.NhaXes
+@using Nop.Core.Infrastructure
+@Html.ValidationSummary(false)
+@{
+    Layout = null;
+    var defaultGridPageSize = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().DefaultGridPageSize;
+    var gridPageSizes = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().GridPageSizes;
+
+}
+<style>
+    input[type="radio"] {
+
+        -webkit-appearance: checkbox;
+        -moz-appearance: checkbox;
+        -ms-appearance: checkbox; /* not currently supported */
+        -o-appearance: checkbox; /* not currently supported */
+    }
+    </style>
+<h3 style="text-align: left; margin: 13px;">Chọn xe xuất bến để vận chuyển hàng hóa</h3>
+@using (Html.BeginForm(Html.BeginForm("ListXeXuatBen", "NhaXeHangHoa", FormMethod.Post, new { id = "FormHangHoaInfo" })))
+{
+    
+    if(Model.HasXeXuatBen)
+    {
+        <table>
+
+        @foreach (var item in Model.ListXeXuatBen)
+        {
+            <tr>
+                <td>
+
+                    @Html.RadioButtonFor(model => model.XeXuatBenId, item.Id)
+                    @item.TenXeXuatBen
+                </td>
+            </tr>
+        }
+
+    </table>
+        @Html.HiddenFor(model => model.ChuoiPhieuGuiHangId)
+        <div style="text-align:right;margin-top:15px;border-top:1px solid #d9d4d4;padding:5px;">
+            <input type="submit" id="BtnGanHangHoaTheoXe" value="Đồng ý" class="k-button" style="width:150px;height:30px" onclick="return confirm('@T("admin.common.areyousure")');" />
+        </div>
+    }
+    else
+    {
+        <table>
+
+            <tr>
+                <td>
+
+                  <h4> Không có xe nào trong danh sách xuất bến</h4>
+                </td>
+            </tr>
+
+    </table>
+    }
+   
+
+}
+<br />
+<br />
+
+
+

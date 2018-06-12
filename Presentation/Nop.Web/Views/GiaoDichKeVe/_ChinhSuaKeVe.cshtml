@@ -1,0 +1,347 @@
+﻿@model GiaoDichKeVeModel
+@using Nop.Core.Domain.NhaXes;
+@Html.ValidationSummary(false)
+@Html.HiddenFor(m => m.Id)
+@Html.HiddenFor(m => m.TrangThaiId)
+<table class="adminContent">
+    <tr>
+        <td class="adminTitle">
+            Người giao vé:
+        </td>
+        <td class="adminData">
+            @Model.tennguoigiao
+        </td>
+    </tr>
+    <tr>
+        <td class="adminTitle">
+            Ngày kê vé:
+        </td>
+        <td class="adminData">
+            @Html.EditorFor(model => model.NgayKe)
+            @Html.ValidationMessageFor(model => model.NgayKe)
+        </td>
+    </tr>
+    <tr>
+        <td class="adminTitle">
+            Loại vé:
+        </td>
+        <td class="adminData">
+            @Html.DropDownListFor(m => m.LoaiVeId, Model.ddlLoaiVes)
+        </td>
+    </tr>
+    <tr id="trQuayBanVe">
+        <td class="adminTitle">
+            Quầy bán vé:
+        </td>
+        <td class="adminData">
+            @Html.DropDownListFor(m => m.VanPhongId, Model.VanPhongs)
+        </td>
+    </tr>
+    <tr>
+        <td class="adminTitle">
+            Người nhận vé:
+        </td>
+        <td class="adminData">
+            <input id="cbbSearchNguoiNhan" value="@Model.tennguoinhan" style="width:280px" />
+            @Html.HiddenFor(model => model.NguoiNhanId)
+            @Html.HiddenFor(model => model.tennguoinhan)
+
+        </td>
+    </tr>
+    <tr>
+        <td class="adminTitle">
+            <input id="BtnSearch" type="submit" name="save-continue" class="k-button" value="Tạo giao dịch kê vé" />
+        </td>
+        <td class="adminData"></td>
+
+    </tr>
+    <tr>
+        <td colspan="2">
+            <div id="grid-vedi">Bạn hãy chọn thông tin người nhận vé</div>
+        </td>
+    </tr>
+</table>
+<script>
+    function AnHienQuayBanVe()
+    {
+        var _loaiveid=parseInt($('#@Html.FieldIdFor(model => model.LoaiVeId)').val());
+        if(_loaiveid==1||_loaiveid==2||_loaiveid==3)
+            $("#trQuayBanVe").show();
+        else $("#trQuayBanVe").hide();
+
+
+    }
+    $(document).ready(function () {
+        AnHienQuayBanVe();
+        LoadKhiDangChinhSua();
+        $('#@Html.FieldIdFor(model => model.LoaiVeId)').change(function(){
+            AnHienQuayBanVe();
+        });
+        $('#BtnSearch').click(function () {
+            if(parseInt($('#@Html.FieldIdFor(model => model.LoaiVeId)').val())==0)
+            {
+                alert("Bạn chưa chọn loại vé!");
+                return false;
+            }
+            if(parseInt($('#@Html.FieldIdFor(model => model.NguoiNhanId)').val())==0)
+            {
+                alert("Bạn chưa chọn thông tin người nhận vé!");
+                return false;
+
+            }
+            //kiem tra ve quay
+            if(parseInt($('#@Html.FieldIdFor(model => model.LoaiVeId)').val())==1)
+            {
+                if(parseInt($('#@Html.FieldIdFor(model => model.VanPhongId)').val())==0)
+                {
+                    alert("Bạn chưa chọn quầy bán vé!");
+                    return false;
+                }
+            }
+            return true;
+        });
+
+        function dataSearchNguoiNhan() {
+            var _hovaten=$('#cbbSearchNguoiNhan').data("kendoComboBox").text();
+            $('#@Html.FieldIdFor(model => model.tennguoinhan)').val(_hovaten);
+            return {
+                SearchKhachhang: _hovaten
+            };
+        }
+        $('#cbbSearchNguoiNhan').kendoComboBox({
+            placeholder: "Tên người nhận",
+            dataTextField: "HoTen",
+            dataValueField: "Id",
+            filter: "contains",
+            autoBind: false,
+            minLength: 2,
+            dataSource: {
+                type: "json",
+                serverFiltering: true,
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("CBBNhanVienNhanVe", "GiaoDichKeVe"))",
+                        data: dataSearchNguoiNhan
+                    }
+                }
+            },
+            change: onChangeGui
+        });
+        function onChangeGui(e) {
+            //alert(e.index);
+            var DataItem = this.dataItem();
+            $("#@Html.FieldIdFor(model => model.NguoiNhanId)").val(DataItem.Id);
+            $('#@Html.FieldIdFor(model => model.tennguoinhan)').val(DataItem.HoTen);
+
+
+        }
+    });
+    function DisableControl()
+    {
+        $("#BtnSearch").hide();
+        $("#@Html.FieldIdFor(model => model.NgayKe)").prop('disabled', true);
+        $("#@Html.FieldIdFor(model => model.LoaiVeId)").prop('disabled', true);
+        $("#@Html.FieldIdFor(model => model.VanPhongId)").prop('disabled', true);
+        $("#cbbSearchNguoiNhan").prop('disabled', true);
+        if($("#@Html.FieldIdFor(model => model.NgayKe)").data("kendoDatePicker"))
+            $("#@Html.FieldIdFor(model => model.NgayKe)").data("kendoDatePicker").enable(false);
+
+    }
+    function LoadKhiDangChinhSua()
+    {
+        @if(Model.isEdit)
+        {
+            <text>
+        LoadGiaoDichKeVeMenhGiaDi();
+        DisableControl();
+        </text>
+        }
+    }
+
+
+    function LoadGiaoDichKeVeMenhGiaDi()
+    {
+        $("#grid-vedi").html('');
+        //thong tin ve luot di
+        $("#grid-vedi").kendoGrid({
+            dataSource: {
+                type: "json",
+                transport: {
+                    read: {
+                        url: "/GiaoDichKeVe/ListKeVeMenhGia",
+                        type: "POST",
+                        dataType: "json",
+                        data:dataVeDi
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors"
+                },
+                error: function (e) {
+                    display_kendoui_grid_error(e);
+                    // Cancel the changes
+                    this.cancelChanges();
+                },
+            },
+            pageable: false,
+            columns: [
+                  {
+                      field: "STT", title: "STT", width: "55px",
+                      attributes: {
+                          style: "text-align: center;"
+                      },
+                  },
+                  {
+                      field: "MenhGia", title: "Mệnh giá", width: "80px",
+                      attributes: {
+                          style: "text-align: center;"
+                      },
+                      format: "{0:N0}"
+                  },
+                  {
+                      field: "SoLuong", title: "Số lượng", width: "80px",
+                      attributes: {
+                          style: "text-align: center;"
+                      },
+                      format: "{0:N0}"
+                  },
+                  {
+                      field: "MauVe", title: "Mẫu và ký hiệu", width: "150px",
+                      attributes: {
+                          style: "text-align: center;"
+                      }
+                  },
+                  {
+                      field: "SeriFrom", title: "Từ số", width: "90px",
+                      attributes: {
+                          style: "text-align: center;"
+                      }
+                  },
+                  {
+                      field: "SeriTo", title: "Đến số", width: "90px",
+                      attributes: {
+                          style: "text-align: center;"
+                      }
+                  },
+                  { field: "GhiChu", title: "Ghi chú",
+                      attributes: {
+                          style: "text-align: left;"
+                      }
+                  },
+                   {
+                       field: "Id", title: "&nbsp;", width: "120px",
+                       attributes: {
+                           style: "text-align: center;"
+                       },
+                       template: '#= ActionTypeId==1 ? "<a href=\'javascript:SuaKeVeMenhGia("+Id+",1)\' title=\'Thêm mới mệnh giá\'><img src=\'/Content/chonve/nhaxe/add_action.png\' /></a>" : ActionTypeId==2 ? "<a href=\'javascript:SuaKeVeMenhGia("+Id+",1)\' title=\'Thêm mới mệnh giá\'><img src=\'/Content/chonve/nhaxe/add_action.png\' /></a> <a href=\'javascript:SuaKeVeMenhGia("+Id+",0)\' title=\'Chỉnh sửa mệnh giá\'><img src=\'/Content/chonve/nhaxe/edit_action.png\' /></a>" : "<a href=\'javascript:SuaKeVeMenhGia("+Id+",1)\' title=\'Thêm mới mệnh giá\'><img src=\'/Content/chonve/nhaxe/add_action.png\' /></a> <a href=\'javascript:SuaKeVeMenhGia("+Id+",0)\' title=\'Chỉnh sửa mệnh giá\'><img src=\'/Content/chonve/nhaxe/edit_action.png\' /></a>&nbsp;&nbsp;<a href=\'javascript:XoaKeVeMenhGia("+Id+")\' title=\'Xóa mệnh giá\'><img src=\'/Content/chonve/nhaxe/cancel_action.png\' /></a>" #'
+                   }
+            ]
+        });
+    }
+
+   
+    function dataVeDi()
+    {
+        var data =
+            {
+                GiaoDichId: @(Model.Id),
+                isVeDi: 1,
+                NguoiNhanId: $('#@Html.FieldIdFor(model => model.NguoiNhanId)').val(),
+                VanPhongId: $('#@Html.FieldIdFor(model => model.VanPhongId)').val(),
+                LoaiVeId: $('#@Html.FieldIdFor(model => model.LoaiVeId)').val()
+            };
+        return data;
+    }
+    
+    function RefreshVeLuotDi()
+    {
+        var grid = $('#grid-vedi').data('kendoGrid');
+        grid.dataSource.read();
+    }
+  
+    function SuaKeVeMenhGia(Id,isNew) {
+
+        var WindowTaoMoi = $("#SuaGiaoDichKeVeMenhGia");
+        WindowTaoMoi.html("");
+        if (WindowTaoMoi.data("kendoWindow"))
+            WindowTaoMoi.data("kendoWindow").destroy()
+        WindowTaoMoi.kendoWindow({
+            modal: true,
+            width: "500px",
+            title: "Sửa Thông Tin Giao Dịch Kê Vé Mệnh Giá ",
+            content: "@(Url.Action("SuaKeVeMenhGia", "GiaoDichKeVe"))" + "?Id=" + Id+"&isNew="+isNew,
+            actions: ["Close"]
+        });
+
+        WindowTaoMoi.data('kendoWindow').center().open();
+    }
+    function XoaKeVeMenhGia(Id) {
+
+        if (confirm("Bạn có chắc chắn muốn xóa giao dịch này không?")) {
+
+            $.ajax({
+                cache: false,
+                type: "POST",
+                data: { "id": Id },
+                url: "@(Url.Action("XoaKeVeMenhGia", "GiaoDichKeVe"))",
+                dataType: 'json',
+                success: function (data) {
+                    if (data == "ok") {
+                        RefreshVeLuotDi();
+                    }
+                    else {
+                        alert('Lỗi: chưa xóa được giao dịch.');
+                    }
+
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert('Lỗi hệ thống');
+
+                }
+
+            });
+        }
+    }
+    function CreateKeVeMenhGia(Id) {
+
+        var WindowCreate = $("#TaoMoiGiaoDichKeVeMenhGia");
+        WindowCreate.html("");
+        if (WindowCreate.data("kendoWindow"))
+            WindowCreate.data("kendoWindow").destroy()
+        WindowCreate.kendoWindow({
+            modal: true,
+            width: "500px",
+            title: "Tạo Mới Giao Dịch Kê Vé Mệnh Giá ",
+            content: "@(Url.Action("CreateGiaoDichKeVeMenhGia", "GiaoDichKeVe"))" + "?Id=" + Id,
+            actions: ["Close"]
+        });
+
+        WindowCreate.data('kendoWindow').center().open();
+    }
+
+    function SetCloseWindowSua() {
+        $("#SuaGiaoDichKeVeMenhGia").data('kendoWindow').close();
+        $("#SuaGiaoDichKeVeMenhGia").html("");
+
+    }
+    function SetCloseWindowKeVeMenhGia() {
+        $("#TaoMoiGiaoDichKeVeMenhGia").data('kendoWindow').close();
+        $("#TaoMoiGiaoDichKeVeMenhGia").html("");
+    }
+    
+
+</script>
+<div id="SuaGiaoDichKeVeMenhGia" style="display:none">
+</div>
+<div id="TaoMoiGiaoDichKeVeMenhGia" style="display:none">
+</div>
+
+
+<style>
+    .k-grid table tr:hover td {
+        background: #ddf1d0 !important;
+        cursor: pointer !important;
+    }
+</style>

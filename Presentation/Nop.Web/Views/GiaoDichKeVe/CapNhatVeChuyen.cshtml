@@ -1,0 +1,308 @@
+﻿@model CapNhatVeChuyenModel
+@using Nop.Web.Models.NhaXeBanVe
+@using Nop.Core.Infrastructure
+@using Nop.Web.Framework.Events
+@using Nop.Services.Events
+@using Nop.Services.NhaXes
+@Html.ValidationSummary(false)
+@{
+    Layout = null;// "~/Views/Shared/_NhaXeLayout.cshtml";
+
+    //page title
+    ViewBag.Title = "Cập nhật thông tin vé theo chuyến đi - về";
+    var tongsoluongve = Model.chuyendi.arrVeXeQuay.Count + Model.chuyendi.arrVeXeTrenXe.Count + Model.chuyenve.arrVeXeQuay.Count + Model.chuyenve.arrVeXeTrenXe.Count;
+    var tongdoanhthu = Model.chuyendi.arrVeXeQuay.Sum(c => c.menhgia.MenhGia) + Model.chuyendi.arrVeXeTrenXe.Sum(c => c.menhgia.MenhGia) + Model.chuyenve.arrVeXeQuay.Sum(c => c.menhgia.MenhGia) + Model.chuyenve.arrVeXeTrenXe.Sum(c => c.menhgia.MenhGia);
+}
+<div>
+    <div class="section-header">
+        <div class="title">
+            <img src="@Url.Content("~/Content/chonve/nxmenu/keve_capnhatchuyen.png")" alt="" />
+            @ViewBag.Title &nbsp;[Tổng số vé : @tongsoluongve - Tổng doanh thu: @tongdoanhthu.ToString("###,###,##0 VND")]
+        </div>
+        <div class="options">
+            <input type="button" id="btnBackDanhSach" value="Trở lại danh sách chuyến đi" class="k-button" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <input type="button" id="btndelete" value="Hủy tất cả vé theo chuyến xe" class="k-button" />&nbsp;&nbsp;
+            <input type="button" id="btnreshow" value="Xem lại kết quả" class="k-button" />&nbsp;&nbsp;
+            <input type="button" id="btnupdategiave" value="Xác nhận" class="k-button" />
+        </div>
+    </div>
+    <div id="GiayDiDuong">
+        <ul>
+            <li @Html.RenderSelectedTabIndex(0, GetSelectedTabIndex())>
+                Lượt đi
+            </li>
+            <li @Html.RenderSelectedTabIndex(1, GetSelectedTabIndex())>
+                Lượt về
+            </li>
+        </ul>
+        <div>
+            @TabChuyenXe("Lượt đi", Model.chuyendi)
+        </div>
+        <div>
+            @TabChuyenXe("Lượt về", Model.chuyenve)
+        </div>
+    </div>
+    <div id="ChiTietGiaoDichChuyenXe" style="display:none">
+    </div>
+    <input type="hidden" id="selected-tab-index" name="selected-tab-index" value="@(GetSelectedTabIndex())">
+    @{
+        //custom tabs
+        var eventMessage = new AdminTabStripCreated(this.Html, "GiayDiDuong");
+        EngineContext.Current.Resolve<IEventPublisher>().Publish(eventMessage);
+        foreach (var eventBlock in eventMessage.BlocksToRender)
+        {
+            @eventBlock
+        }
+    }
+
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#btnreshow').hide();
+        $("#GiayDiDuong").kendoTabStrip({
+            animation: {
+                open: {
+                    effects: "fadeIn"
+                }
+            }
+        });
+        $('#btndelete').click(function () {
+            XoaVeChuyenDi(@Model.chuyendi.ChuyenId);            
+        });
+        $('#btnreshow').click(function () {
+            ShowKetQuaXuLy();
+        });
+        $('#btnBackDanhSach').click(function () {
+            SwitchScreen(true,false);
+        });
+    });
+</script>
+
+
+
+<script type="text/javascript">
+    function showProgessData(message) {
+        $('.throbber-header').html(message);
+        $(".throbber").show();
+        $('#btnupdategiave').hide();
+        $('#GiayDiDuong').hide();
+
+    }
+    function hideProgessData(message) {
+        $(".throbber").hide();
+        $('#btnupdategiave').show();
+        $('#GiayDiDuong').show();
+    }
+    function GetSoLuongInput(ChuyenDiId) {
+
+        //luu theo cu phap changid|soluong|changid|soluong|
+        var resultinput = "";
+        $("textarea[name='SeriInput_" + ChuyenDiId + "']").each(function () {
+
+            var input = $(this);
+            var idinfo = input.attr('datachangid');
+            if(resultinput=="")
+                resultinput = idinfo + "|" + input.val();
+            else
+                resultinput = resultinput + "|" + idinfo + "|" + input.val();
+        });
+        return resultinput;
+
+    }
+    $(document).ready(function () {
+
+        $('#btnupdategiave').click(function () {
+
+            showProgessData("Đang xử lý dữ liệu, xin vui lòng chờ ....");
+            //lay thong tin de kiem tra
+            var seriquayvedi = $('#SeriQuay_@Model.chuyendi.ChuyenId').val();
+            var seriquayveve = $('#SeriQuay_@Model.chuyenve.ChuyenId').val();
+            var soluongvedi = GetSoLuongInput(@Model.chuyendi.ChuyenId);
+            var soluongveve = GetSoLuongInput(@Model.chuyenve.ChuyenId);
+            var adddata = {
+                ChuyenId:@Model.chuyendi.ChuyenId,
+                vequaydi:seriquayvedi,
+                vequayve:seriquayveve,
+                slvedi:soluongvedi,
+                slveve:soluongveve,
+                isdongy:false
+            }
+
+            var ketquachitiet=$("#ChiTietGiaoDichChuyenXe");
+            ketquachitiet.html("");
+            $.ajax({
+                cache: false,
+                type: "POST",
+                url: "/GiaoDichKeVe/_CapNhatVeChuyenKetThuc",
+                data: adddata,
+                success: function (data)
+                {
+                    ketquachitiet.html(data);
+                    ShowKetQuaXuLy();
+                    hideProgessData();
+                    $('#btnreshow').show();
+                },
+                error: function (xhr, ajaxOptions, thrownError)
+                {
+                    alert('Có lỗi trong quá trình xử lý');
+                    hideProgessData();
+                }
+            });
+        });
+
+    });
+    function ShowKetQuaXuLy()
+    {
+        var formchitiet = $("#ChiTietGiaoDichChuyenXe");
+        formchitiet.kendoWindow({
+            modal:true,
+            width: '90%',
+            height: 600,
+            title: "Thông tin vé theo chuyến đi - về",
+            actions: [
+                "Close"
+            ],
+        }).data("kendoWindow").center();
+        formchitiet.data('kendoWindow').open();
+    }
+</script>
+
+
+@helper TabChuyenXe(string nhande, CapNhatVeChuyenModel.VeXeChuyen vexechuyen)
+{
+    var tongsl = vexechuyen.arrVeXeQuay.Count + vexechuyen.arrVeXeTrenXe.Count;
+    var tongdt = vexechuyen.arrVeXeQuay.Sum(c => c.menhgia.MenhGia) + vexechuyen.arrVeXeTrenXe.Sum(c => c.menhgia.MenhGia);
+    if(vexechuyen.chuyenxe==null)
+    {
+        <div>
+            <h2>Không có thông tin chuyến đi</h2>
+        </div>
+        return;
+    }
+    var withcol = 100 / (vexechuyen.arrDiemDon.Count + 1);
+    string thongtinlaixe = string.Format("Lái xe: {0} - Tiếp viên: {1}", vexechuyen.chuyenxe.ThongTinLaiPhuXe(), vexechuyen.chuyenxe.ThongTinLaiPhuXe(1));
+    <h3 style="text-align:center">@nhande</h3>
+    <h3 style="color:#C31010">Tổng số vé : @tongsl - Tổng doanh thu: @tongdt.ToString("###,###,##0 VND")</h3>
+    <table style="width:100%">
+        <tr>
+            <td style="text-align:left">
+                <strong>Vé bán ở quầy :</strong><p style="font-style:italic">
+                    Bạn nhập theo cú pháp sau:  <b>[Mẫu vé]-[Ký hiệu]: [Số seri 1],[Số seri 2],[Số seri 3]</b><br />
+                    <b>Ví dụ:</b><br />
+                    01VEDB3/004-AA/15P: 0376780. 0376781. 0376782. 0376785 ==> hoặc nhập theo cú pháp: 0376780/3. 0376785 hoặc 0376780-0376782. 0376785 <br />
+                    01VEDB3/005-AA/16P: 0376790. 0376791. 0376792. 0376799 ==> hoặc nhập theo cú pháp: 0376790/3. 0376799 hoặc 0376790-0376792. 0376799
+                </p>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <textarea id="SeriQuay_@vexechuyen.ChuyenId" rows="8" style="width:100%">@vexechuyen.SeriVeQuayText</textarea>
+            </td>
+        </tr>
+    </table>
+    <div style="margin-top:10px;">
+        <hr /><br />
+        <strong>Vé bán trên xe - [@thongtinlaixe]</strong><br />
+        <p style="font-style:italic">*Chú ý: Nhập theo số lượng tương ứng với giấy đi đường</p>
+    </div>
+    <table style="width:100%;margin-top:10px;padding:2px;">
+        @for (int i = -1; i < vexechuyen.arrDiemDon.Count-1; i++)
+        {
+            <tr>
+                @for (int j = -1; j < vexechuyen.arrDiemDon.Count; j++)
+                {
+                    if (j == 0)
+                    {
+                        continue;
+                    }
+                    <td style="width:@withcol%;border:solid 1px #efecec;text-align:center;height:35px;padding:2px">
+                        @if (i == -1 && j == -1)
+                        {
+                            <span>&nbsp;</span>
+                        }
+                        else
+                        {
+                            if (i == -1 && j >= 0)
+                            {
+                                <strong> @vexechuyen.arrDiemDon[j].diemdon.TenDiemDon</strong>
+                            }
+                            else
+                            {
+                                if (i >= 0 && j == -1)
+                                {
+                                    <strong> @vexechuyen.arrDiemDon[i].diemdon.TenDiemDon</strong>
+                                }
+                                else
+                                {
+                                    if (vexechuyen.arrVeXeChang[i, j] == null)
+                                    {
+                                        <span>&nbsp;</span>
+                                    }
+                                       else
+                                    {
+                                        var _class = "MenhGia" + vexechuyen.arrVeXeChang[i, j].changgiave.GiaVe / 1000;   
+                                        <span class="MenhGia @_class">@vexechuyen.arrVeXeChang[i, j].changgiave.GiaVe.ToString("###,###,##0 đ")</span>
+                                        <textarea rows="3" name="SeriInput_@vexechuyen.ChuyenId" datachangid='@vexechuyen.arrVeXeChang[i, j].ChangId' class='text-box single-line' style='width:90%;text-align:center'>
+                                            @if(vexechuyen.arrVeXeChang[i, j].SoLuong>0)
+                                            {
+                                                @vexechuyen.arrVeXeChang[i, j].SoLuong
+                                            }
+
+                                        </textarea>
+                                    }
+                                }
+                        }
+
+                        }
+
+                    </td>
+                }
+
+            </tr>
+        }
+    </table>
+}
+<style type="text/css">
+    textarea {
+        font-size: 14pt;
+        font-family: Arial;
+    }
+
+    .MenhGia {
+        font-size: 17px;
+        font-weight: 700;
+    }
+
+    .MenhGia40 {
+        color: #F3840C;
+    }
+
+    .MenhGia50 {
+        color: #144EF3;
+    }
+
+    .MenhGia60 {
+        color: #0AFB5F;
+    }
+
+    .MenhGia65 {
+        color: #000;
+    }
+
+    .MenhGia70 {
+        color: #C31010;
+    }
+
+    .MenhGia75 {
+        color: #298A08;
+    }
+
+    .MenhGia80 {
+        color: #0B615E;
+    }
+
+    .MenhGia100 {
+        color: #B8CA29;
+    }
+</style>

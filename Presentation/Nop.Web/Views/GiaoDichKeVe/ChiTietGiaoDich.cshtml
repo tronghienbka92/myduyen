@@ -1,0 +1,148 @@
+﻿@model GiaoDichKeVeModel
+@Html.ValidationSummary(false)
+@{
+    Layout = null;
+    var nguoinhan = Model.tennguoinhan.ToString();
+    var nguoigiao = Model.tennguoigiao.ToString();
+    var ngayke = Model.NgayKe;
+}
+@if (Model.PhanLoaiId == (int)Nop.Core.Domain.NhaXes.ENGiaoDichKeVePhanLoai.KE_VE)
+{
+    <div style="margin-left:35%; font-weight:bold; text-transform:uppercase;">Kê Vé Ngày @String.Format("{0:dd}", ngayke) tháng @String.Format("{0:MM}", ngayke) năm @String.Format("{0:yyyy}", ngayke) </div>
+}
+else
+{
+    <div style="margin-left:35%; font-weight:bold; text-transform:uppercase;">Giao Dịch Trả Vé Ngày @String.Format("{0:dd}", ngayke) tháng @String.Format("{0:MM}", ngayke) năm @String.Format("{0:yyyy}", ngayke) </div>    
+}
+
+
+<br />
+<table>
+    <tr>
+        <td colspan="2">
+            <div id="grid-vedi"></div>
+        </td>
+    </tr>
+    
+</table>
+
+<script>
+    $(document).ready(function () {
+
+        LoadGiaoDichKeVeMenhGiaDi();
+
+    });
+    function LoadGiaoDichKeVeMenhGiaDi()
+    {
+
+        //thong tin ve luot di
+        $("#grid-vedi").kendoGrid({
+            dataSource: {
+                type: "json",
+                transport: {
+                    read: {
+                        url: "/GiaoDichKeVe/ListGiaoDichKeVeMenhGia",
+                        type: "POST",
+                        dataType: "json",
+                        data:dataVeDi
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors"
+                },
+                error: function (e) {
+                    display_kendoui_grid_error(e);
+                    // Cancel the changes
+                    this.cancelChanges();
+                },
+            },
+            pageable: false,
+            columns: [
+
+                  {
+                      field: "MenhGia", title: "Mệnh giá", width: "80px",
+                      attributes: {
+                          style: "text-align: center;"
+                      },
+                      format: "{0:N0}"
+                  },
+                  {
+                      field: "SoLuong", title: "Số lượng", width: "80px",
+                      attributes: {
+                          style: "text-align: center;"
+                      },
+                      format: "{0:N0}"
+                  },
+                  {
+                      field: "MauVe", title: "Mẫu và ký hiệu", width: "150px",
+                      attributes: {
+                          style: "text-align: center;"
+                      }
+                  },
+                  {
+                      field: "SeriFrom", title: "Từ số", width: "90px",
+                      attributes: {
+                          style: "text-align: center;"
+                      }
+                  },
+                  {
+                      field: "SeriTo", title: "Đến số", width: "90px",
+                      attributes: {
+                          style: "text-align: center;"
+                      }
+                  },
+                  { field: "GhiChu", title: "Ghi chú",
+                      attributes: {
+                          style: "text-align: left;"
+                      }
+                  }
+            ]
+        });
+    }
+
+    ///////// Load thong tin ve luot ve
+    
+    function dataVeDi()
+    {
+        var data =
+            {
+                GiaoDichId: @(Model.Id),
+                isVeDi: 1
+
+            };
+        return data;
+    }
+   
+</script>
+
+<table align="center" style="width:100%;margin-top:10px">
+    <tr>
+        <td align="center" style="width:50%">
+            Người Nhận
+
+        </td>
+
+        <td align="center">
+            Người Giao
+
+        </td>
+    </tr>
+
+    <tr>
+        <td align="center">        
+            &nbsp;
+        </td>
+
+        <td></td>
+    </tr>
+    <tr>
+        <td colspan="2" style="height:45px">&nbsp;</td>
+    </tr>
+    <tr>
+        <td align="center" style="text-transform: uppercase; font-weight: bold;">@nguoinhan</td>
+
+        <td align="center" style="text-transform: uppercase; font-weight: bold;">@nguoigiao</td>
+    </tr>
+</table>

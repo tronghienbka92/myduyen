@@ -1,0 +1,170 @@
+﻿@model HopDongListModel
+@using Nop.Admin.Models.ChonVes
+@{
+    var defaultGridPageSize = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().DefaultGridPageSize;
+    var gridPageSizes = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().GridPageSizes;
+
+    //page title
+    ViewBag.Title = T("Admin.ChonVe.HopDong.List").Text;
+}
+<div class="section-header">
+    <div class="title">
+        <img src="@Url.Content("~/Administration/Content/images/ico-dashboard.png")" alt="" />
+        @T("Admin.ChonVe.HopDong.List")
+    </div>
+    <div class="options">
+        <a href="@Url.Action("TaoHopDong")" class="k-button">@T("Admin.Common.AddNew")</a>
+    </div>
+</div>
+<table width="100%">
+    <tr>
+        <td class="adminTitle">
+            @Html.NopLabelFor(model => model.TimMaHopDong):
+        </td>
+        <td class="adminData">
+            @Html.EditorFor(model => model.TimMaHopDong)
+        </td>
+    </tr>
+    <tr>
+        <td class="adminTitle">
+            @Html.NopLabelFor(model => model.TimTenHopDong):
+        </td>
+        <td class="adminData">
+            @Html.EditorFor(model => model.TimTenHopDong)
+        </td>
+    </tr>
+    @if (Model.isManager)
+    {
+         <tr>
+        <td class="adminTitle">
+            @Html.NopLabelFor(model => model.NguoiTaoId):
+        </td>
+        <td class="adminData">
+            @Html.DropDownListFor(model => model.NguoiTaoId, Model.NguoiTaos)
+        </td>
+    </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model=>model.TrangThaiID)
+            </td>
+            <td class="adminData">
+                @Html.DropDownListFor(model=>model.TrangThaiID,Model.ListTrangThai)
+            </td>
+        </tr>
+    }
+   
+
+    <tr>
+        <td colspan="2">
+            <input type="button" id="btnSearch" class="k-button" value="@T("Admin.Common.Search")" />
+        </td>
+    </tr>
+</table>
+<table class="adminContent">
+    <tr>
+        <td>
+            <div id="hopdong-grid"></div>
+        </td>
+    </tr>
+</table>
+
+<script>
+                $(document).ready(function () {
+                    $("#hopdong-grid").kendoGrid({
+                        dataSource: {
+                            type: "json",
+                            transport: {
+                                read: {
+                                    url: "@Html.Raw(Url.Action("ListHopDong", "ChonVes"))",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: additionalData
+                                }
+                            },
+                            schema: {
+                                data: "Data",
+                                total: "Total",
+                                errors: "Errors"
+                            },
+                            error: function(e) {
+                                display_kendoui_grid_error(e);
+                                // Cancel the changes
+                                this.cancelChanges();
+                            },
+                            pageSize: @(defaultGridPageSize),
+                            serverPaging: true,
+                            serverFiltering: true,
+                            serverSorting: true
+                        },
+                        pageable: {
+                            refresh: true,
+                            pageSizes: [@(gridPageSizes)]
+                        },
+                        editable: {
+                            confirmation: false,
+                            mode: "inline"
+                        },
+                        scrollable: false,
+                        columns: [{
+                            field: "MaHopDong",
+                            title: "@T("Admin.ChonVe.HopDong.MaHopDong")"
+                        }, {
+                            field: "TenHopDong",
+                            title: "@T("Admin.ChonVe.HopDong.TenHopDong")"
+                        }, {
+                            field: "NgayTao",
+                            title: "@T("Admin.ChonVe.HopDong.NgayTao")",
+                            width: 200,
+                            type: "date",
+                            format: "{0:G}"
+                        },  {
+                            field: "TrangThaiText",
+                            title: "@T("Admin.ChonVe.HopDong.TrangThaiID")"
+                        },{
+                            field:"Id",
+                            title:"@T("Admin.ChonVe.HopDong.ChiTiet")",
+                            width: 100,
+                            template:'<a href="ChiTietHopDong/#=Id#">@T("Admin.ChonVe.HopDong.ChiTiet") </a>'
+                        },]
+                    });
+                });
+</script>
+
+<script type="text/javascript">
+                $(document).ready(function () {
+                    //search button
+                    $('#btnSearch').click(function () {
+                        //search
+                        var grid = $('#hopdong-grid').data('kendoGrid');
+                        grid.dataSource.page(1); //new search. Set page size to 1
+                        //grid.dataSource.read(); we already loaded the grid above using "page" function
+                        return false;
+                    });
+                    $("#@Html.FieldIdFor(model => model.TimMaHopDong)").keydown(function (event) {
+                        if (event.keyCode == 13) {
+                            $("#btnSearch").click();
+                            return false;
+                        }
+                    });
+                    $("#@Html.FieldIdFor(model => model.TimTenHopDong)").keydown(function (event) {
+                        if (event.keyCode == 13) {
+                            $("#btnSearch").click();
+                            return false;
+                        }
+                    });
+                    $("#@Html.FieldIdFor(model=>model.NguoiTaoId)").change(function (event){
+                        $("#btnSearch").click();
+                    });
+                    $("#@Html.FieldIdFor(model=>model.TrangThaiID)").change(function (event){
+                        $("#btnSearch").click();
+                    })
+                });
+                function additionalData() {
+                    return {
+                        TimMaHopDong: $('#@Html.FieldIdFor(model => model.TimMaHopDong)').val(),
+                        TimTenHopDong: $('#@Html.FieldIdFor(model => model.TimTenHopDong)').val(),
+                        NguoiTaoID:$('#@Html.FieldIdFor(model=>model.NguoiTaoId)').val(),
+                        TrangThaiID:$('#@Html.FieldIdFor(model=>model.TrangThaiID)').val()
+                    };
+                }
+</script>

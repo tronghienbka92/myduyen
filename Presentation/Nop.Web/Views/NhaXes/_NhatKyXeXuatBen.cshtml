@@ -1,0 +1,51 @@
+﻿@model Nop.Web.Models.NhaXes.XeXuatBenItemModel
+@{
+    Layout = null;   
+}
+<h1>Nhật ký chuyến đi</h1>
+<div id="nhatky-grid"></div>
+<script>
+    $(document).ready(function () {
+        $("#nhatky-grid").kendoGrid({
+            dataSource: {
+                type: "json",
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("GetNhatKyXeXuatBen", "NhaXes"))?Id=@Model.Id",
+                    type: "POST",
+                    dataType: "json"
+                }
+            },
+            schema: {
+                data: "Data",
+                total: "Total",
+                errors: "Errors"
+            },
+            error: function(e) {
+                display_kendoui_grid_error(e);
+                // Cancel the changes
+                this.cancelChanges();
+            },
+            serverPaging: false,
+            serverFiltering: false,
+            serverSorting: false
+        },
+        scrollable: false,
+        columns: [{
+            field: "NgayTao",
+            title: "Ngày giao dịch",
+            type: "date",
+            format: "{0:dd/MM/yyyy HH:mm}",
+            width:120
+        }, {
+            field: "TenNguoiTao",
+            title: "Nhân viên",
+            width: 120
+    }, {
+        field: "GhiChu",
+        title: "Ghi chú"
+    },
+        ]
+    });
+    });    
+</script>

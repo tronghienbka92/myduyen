@@ -1,0 +1,254 @@
+﻿@model Nop.Web.Models.NhaXes.PhieuGuiHangModel
+@{
+    Layout = null;
+    var stt = 0;
+}
+<style>
+    .table {
+        width: 880px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+</style>
+
+<table class="table" cellspacing="2" cellpadding="2">
+    <tbody>
+        <tr>
+            <td style="text-align: left; vertical-align: top; width: 140px;">
+                <img src="@Model.LogoNhaXe" alt="" width="100" height="100" />
+            </td>
+            <td colspan="2">
+                <table width="100%">
+                    <tr>
+                        <td style="width: 613px; text-align: center; vertical-align: top;">
+                            <strong style="font-size:20px">@Model.TenNhaXe </strong>
+                            <br />
+                            Địa chỉ:  @Model.DiaChiNhaXe.<br />
+                            Liên hệ:  @Model.SdtNhaXe
+                        </td>
+                        <td>
+                            <strong>@Model.MaPhieu</strong>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <table width="100%">
+                                <tr>
+                                    <td colspan="2" width="82%" style="text-align: center; font-size: 20px; font-weight: bold;">PHIẾU GỬI HÀNG</td>
+                                    <td>
+
+                                        <table style="float:right">
+                                            <tr>
+                                                @if (Model.DaThuCuoc)
+                                                {
+                                                    <td style="border: 1px solid; height: 18px; width: 18px;">X</td>
+                                                }
+                                                else
+                                                {
+                                                    <td style="border: 1px solid; height: 18px; width: 18px;"></td>
+                                                }
+                                            </tr>
+                                        </table><strong style="float:right">Đã thu cước</strong>
+
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+           
+            
+        </tr>
+      
+        <tr>
+            <td colspan="3">
+                <table width="100%">
+                    <tr>
+                        <td style="text-align:center"> <strong>Nơi gửi: @Model.VanPhongGui.TenVanPhong</strong> </td>
+                        <td style="text-align:center"><strong>Nơi Nhận: @Model.VanPhongNhan.TenVanPhong</strong> </td>
+                    </tr>
+                </table>
+            </td>
+            
+        </tr>
+        <tr>
+            <td colspan="3">
+                <table width="100%">
+                    <tr>
+                        <td>
+                            <table style="width: 100%;" cellspacing="2" cellpadding="2">
+                                <tbody>
+                                    <tr>
+                                        <td style="height: 28px;" colspan="2"><strong style="margin-left: 22PX; font-size: 14px">THÔNG TIN NGƯỜI GỬI</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width: 15px;">&nbsp;</td>
+                                        <td style="text-align: left;">Họ tên:&nbsp; <strong>@Model.NguoiGui.HoTen</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>&nbsp;</td>
+                                        <td style="text-align: left;">Số ĐT :&nbsp;<strong>@Model.NguoiGui.SoDienThoai</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <td>&nbsp;</td>
+                                        <td style="text-align: left;">Địa chỉ:&nbsp; <strong>@Model.NguoiGui.DiaChi &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;</strong></td>
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                        </td>
+                        <td>
+                            <table style="width: 100%;" cellspacing="2" cellpadding="2">
+                                <tbody>
+                                    <tr>
+                                        <td style="height: 28px;" colspan="2"><strong style="margin-left: 22PX; font-size: 14px;"> THÔNG TIN NGƯỜI NHẬN</strong></td>
+                                    </tr>
+
+                                    <tr>
+
+                                        <td style="text-align: left;">Họ tên :&nbsp;<strong>@Model.NguoiNhan.HoTen</strong></td>
+                                    </tr>
+                                    <tr>
+
+                                        <td style="text-align: left;">Số ĐT:&nbsp; <strong>@Model.NguoiNhan.SoDienThoai &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;</strong></td>
+                                    </tr>
+                                    <tr>
+
+                                        <td style="text-align: left;">Địa chỉ:&nbsp; <strong>Yêu cầu nhận hàng tại văn phòng</strong></td>
+                                    </tr>
+
+
+                                </tbody>
+                            </table>
+                        </td>
+
+                    </tr>
+                </table>
+
+            </td>
+
+
+        </tr>
+        <tr>
+            <td colspan="3">
+                <strong style="margin-left:300px">Hàng gửi</strong>
+                <table width="100%">
+                    <tr>
+                        <td>
+
+                            <table class="tablestyle" border="1" cellspacing="0" style="width: 100%; border-collapse: collapse;">
+                                <thead style="background: rgba(0, 0, 0, 0.21);">
+                                    <tr class="headerstyle">
+                                        <th align="center">
+                                            STT
+                                        </th>
+                                        <th align="center">
+                                            Tên hàng
+                                        </th>
+                                        <th align="center">
+                                            Cân nặng
+                                        </th>
+                                        <th align="center">
+                                            Giá trị
+                                        </th>
+                                        <th align="center">
+                                            Số lượng
+                                        </th>
+                                        <th align="center">
+                                            Giá cước
+                                        </th>
+                                        <th align="center">
+                                            Ghi chú
+                                        </th>
+
+
+                                    </tr>
+                                </thead>
+                               
+                                <tbody>
+                                   
+                                    @foreach (var item in Model.ListHangHoaInPhieuGui)
+                                    {
+                                        stt=@stt+1;
+                                        <tr>
+                                            <td align="center">@stt</td>
+                                            <td align="center">
+                                                @item.TenHangHoa
+                                            </td>
+                                            <td align="center">
+                                                @item.CanNang kg
+                                            </td>
+                                            <td align="center">
+                                                @item.GiaTri đ
+                                            </td>
+                                            <td align="center">
+                                                @item.SoLuong 
+                                            </td>
+                                            <td align="center">
+                                                @item.GiaCuoc đ
+                                            </td>
+                                            <td align="center">@item.GhiChu</td>
+
+                                        </tr>
+                                    }
+                                    <tr>
+                                        <td align="center"></td>
+                                        <td align="center">
+                                           Tổng:
+                                        </td>
+                                        <td align="center">
+                                            <strong>
+                                                @Model.TongCanNang
+                                            </strong>
+                                          
+                                        </td>
+                                        <td align="center">
+                                            <strong> @Model.TongGiaTriHangHoa</strong>
+                                          
+                                        </td>
+                                        <td align="center"> @Model.TotalPackage</td>
+                                        <td align="center">
+                                            <strong>@Model.TongCuocPhi</strong>
+                                        </td>
+                                        <td align="center"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="3"> 
+            <strong>Khách hàng lưu ý</strong>
+            <br />
+            @Html.Raw(Model.DieuKhoanGuiHang)</td>
+        </tr>
+        <tr>
+            <td style="text-align: right; padding-right: 116px;" colspan="3">Ng&agrave;y @DateTime.Now.Day th&aacute;ng @DateTime.Now.Month năm @DateTime.Now.Year</td>
+        </tr>
+        <tr>
+            <td colspan="3">
+                <table style="width: 100%;" cellspacing="2" cellpadding="2">
+                    <tbody>
+                        <tr>
+
+                            <td style="text-align: center;"><strong>Người gửi</strong><br /> <em>(K&yacute;, họ t&ecirc;n)</em></td>
+                            <td style="text-align: center;"><strong>NV Ktra hàng</strong><br /> <em>(K&yacute;, họ t&ecirc;n)</em></td>
+                            <td style="text-align: center;"><strong>NV nhận hàng</strong><br /> <em>(K&yacute;, họ t&ecirc;n)</em></td>
+
+
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td style="height: 50px;" colspan="3">&nbsp;</td>
+        </tr>
+
+    </tbody>
+</table>

@@ -1,0 +1,23 @@
+﻿@model XeInfoModel
+@using Nop.Web.Models.NhaXes
+@{
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+    //page title
+    ViewBag.Title = T("ChonVe.NhaXe.XeInfo.Sua").Text;
+}
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "XeInfo-form" }))
+{
+    <div class="section-header">
+        <div class="title">
+            <img src="@Url.Content("~/Content/chonve/nxmenu/quanlyxethongtin.png")" alt="" />
+            @T("ChonVe.NhaXe.XeInfo.Sua") - @Model.TenXe @Html.ActionLink("(" + T("ChonVe.NhaXe.XeInfo.BackToList") + ")", "XeInfoList")
+        </div>
+        <div class="options">
+            <input type="submit" name="save" class="k-button" value="@T("Admin.Common.Save")" />
+            <input type="submit" name="save-continue" class="k-button" value="@T("Admin.Common.SaveContinue")" />
+            <span id="XeInfo-delete" class="k-button">@T("Admin.Common.Delete")</span>
+        </div>
+    </div>
+    @Html.Partial("_XeInfoChinhSua", Model)
+}
+@Html.DeleteConfirmation("XeInfoXoa", "XeInfo-delete")

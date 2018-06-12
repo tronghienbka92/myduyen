@@ -1,0 +1,516 @@
+﻿@model OrderModel
+@using Nop.Core.Domain.Tax;
+@using Nop.Core.Domain.Orders;
+@using Nop.Core.Domain.Payments;
+@using Nop.Core.Domain.Shipping;
+@{
+    var defaultGridPageSize = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().DefaultGridPageSize;
+    var gridPageSizes = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().GridPageSizes;
+}
+<style>
+    .tdInfo {
+        background: rgba(197, 197, 197, 0.39);
+        padding: 10px;
+    }
+
+    .LegendTitle {
+        height: 20px;
+        font-size: initial;
+        padding: 5px;
+        color: #673AB7;
+        font-weight: bold;
+        border: 1px solid #03A9F4;
+        border-radius: 5px;
+    }
+
+    .fieldset {
+        height: 175px;
+        border: 1px solid rgba(139, 195, 74, 0.44);
+        margin-left: 20px;
+        margin-top: 20px;
+    }
+
+    .RadiusBoder {
+        border-radius: 5px;
+    }
+
+    #Savebutton {
+        float: right;
+        display: none;
+        border: 1px solid rgba(0, 0, 0, 0.6);       
+        background: rgb(228, 228, 228);
+        height: 22px;
+        width: 57px;
+    }
+</style>
+<div>
+    <table width="100%">
+        <tr>
+            <td>
+                <fieldset class="fieldset">
+                    <legend class="LegendTitle">
+                        <label>
+                            <img src="@Url.Content("~/Administration/Content/images/ico-orderstatus.png")" alt="" />
+                            @T("Admin.Orders.Detail.DonHangInfo")
+                        </label>
+                    </legend>
+                    <table>
+                        <tr style=" height: 30px;">
+                            <td class="adminTitle">@T("Admin.Orders.Info.MaDonHang"):</td>
+                            <td class="adminData">@Html.DisplayFor(model => model.Id)</td>
+                        </tr>
+                        <tr style=" height: 30px;">
+                            <td class="adminTitle">@T("Admin.Orders.Info.TrangThaiDonHang"):</td>
+                            <td class="adminData">
+                                @Html.DisplayFor(model => model.OrderStatus)
+                                @if (Model.CanProcessingOrder)
+                                {
+                                    <input type="submit" name="BtnProcessingOrder" value="@T(" admin.orders.fields.orderstatus.processing")" id="BtnProcessingOrder" class="adminButton" onclick="return confirm('@T(" admin.common.areyousure")');" />
+                                }
+                                @if (Model.CanCompleteOrder)
+                                {
+                                    <input type="submit" name="BtnCompleteOrder" value="@T(" admin.orders.fields.orderstatus.complete")" id="BtnCompleteOrder" class="adminButton" onclick="return confirm('@T(" admin.common.areyousure")');" />
+                                }
+                                @if (Model.CanCancelOrder)
+                                {
+                                    <input type="submit" name="BtnCancelOrder" value="@T(" admin.orders.fields.orderstatus.cancel")" id="BtnCancelOrder" class="adminButton" onclick="return confirm('@T(" admin.common.areyousure")');" />
+                                }
+                            </td>
+                        </tr>
+                        <tr style=" height: 30px;">
+                            <td class="adminTitle">@T("Admin.Orders.Info.NgayTao"):</td>
+                            <td class="adminData">@Html.DisplayFor(model => model.CreatedOn)</td>
+                        </tr>
+                    </table>
+                </fieldset>
+            </td>
+            <td>
+                <fieldset class="fieldset">
+                    <legend class="LegendTitle">
+                        <img src="@Url.Content("~/Administration/Content/images/ico-customers.png")" alt="" />
+                        @T("Admin.Orders.Detail.CustomerInfo")
+                    </legend>
+                    <table>
+
+                        <tr style=" height: 30px;">
+                            <td class="adminTitle">@T("Admin.Orders.Address.HoTen"):</td>
+                            <td class="adminData">@Html.DisplayFor(model => model.BillingAddress.LastName)@Html.DisplayFor(model => model.BillingAddress.FirstName)</td>
+                        </tr>
+                        <tr style=" height: 30px;">
+                            <td class="adminTitle">@T("Admin.Orders.Address.Email"):</td>
+                            <td class="adminData">@Html.DisplayFor(model => model.BillingAddress.Email)</td>
+                        </tr>
+                        <tr style=" height: 30px;">
+                            <td class="adminTitle">@T("Admin.Orders.Address.SDt"):</td>
+                            <td class="adminData">@Html.DisplayFor(model => model.BillingAddress.PhoneNumber)</td>
+                        </tr>
+                        <tr style=" height: 30px;">
+                            <td class="adminTitle">@T("Admin.Orders.Address.DiaChiNhanHang"):</td>
+                            <td class="adminData">@Html.DisplayFor(model => model.ShippingAddress.Address1) @Html.DisplayFor(model => model.ShippingAddress.City)</td>
+                        </tr>
+                    </table>
+                </fieldset>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <fieldset class="fieldset">
+                    <legend class="LegendTitle">
+                        <img src="@Url.Content("~/Administration/Content/images/ico-paymentstatus.png")" alt="" />
+                        @T("Admin.Orders.Detail.PaymentInfo")
+                    </legend>
+                    <table>
+                        <tr style=" height: 30px;">
+                            <td class="adminTitle">@T("Admin.Orders.Info.TrangThaiThanhToan"):</td>
+                            <td class="adminData">
+                                @Html.DisplayFor(model => model.PaymentStatus)
+                                @if (Model.CanMarkOrderAsPaid)
+                                {
+                                    <input type="button" name="BtnMarkOrderAsPaid" value="@T(" admin.orders.fields.paymentstatus.MarkOrderAsPaid")" id="BtnMarkOrderAsPaid" class="adminButton"  />
+                                }
+                                @if (Model.CanRefund)
+                                {
+                                  
+
+                                    <input type="button" value="@T("admin.orders.fields.paymentstatus.PartiallyRefund")" id="BtnPartiallyRefund" class="adminButton" />
+                                    <div id="PartialRefund_div" style="display:none">
+
+                                    </div>
+                                    <script>
+                                        $(document).ready(function () {
+                                           
+                                            $('#BtnPartiallyRefund').click(function () {
+
+                                                var orderId = $('#@Html.FieldIdFor(m=>m.Id)').val();
+                                                var WindowPartiallyRefund = $("#PartialRefund_div");
+                                                WindowPartiallyRefund.kendoWindow({
+                                                    modal: true,
+                                                    width: "500px",
+                                                    title: "@T("chonve.order.ChonVeRefund"): ",
+                                                    content: "@(Url.Action("_ChonVeRefund", "Order"))" + "?orderid=" + orderId,
+                                                    actions: ["Close"]
+                                                });
+
+                                                WindowPartiallyRefund.data('kendoWindow').center().open();
+                                            });
+                                        });
+
+                                    </script>
+                                }
+
+
+                            </td>
+                        </tr>
+                        <tr style=" height: 30px;">
+                            <td class="adminTitle">@T("Admin.Orders.Info.PhuongThucThanhToan"):</td>
+                            <td class="adminData">
+                                <span id="lblShippingMethod">@Model.PaymentMethodDisplay</span>
+                                @if (!Model.IsLoggedInAsVendor)
+                                {
+                                    <script type="text/javascript">
+                                        $(document).ready(function () {
+                                            toggleEditPaymentMethod(false);
+                                            $('#BtnMarkOrderAsPaid').click(function () {
+
+                                                toggleEditPaymentMethod(true);
+                                                return false;
+                                            });
+                                        });
+
+
+                                        function toggleEditPaymentMethod(editmode) {
+                                            if (editmode) {
+                                                $('#lblPaymentMethod').hide();
+                                                $('#divPaymentMethod').show();
+                                                $('#btnEditPaymentMethod').hide();
+                                                $('#btnSavePaymentMethod').show();
+                                                $('#btnCancelPaymentMethod').show();
+                                            } else {
+                                                $('#lblPaymentMethod').show();
+                                                $('#divPaymentMethod').hide();
+                                               
+                                                $('#btnSavePaymentMethod').hide();
+                                                $('#btnCancelPaymentMethod').hide();
+                                            }
+                                        }
+
+                                    </script>
+                                    <div id="divPaymentMethod" style="display: inline-block;">@Html.DropDownListFor(model => model.PaymentMethodId, Model.ListPaymentMethod)</div>
+                                   
+                                        <input type="submit" style="display:none" value="@T("Admin.Common.Edit")" onclick=" toggleEditPaymentMethod(true); return false; " id="btnEditPaymentMethod" class="adminButton" />
+                                    
+
+
+                                    <input type="submit" value="@T("Admin.Common.Save")" id="btnSavePaymentMethod" name="save-Payment-method" class="adminButton" onclick="return confirm('@T("admin.common.areyousure")'); " />
+                                    <input type="submit" value="@T(" admin.common.cancel")" onclick=" toggleEditPaymentMethod(false); return false; " id="btnCancelPaymentMethod" class="adminButton" />
+
+                                }
+
+                            </td>
+                        </tr>
+
+                    </table>
+                </fieldset>
+            </td>
+            <td>
+                <fieldset class="fieldset">
+                    <legend class="LegendTitle">
+                        <img src="@Url.Content("~/Administration/Content/images/ico-shippingstatus.png")" alt="" />
+                        @T("Admin.Orders.Detail.ShippingInfo")
+                    </legend>
+
+                    <script>
+                        $(document).ready(function () {
+                            toggleEditShippingMethod(false);
+                            toggleEditShippingPrice(false);
+                            $('#BtnEditShipping').click(function () {
+                                toggleEditShippingMethod(true);
+                                toggleEditShippingPrice(true);
+
+
+                                return false;
+                            });
+                            //xu ly shipping
+                            $('#BtnShipping').click(function () {
+                                toggleEditShippingMethod(true);
+                                toggleEditShippingPrice(true);
+                                return false;
+
+                            });
+                            $('#BtnCancelShipping').click(function () {
+                                toggleEditShippingMethod(false);
+                                toggleEditShippingPrice(false);
+
+                                return false;
+                            });
+                        });
+                       
+                        function toggleEditShippingMethod(editmode) {
+                            if (editmode) {
+                                $('#DisplayShippingmethod').hide();
+                                $('#divShippingMethod').show();
+                                $('#DdlNguoiVanChuyen').show();
+                                $('#LbNguoiVanChuyenInfo').hide();
+                                $('#Savebutton').show();
+                                $('#BtnCancelShipping').show();
+
+                            } else {
+                                $('#DisplayShippingmethod').show();
+                                $('#LbNguoiVanChuyenInfo').show();
+                                $('#divShippingMethod').hide();
+                                $('#DdlNguoiVanChuyen').hide();
+                                $('#Savebutton').hide();
+                                $('#BtnCancelShipping').hide();
+
+
+                            }
+                        }
+                        function toggleEditShippingPrice(editmode) {
+                            if (editmode) {
+                                $('#lblShippingPrice').hide();
+                                $('#divShippingPrice').show();
+
+                            } else {
+                                $('#lblShippingPrice').show();
+                                $('#divShippingPrice').hide();
+
+                            }
+                        }
+                    </script>
+                    <table>
+                        <tr style=" height: 30px;">
+                            <td class="adminTitle">@T("Admin.Orders.Info.TrangThaiVanChuyen"):</td>
+                            <td class="adminData">
+                                @Html.DisplayFor(model => model.ShippingStatus)
+                                @if (Model.CanShipping)
+                                {
+                                    <input type="button" name="BtnShipping" value="@T("admin.orders.fields.ShippingStatus.Shipping")" id="BtnShipping" class="adminButton" />
+                                   
+                                }
+                                @if (Model.CanShipNotrequied)
+                                {
+                                     <input type="submit" name="BtnShippingNotRequired" value="@T("admin.orders.fields.ShippingStatus.ShippingNotRequired")" id="BtnShippingNotRequired" class="adminButton" onclick="return confirm('@T(" admin.common.areyousure")');" />
+                                }
+                                @if (Model.CanDeliver)
+                                {
+                                    <input type="submit" name="BtnDeliver" value="@T(" admin.orders.fields.ShippingStatus.Deliver")" id="BtnDeliver" class="adminButton" onclick="return confirm('@T(" admin.common.areyousure")');" />
+                                }
+                            </td>
+                            <td width="9%">
+                               
+                                    <button id="BtnEditShipping" class="RadiusBoder" style="display:none">
+                                        <img src="@Url.Content("~/Administration/Content/images/ico-edit.png")" alt="" />
+                                        @T("Admin.Orders.Detail.ShippingInfo.Edit")
+                                    </button>
+                                
+
+                            </td>
+                        </tr>
+                        @if (Model.ShippingStatusId != (int)ShippingStatus.ShippingNotRequired)
+                        {
+                            <tr style=" height: 30px;">
+                                <td class="adminTitle">@T("Admin.Orders.Info.PhuongThucVanChuyen"):</td>
+                                <td class="adminData">
+                                    <span id="DisplayShippingmethod" style="display:none">@Model.ShippingMethodDisplay</span>
+
+                                    @if (!Model.IsLoggedInAsVendor)
+                                    {
+                                        <div id="divShippingMethod" style="display: inline-block;">@Html.DropDownListFor(model => model.ShippingMethodId, Model.ListShippingMethod)</div>
+
+                                    }
+                                </td>
+                                <td>
+                                    <div class="RadiusBoder" id="Savebutton">
+                                        <img style="margin: 3px 0 0 5px" src="@Url.Content("~/Administration/Content/images/ico-save.png")" alt="" />
+                                        <input id="BtnSaveShipping" style="border:none" value="@T("Admin.Orders.Detail.ShippingInfo.Save")" type="submit" name="save-shippingInfo" onclick="return confirm('@T("admin.common.areyousure")');" />
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="adminTitle">@T("Admin.Orders.Info.NguoivanChuyen"):</td>
+                                <td class="adminData">
+                                    <span id="LbNguoiVanChuyenInfo" style="display:none">@Model.NguoiVanChuyenInfo</span>
+                                    <span id="DdlNguoiVanChuyen" style="display:none">
+                                        @Html.DropDownListFor(model => model.NguoivanChuyenId, Model.ListNguoiVanChuyen)
+                                    </span>
+
+                                </td>
+                                <td>
+                                    <button class="RadiusBoder" id="BtnCancelShipping" style="display:none">
+                                        <img src="@Url.Content("~/Administration/Content/images/ico-cancel.png")" alt="" />
+                                        @T("Admin.Orders.Detail.ShippingInfo.Cancel")
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr style=" height: 30px;">
+                                <td class="adminTitle">@T("Admin.Orders.Info.PhiVanChuyen"):</td>
+                                <td class="adminData">
+                                    <span id="lblShippingPrice">@Model.OrderShippingInclTaxText</span>
+                                    @if (!Model.IsLoggedInAsVendor)
+                                    {
+                                        <div id="divShippingPrice" style="display: inline-block;">@Html.EditorFor(model => model.OrderShippingInclTax)</div>
+
+                                    }
+                                </td>
+                                <td></td>
+                            </tr>
+                        }
+                    </table>
+                </fieldset>
+            </td>
+        </tr>
+    </table>
+
+</div>
+
+<div>
+
+    <h3 style="text-align:center;margin:10px">Thông tin ghế</h3>
+    <div id="PhoiVe_Grid">
+    </div>
+    <div id="FormWindowPhoiVeCV" style="display:none">
+    </div>
+</div>
+@Html.HiddenFor(model => model.Id)
+@Html.HiddenFor(model => model.NhaXeId)
+
+<script>
+    $(document).ready(function () {
+
+        $("#PhoiVe_Grid").kendoGrid({
+            dataSource: {
+                type: "json",
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("ListPhoiVeInOrder", "Order"))",
+                        type: "POST",
+                        dataType: "json",
+                        data: additionalData
+                    },
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors",
+
+                },
+                requestEnd: function (e) {
+                    if (e.type == "create" || e.type == "update") {
+                        this.read();
+                    }
+                },
+                error: function (e) {
+                    display_kendoui_grid_error(e);
+                    // Cancel the changes
+                    this.cancelChanges();
+                },
+                serverPaging: true,
+                serverFiltering: true,
+                serverSorting: true
+            },
+            pageable: {
+                refresh: true,
+                numeric: false,
+                previousNext: false,
+                info: false,
+                messages: {
+                    display: "@T("Nop.Common.KendoGrid.display")", //{0} is the index of the first record on the page, {1} - index of the last record on the page, {2} is the total amount of records
+                    empty: "@T("Nop.Common.KendoGrid.Empty")",
+                    page: "@T("Nop.Common.KendoGrid.Page")",
+                    of: "@T("Nop.Common.KendoGrid.Of")", //{0} is total amount of pages
+                    itemsPerPage: "@T("Nop.Common.KendoGrid.itemsPerPage")",
+                    first: "@T("Nop.Common.KendoGrid.first")",
+                    previous: "@T("Nop.Common.KendoGrid.previous")",
+                    next: "@T("Nop.Common.KendoGrid.next")",
+                    last: "@T("Nop.Common.KendoGrid.last")",
+                    refresh: "@T("Nop.Common.KendoGrid.refresh")"
+                }
+            },
+
+            scrollable: false,
+            columns: [{
+                field: "TenNhaXe",
+                title: "@T("Admin.Orders.PhoiVe.TenNhaXe")",
+                attributes: {
+                    style: "text-align: center;"
+                }
+            }, {
+                field: "TenHanhTrinh",
+                title: "@T("Admin.Orders.PhoiVe.HanhTrinh")",
+                attributes: {
+                    style: "text-align: center;"
+                }
+            }, {
+                field: "TenLichTrinh",
+                title: "@T("Admin.Orders.PhoiVe.LichTrinh")",
+                attributes: {
+                    style: "text-align: center;"
+                }
+            }, {
+                field: "NgayDi",
+                title: "@T("Admin.Orders.PhoiVe.NgayDi")",
+                width: 200,
+                type: "date",
+                format: "{0:G}",
+                attributes: {
+                    style: "text-align: center;"
+                }
+            }, {
+                field: "KyHieuGhe",
+                title: "@T("Admin.Orders.PhoiVe.KyHieuGhe")",
+                attributes: {
+                    style: "text-align: center;"
+                }
+            }, {
+                field: "GiaVeText",
+                title: "@T("Admin.Orders.PhoiVe.GiaVeText")",
+                attributes: {
+                    style: "text-align: center;"
+                }
+            },
+            {
+                field: "Id",
+                title: "@T("Đổi Vé")",
+                width: 100,
+                template: '#=CanDoiVe==true?"<a href=\'javascript:DoiPhoiVe("+Id+")\' class=\'k-button\'>@T("Admin.Order.PhoiVe.DoiVe")</a>" : "" #',
+                hidden: false
+            },
+            {
+                field: "Id",
+                title: "@T("Admin.ChonVe.HopDong.InVe")",
+                width: 100,
+                template: '<a href="@Url.Action("PdfInvoice")?PhoiVeId=#=Id#" class="k-button">@T("Admin.Orders.InVe")</a>',
+                hidden: false
+            },
+            ],
+        });
+    });
+    function additionalData() {
+        return {
+            OrderId: $("#@Html.FieldIdFor(model => model.Id)").val(),
+        };
+    }
+    function DoiPhoiVe(Id) {
+        
+        var formopen = $("#FormWindowPhoiVeCV");
+        var orderId = $('#@Html.FieldIdFor(m=>m.Id)').val();
+        var nhaxeid = $('#@Html.FieldIdFor(m=>m.NhaXeId)').val();
+        var PhoiVeId = Id;
+        formopen.kendoWindow({
+            width: "1024px",
+            title: "@T("Admin.DonHang.PhoiVe.DoiVe")",
+            content: "@(Url.Action("LoadPhoiVe", "Order"))?orderId=" + orderId + "&PhoiVeId=" + PhoiVeId + "&nhaxeid=" + nhaxeid,
+            actions: [
+                "Close"
+            ]
+        }).data('kendoWindow').center();
+        formopen.data('kendoWindow').open();
+    }
+    function SetCloseWindowPhoiVeCV() {
+        $("#FormWindowPhoiVeCV").data('kendoWindow').close();
+    }
+    function SetCenterWindowPhoiVeCV() {
+        $("#FormWindowPhoiVeCV").data('kendoWindow').center();
+    }
+</script>
+

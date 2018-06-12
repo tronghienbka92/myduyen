@@ -1,0 +1,272 @@
+﻿@model PhieuChuyenPhatModel
+@using Nop.Web.Models.ChuyenPhatNhanh
+<table style="width:100%">
+    <tr>
+        <td style="text-align:left;">
+            <table style="width:100%">
+                <tr>
+                    <td style=" vertical-align:top">
+                        <h3>Thông tin chi tiết phiếu biên nhận - @Model.MaPhieu</h3>
+                    </td>
+                </tr>           
+                <tr>
+                    <td style="font-style:italic;text-align:left">
+                        Ngày tạo: <strong>@Model.NgayTao.ToString("dd-MM HH:mm:ss")</strong>  &nbsp;&nbsp;&nbsp;
+                        Trạng thái: <strong>@Model.TrangThaiText</strong>  &nbsp;&nbsp;&nbsp;
+                        Ngày nhận hàng: <strong>@Model.NgayNhanHang.ToString("dd-MM HH:mm")</strong>  &nbsp;&nbsp;&nbsp;
+                        Ngày kết thúc: <strong>@(Model.NgayKetThuc.HasValue?Model.NgayKetThuc.Value.ToString("dd-MM HH:mm"):"__-__ __:__")</strong>  &nbsp;&nbsp;&nbsp;                        
+                    </td>
+                </tr>
+            </table>            
+            <hr style="border:1px dashed #531010" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <table style="width:100%;border-collapse:collapse">
+                <tr>
+                    <td style="width:50%;vertical-align:top" class="phieuchuyenphat_border_td">
+                        <table style="width:100%;border-collapse:collapse" border="1">
+                            <tr>
+                                <td colspan="2" style="text-align:center;font-weight:bold">NGƯỜI GỬI</td>
+                            </tr>
+                            <tr>
+                                <td style="width:120px;text-align:left;">
+                                    Điện thoại:
+                                </td>
+                                <td>
+                                    @Model.NguoiGui.SoDienThoai
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:left">
+                                    Họ tên:
+                                </td>
+                                <td>
+                                    @Model.NguoiGui.HoTen                                    
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:left">
+                                    Địa chỉ:
+                                </td>
+                                <td>
+                                    @Model.NguoiGui.DiaChi                                    
+                                </td>
+                            </tr>
+                        </table>                       
+                    </td>
+                    <td style="width:50%;vertical-align:top" class="phieuchuyenphat_border_td">
+                        <table style="width:100%;border-collapse:collapse" border="1">
+                            <tr>
+                                <td colspan="2" style="text-align:center;font-weight:bold">NGƯỜI NHẬN</td>
+                            </tr>
+                            <tr>
+                                <td style="width:120px;text-align:left;">
+                                    Điện thoại:
+                                </td>
+                                <td>
+                                    @Model.NguoiNhan.SoDienThoai
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:left">
+                                    Họ tên:
+                                </td>
+                                <td>
+                                    @Model.NguoiNhan.HoTen
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:left">
+                                    Địa chỉ:
+                                </td>
+                                <td>
+                                    @Model.NguoiNhan.DiaChi
+                                </td>
+                            </tr>
+                        </table>                     
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" class="phieuchuyenphat_border_td">
+                        <table style="width:100%;border-collapse:collapse" border="1">
+                            <tr>
+                                <td style="width:120px;text-align:left">
+                                    Hàng/Số lượng:
+                                </td>
+                                <td>
+                                    @Model.TenHang
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>                
+                <tr>
+                    <td class="phieuchuyenphat_border_td" style="vertical-align:top">
+                        <table style="width:100%;border-collapse:collapse" border="1">
+                            <tr style="font-weight:bold;font-style:italic;text-align:center">
+                                <td style="width:40%">Cước phí</td>
+                                <td>@Model.CuocPhi.ToString("###,###,##0") đ</td>
+                            </tr>
+                            <tr>
+
+                                <td class="phieuchuyenphat_border_td" colspan="2" style="padding:5px;">
+                                    <table style="width:100%;border-collapse:collapse" border="1">
+                                        <tr>
+                                            <td colspan="2" style="font-weight:bold;font-style:italic;text-align:center"> Phí khác</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="width:29%">
+                                                Nhận tận nơi:
+                                            </td>
+                                            <td>
+                                                @Model.CuocNhanTanNoi.ToString("###,###,##0") đ
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                Trả tận nơi:
+                                            </td>
+                                            <td>
+                                                @Model.CuocTanNoi.ToString("###,###,##0") đ
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>
+                                                Hàng cấp tốc:
+                                            </td>
+                                            <td>
+                                                @Model.CuocCapToc.ToString("###,###,##0") đ
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                Hàng giá trị:
+                                            </td>
+                                            <td>
+                                                @Model.CuocGiaTri.ToString("###,###,##0") đ
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                Vượt tuyến:
+                                            </td>
+                                            <td>
+                                                @Model.CuocVuotTuyen.ToString("###,###,##0") đ
+                                            </td>
+                                        </tr>
+                                    </table>                                    
+                                </td>
+                            </tr>
+
+                        </table>
+                    </td>
+                    <td style="vertical-align:top;padding:5px;" class="phieuchuyenphat_border_td">
+                        <table style="width:100%;border-collapse:collapse" border="1">
+                            <tr>
+                                <td style="text-align:left">Tổng cước phải thanh toán:</td>
+                                <td style="text-align:left"><span class="phieuchuyenphat_tien" id="spTongCuocPhaiThanhToan">@(Model.TongTienCuoc.ToString("###,###,##0")) đ</span></td>
+                            </tr>
+                            <tr>
+                                <td>Tổng cước đã thanh toán:</td>
+                                <td>
+                                    @Model.TongCuocDaThanhToan.ToString("###,###,##0") đ
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:left;border-top:1px dotted #808080;padding-top:10px" colspan="2">
+                                    Tổng cước chưa thanh toán: <span class="phieuchuyenphat_tien" id="spTongCuocChuaThanhToan">@((Model.TongTienCuoc - Model.TongCuocDaThanhToan).ToString("###,###,##0")) đ</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="text-align:center;border-top:1px dotted #808080;padding-top:20px" colspan="2">
+                                    Nhân viên giao dịch:  <strong>@Model.TenNhanvienGiaoDich</strong>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td style="text-align:left;border-bottom:1px solid #531010;">
+            <h3>VĂN PHÒNG NHẬN VÀ TRẢ HÀNG</h3>            
+            <table style="width:100%;border-collapse:collapse" border="1">
+                <tr>
+                    <td style="width:50%"><strong>Văn phòng nhận</strong></td>
+                    <td><strong>Văn phòng trả</strong></td>
+                </tr>
+                <tr>
+                    <td>@Model.VanPhongGuiText</td>
+                    <td>@Model.VanPhongNhanText</td>
+                </tr>
+                <tr>
+                    <td><strong>Tổ vận chuyển(nhận)</strong></td>
+                    <td><strong>Tổ vận chuyển(trả)</strong></td>
+                </tr>
+                <tr>
+                    <td>@Model.TenToVanChuyenNhan (@Model.TenNguoiVanChuyenNhan)</td>
+                    <td>@Model.TenToVanChuyenTra (@Model.TenNguoiVanChuyenTra)</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td style="text-align:left;border-bottom:1px solid #531010;">
+            <h3>Thông tin vận chuyển</h3>            
+            <strong> Lệnh vận chuyển: @Model.SoLenh </strong>
+            @if(Model.nhatkyvanchuyens.Count>0)
+            {
+                <text>
+            
+            <table style="width:100%;border-collapse:collapse" border="1">
+                <tr style="font-weight:bold">
+                    <td>Tuyến</td>
+                    <td>Biển số</td>
+                    <td>Lái xe</td>
+                    <td>Phụ xe</td>
+                    <td>Ngày đi</td>
+                    <td>VP gửi</td>
+                    <td>VP đến</td>
+                </tr>
+                @foreach (var nkvc in Model.nhatkyvanchuyens)
+                {
+                    <tr>
+                        <td>@nkvc.tuyenText</td>
+                        <td>@nkvc.BienSo</td>
+                        <td>@nkvc.LaiXe</td>
+                        <td>@nkvc.PhuXe</td>
+                        <td>@nkvc.NgayDi.ToString("dd-MM HH:mm")</td>
+                        <td>@nkvc.vanphongguiText</td>
+                        <td>@nkvc.vanphongnhanText</td>
+                    </tr>
+                }                
+            </table>
+                </text>
+            }
+            else
+            {
+                <text>
+                    <strong>Chưa có thông tin vận chuyển</strong>
+                </text>
+            }
+            
+        </td>
+    </tr>
+    
+</table>
+
+
+<style>
+    .phieuchuyenphat_border_td {
+        border: 1px solid #808080;
+    }
+
+    .phieuchuyenphat_tien {
+        font-weight: bold;
+        color: #531010;
+    }
+</style>

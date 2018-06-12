@@ -1,0 +1,147 @@
+﻿@model GiaoDichKeVeMenhGiaModel
+@{
+    Layout = null;
+}
+
+<table class="adminContent">
+    @if (Model.Id > 0)
+    {
+        <tr>
+            <td class="adminTitle" style="font-weight:bold">
+                Mẫu Số - Ký Hiệu:
+            </td>
+            <td class="adminData">
+                @Model.MauVe
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle" style="font-weight:bold">
+                Mệnh giá:
+            </td>
+            <td class="adminData">
+                @Model.MenhGia.ToString("###,###,##0")
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle" style="font-weight:bold">
+                Seri:
+            </td>
+            <td class="adminData">
+                @Model.SeriFrom -> @Model.SeriTo (Số lượng: @Model.SoLuong)
+            </td>
+        </tr>
+    }
+    else
+    {
+        <tr>
+            <td colspan="2" style="font-weight:bold">
+                Chuyển hết vé
+            </td>
+        </tr>
+    }
+    <tr>
+        <td class="adminTitle">
+            Chuyển vé cho:
+        </td>
+        <td class="adminData">
+            <input id="cbbSearchNguoiNhanChuyenVe" style="width:280px" />
+            <input type="hidden" id="hidnhanvienchuyenid" value="0" />
+        </td>
+    </tr>    
+    <tr>
+        <td></td>
+        <td class="adminData" width="100" height="60">
+            <input type="button" id="btnkevemenhgia" class="k-button" value="Xác Nhận" style="margin-left: 50px; height:30px;" />
+        </td>
+    </tr>
+</table>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        function dataSearchNguoiNhan() {
+            var _hovaten = $('#cbbSearchNguoiNhanChuyenVe').data("kendoComboBox").text();
+            return {
+                SearchKhachhang: _hovaten
+            };
+        }
+        $('#cbbSearchNguoiNhanChuyenVe').kendoComboBox({
+            placeholder: "Tên người nhận vé",
+            dataTextField: "HoTen",
+            dataValueField: "Id",
+            filter: "contains",
+            autoBind: false,
+            minLength: 2,
+            dataSource: {
+                type: "json",
+                serverFiltering: true,
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("CBBNhanVienNhanVe", "GiaoDichKeVe"))",
+                        data: dataSearchNguoiNhan
+                    }
+                }
+            },
+            change: onChangeGui
+        });
+        function onChangeGui(e) {
+            //alert(e.index);
+            var DataItem = this.dataItem();
+            $("#hidnhanvienchuyenid").val(DataItem.Id);
+
+        }
+        $('#btnkevemenhgia').click(function () {
+            var nhanvienchuyenid = $("#hidnhanvienchuyenid").val();
+            if (nhanvienchuyenid == 0)
+            {
+                alert("Bạn chưa chọn nhân viên cần chuyển vé !");
+                return false;
+            }
+            if ( nhanvienchuyenid == "@Model.NguoiNhanId" )
+            {
+                //alert("Nhân viên cần chuyển vé phải khác nhân viên đang sở hữ vé!");
+                return false;
+            }
+            if (confirm("Bạn có chắc chắn chuyển quyển vé này cho nhân viên mới không?")) {
+
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    data: { "id": "@Model.Id", "NhanVienNhanId": nhanvienchuyenid },
+                    url: "@(Url.Action("ChuyenVeTheoMenhGia", "GiaoDichKeVe"))",
+                    dataType: 'json',
+                success: function (data) {
+                    if (data == "ok") {
+                        alert('Chuyển vé thành công');
+                        SetCloseWindowSua();
+                        var _id=@Model.Id;
+                        if(_id>0)
+                        {                            
+                            RefreshVeLuotDi();
+                            RefreshVeLuotVe();
+                        }
+                        else 
+                        {
+                            document.location.href="/GiaoDichKeVe/List";
+                        }
+                        
+                    }
+                    else {
+                        alert('Có lỗi trong quá trình chuyển vé.');
+                    }
+
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert('Lỗi hệ thống');
+
+                }
+
+            });
+        }
+
+        });
+
+
+    });
+
+</script>

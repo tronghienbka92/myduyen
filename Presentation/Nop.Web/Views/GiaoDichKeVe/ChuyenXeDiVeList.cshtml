@@ -1,0 +1,356 @@
+﻿@model XeXuatBenInforModel
+@Html.ValidationSummary(false)
+
+@{
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+
+    //page title
+    ViewBag.Title = "Thông tin vé theo chuyến";
+}
+<div id="tabdanhsachchuyendi" style="position:absolute;float:left;width:99%">
+    <div class="section-header">
+        <div class="title">
+            <img src="@Url.Content("~/Content/chonve/nxmenu/keve_capnhatchuyen.png")" alt="" />
+            @ViewBag.Title
+        </div>
+    </div>
+    <table style="width:100%">
+        <tr>
+            <td style="text-align:right">Biển số xe hoặc tên lái xe, tiếp viên:</td>
+            <td style="width:280px">@Html.TextBoxFor(m => m.ThongTin, new { @style = "width:280px" })</td>
+            <td style="text-align:right;width:280px">Khung giờ: @Html.DropDownListFor(m => m.KhungGioId, Model.khunggios)</td>
+            <td style="text-align:right;width:280px">
+                Ngày đi: @Html.EditorFor(model => model.NgayDi)
+            </td>
+        </tr>
+    </table>
+    <table class="adminContent">
+        <tr>
+            <td>
+                <div id="chuyendi-grid"></div>
+
+                <script>
+                    var indexrow = 0;
+                    $(document).ready(function () {
+                        makegridChuyenDi();
+                    });
+                    function makegridChuyenDi() {
+                        indexrow = 0;
+                        $("#chuyendi-grid").html('');
+                        $("#chuyendi-grid").kendoGrid({
+                            dataSource: {
+                                type: "json",
+                                transport: {
+                                    read: {
+                                        url: "/GiaoDichKeVe/GetAllChuyenDi",
+                                        type: "POST",
+                                        dataType: "json",
+                                        data: additionalData
+                                    }
+                                },
+                                schema: {
+                                    data: "Data",
+                                    total: "Total",
+                                    errors: "Errors"
+                                },
+                                error: function (e) {
+                                    display_kendoui_grid_error(e);
+                                    // Cancel the changes
+                                    this.cancelChanges();
+                                },
+                                serverPaging: false,
+                                serverFiltering: false,
+                                serverSorting: false
+                            },
+                            detailInit: detailInitChuyenVe,
+                            dataBound: function () {
+                                this.expandRow(this.tbody.find("tr.k-master-row").first());
+                            },
+                            scrollable: false,
+                            columns: [
+                                    {
+                                        title: "STT",
+                                        template: "#= ++indexrow #",
+                                        width: 50,
+                                        attributes: { style: "text-align:center" },
+                                    },
+                                      {
+                                          field: "BienSo", title: "Biển số",
+                                          headerAttributes: { style: "text-align: center;" },
+                                          attributes: { style: "text-align:center" }
+
+                                      },
+                                      {
+                                          field: "TuyenXeChay", title: "Tuyến",
+                                          headerAttributes: { style: "text-align: center;" },
+                                          attributes: { style: "text-align:center" }
+
+                                      },
+                                      {
+                                          field: "NgayDi",
+                                          title: "@T("ChonVe.NhaXe.VeXeKhach.NgayDi")",
+                                          width: 100,
+                                          type: "date",
+                                          attributes: { style: "text-align:center" },
+                                          format: "{0:dd/MM/yyyy}",
+                                          headerAttributes: {
+                                              "class": "xexuatben-header", style: "font-weight:bold"
+                                          },
+                                      },
+                    {
+                        field: "GioDi", title: "Giờ xuất bến",
+                        headerAttributes: { style: "text-align: center;" },
+                        attributes: { style: "text-align:center" }
+                    },
+                    {
+                        field: "GioDen", title: "Giờ đến",
+                        headerAttributes: { style: "text-align: center;" },
+                        attributes: { style: "text-align:center" }
+                    },
+                    {
+                        field: "TenLaiXe1", title: "Lái xe",
+                        headerAttributes: { style: "text-align: center;" },
+                        attributes: { style: "text-align:center" }
+                    },
+                    {
+                        field: "TenLaiXe2", title: "NTV",
+                        headerAttributes: { style: "text-align: center;" },
+                        attributes: { style: "text-align:center" }
+                    },
+                    {
+                        field: "SoNguoi", title: "Tổng số khách",
+                        headerAttributes: { style: "text-align: center;" },
+                        attributes: { style: "text-align:center" }
+                    },
+                    {
+                        field: "TongDoanhThu", title: "Tổng doanh thu",
+                        headerAttributes: { style: "text-align: center;" },
+                        attributes: { style: "text-align:center" },
+                        type: "number",
+                        format:"{0:###,###,##0 đ}"
+                    }, {
+                        field: "Id",
+                        title: "Chỉnh sửa",
+                        width: 100,
+                        headerAttributes: { style: "text-align: center;" },
+                        attributes: { style: "text-align:center" },
+                        template: '<a href="javascript:LoadTabCapNhat(#=Id#);" class="k-button"  target="_blank">Cập nhật thông tin vé</a>',
+                    },
+
+                            ]
+                        });
+                    }
+                    function detailInitChuyenVe(e) {
+                        var chuyendiid = e.data.Id;
+                        var adddatachuyenve = {
+                            ChuyenDiId: chuyendiid
+                        };
+                        $("<div/>").appendTo(e.detailCell).kendoGrid({
+                            dataSource: {
+                                type: "json",
+                                transport: {
+                                    read: {
+                                        url: "/GiaoDichKeVe/GetChuyenVe",
+                                        type: "POST",
+                                        dataType: "json",
+                                        data: adddatachuyenve,
+                                    },
+                                }, schema: {
+                                    data: "Data",
+                                    total: "Total",
+                                    errors: "Errors"
+                                },
+
+                                error: function (e) {
+                                    display_kendoui_grid_error(e);
+                                    // Cancel the changes
+                                    this.cancelChanges();
+                                },
+                                serverPaging: false,
+                                serverSorting: false,
+                                serverFiltering: false
+                            },
+                            scrollable: false,
+                            columns: [
+                                {
+                                    field: "BienSo", title: "Biển số",
+                                    headerAttributes: { style: "text-align: center;" },
+                                    attributes: { style: "text-align:center" },
+                                    width: 120
+
+                                },
+                                      {
+                                          field: "TuyenXeChay", title: "Tuyến",
+                                          headerAttributes: { style: "text-align: center;" },
+                                          attributes: { style: "text-align:center" },
+                                          width: 150
+                                      },
+                                      {
+                                          field: "NgayDi",
+                                          title: "@T("ChonVe.NhaXe.VeXeKhach.NgayDi")",
+                                          width: 100,
+                                          type: "date",
+                                          attributes: { style: "text-align:center" },
+                                          format: "{0:dd/MM/yyyy}",
+                                          headerAttributes: {
+                                              "class": "xexuatben-header", style: "font-weight:bold"
+                                          },
+                                      },
+                                      {
+                                          field: "GioDi", title: "Giờ xuất bến",
+                                          headerAttributes: { style: "text-align: center;" },
+                                          attributes: { style: "text-align:center" }
+                                      },
+                                       {
+                                           field: "GioDen", title: "Giờ đến",
+                                           headerAttributes: { style: "text-align: center;" },
+                                           attributes: { style: "text-align:center" }
+                                       },
+                                        {
+                                            field: "TenLaiXe1", title: "Lái xe",
+                                            headerAttributes: { style: "text-align: center;" },
+                                            attributes: { style: "text-align:left" }
+                                        },
+                                         {
+                                             field: "TenLaiXe2", title: "NTV",
+                                             headerAttributes: { style: "text-align: center;" },
+                                             attributes: { style: "text-align:left" }
+                                         },
+                                         {
+                                             field: "SoNguoi", title: "Tổng số khách",
+                                             headerAttributes: { style: "text-align: center;" },
+                                             attributes: { style: "text-align:center" }
+                                         },
+                                         {
+                                             field: "TongDoanhThu", title: "Tổng doanh thu",
+                                             headerAttributes: { style: "text-align: center;" },
+                                             attributes: { style: "text-align:center" },
+                                                 type: "number",
+                                            format:"{0:###,###,##0 đ}"
+                    
+                                         }
+                            ]
+                        });
+                    }
+
+                    function additionalData() {
+                        var data =
+                        {
+                            NgayDi: $('#@Html.FieldIdFor(model => model.NgayDi)').val(),
+                            KhungGioId: $('#@Html.FieldIdFor(model => model.KhungGioId)').val(),
+                            ThongTin: $('#@Html.FieldIdFor(model => model.ThongTin)').val()
+                        };
+                        return data;
+                    }
+                </script>
+            </td>
+        </tr>
+    </table>
+
+    <script>
+        $(document).ready(function () {
+            $("#@Html.FieldIdFor(model => model.NgayDi)").change(function () {
+                RefreshChuyenDi();
+            });
+            $("#@Html.FieldIdFor(model => model.KhungGioId)").change(function () {
+                RefreshChuyenDi();
+                return false;
+            });
+            $("#@Html.FieldIdFor(model => model.ThongTin)").keydown(function (event) {
+                if (event.keyCode == 13) {
+                    RefreshChuyenDi();
+                    return false;
+                }
+            });
+        });
+
+        function RefreshChuyenDi() {
+            makegridChuyenDi();
+            //var grid = $('#chuyendi-grid').data('kendoGrid');
+            //indexrow = 0;
+            //grid.dataSource.read();
+        }
+
+
+    </script>
+</div>
+<div id="tabcapnhatchuyendi" style="position:absolute;float:left;width:99%;">
+
+</div>
+<script>
+    $(document).ready(function () {
+        SwitchScreen(true, false);
+    });
+
+    function LoadTabCapNhat(chuyendiid) {
+
+        var formcapnhatve = $('#tabcapnhatchuyendi');
+        formcapnhatve.html("");
+        $.ajax({
+            cache: false,
+            type: "GET",
+            url: "/GiaoDichKeVe/CapNhatVeChuyen",
+            data: {
+                ChuyenId: chuyendiid,
+                isReset:0
+            },
+            success: function (data) {
+                formcapnhatve.html(data);
+                SwitchScreen(false, false);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                formcapnhatve.html('Có lỗi trong quá trình xử lý');
+
+            }
+        });
+
+    }
+    function XoaVeChuyenDi(chuyendiid) {
+        if (!confirm("Bạn có chắc chắn hủy tất cả các vé đã cập nhật cho chuyến xe này không ?"))
+            return;
+        var formcapnhatve = $('#tabcapnhatchuyendi');
+        formcapnhatve.html("");
+        $.ajax({
+            cache: false,
+            type: "GET",
+            url: "/GiaoDichKeVe/CapNhatVeChuyen",
+            data: {
+                ChuyenId: chuyendiid,
+                isReset:1
+            },
+            success: function (data) {
+                formcapnhatve.html(data);
+                SwitchScreen(false, false);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                formcapnhatve.html('Có lỗi trong quá trình xử lý');
+
+            }
+        });
+
+    }
+    function SwitchScreen(isMain, isReload) {
+        var _wscreen = $(window).width() + 50;
+        var _posmain = $('#tabdanhsachchuyendi').position();
+
+        if (isMain) {
+
+            $('#tabdanhsachchuyendi').animate({ left: 0 }, 1000);
+            $('#tabcapnhatchuyendi').animate({ left: _wscreen }, 1000);
+            setTimeout(function () {
+                $('#tabcapnhatchuyendi').hide();
+            }, 1000);
+            if (isReload) {
+                //load lai trang danh sach
+                RefreshChuyenDi();
+            }
+        }
+        else {
+            $('#tabcapnhatchuyendi').show();
+            $('#tabdanhsachchuyendi').animate({ left: -_wscreen }, 1000);
+            $('#tabcapnhatchuyendi').animate({ left: 0 }, 1000);
+        }
+
+
+    }
+</script>

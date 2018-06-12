@@ -1,0 +1,223 @@
+﻿.bx {
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+
+#i365-visitors {
+    width: 100%;
+}
+
+#visitors_grid td:first-child span {
+    padding: 2px 4px;
+    color: #ffffff;
+    -ms-border-radius: 4px;
+    border-radius: 4px;
+}
+
+#visitors_grid tr {
+    cursor: pointer;
+}
+
+.visitor {
+    position: relative;
+    background: #f3f3f3;
+    overflow: hidden !important;
+    padding: 0 !important;
+}
+
+    .visitor .plug {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 999;
+        background: #f3f3f3;
+    }
+
+.visitor_left {
+    position: absolute;
+    top: 10px;
+    bottom: 10px;
+    left: 10px;
+    right: 300px;
+}
+
+.visitor_right {
+    position: absolute;
+    top: 10px;
+    bottom: 10px;
+    right: 0;
+    width: 280px;
+    padding-right: 10px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+
+.chat_log {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 130px;
+    background: #ffffff;
+    padding: 10px;
+    border: 1px solid #c5c5c5;
+    overflow-y: auto;
+}
+
+.chat_input {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 118px;
+    border: 1px solid #c5c5c5;
+}
+
+    .chat_input textarea {
+        height: 100%;
+        width: 100%;
+        border: 0;
+        padding: 8px 30px 8px 8px;
+    }
+
+
+.message {
+    background: #F7F7F7;
+    padding: 4px;
+    display: inline-block;
+    margin: 0 0 8px 0;
+    clear: both;
+    float: right;
+    text-align: right;
+}
+
+    .message.a {
+        float: left;
+    }
+
+    .message .author {
+        font-weight: bold;
+    }
+
+    .message .content {
+        margin: 6px 0 0 0;
+    }
+
+
+.notification {
+    text-align: center;
+    margin: 0 0 8px 0;
+    color: grey;
+    text-transform: uppercase;
+    width: 100%;
+    float: left;
+}
+
+.hr {
+    width: 100%;
+    border-top: 1px solid #c5c5c5;
+    margin: 8px 0;
+}
+
+.visitor_info img {
+    width: 64px;
+    height: 64px;
+}
+
+.visitor_info p {
+    margin: 6px 0 6px 8px;
+}
+
+.visitor_props label {
+    padding: 0;
+    font-size: 10px;
+    color: #8C8C8C;
+}
+
+.visitor_props p {
+    margin: 1px 0 10px 4px;
+}
+
+.visitor_notes textarea {
+    min-height: 60px;
+    width: 100%;
+    border: 0;
+    -moz-resize: vertical;
+    -ms-resize: vertical;
+    -o-resize: vertical;
+    resize: vertical;
+    padding: 4px;
+}
+
+#escalate_form {
+    width: 400px;
+    margin: 100px auto;
+}
+
+    #escalate_form .escalate_message {
+        margin-top: 30px;
+    }
+
+    #escalate_form textarea {
+        margin-top: 4px;
+        width: 100%;
+        -moz-resize: vertical;
+        -ms-resize: vertical;
+        -o-resize: vertical;
+        resize: vertical;
+    }
+
+    #escalate_form .escalate_button {
+        margin: 20px 0 0 5px;
+        float: right;
+    }
+
+#canned_responses {
+    position: absolute;
+    right: 4px;
+    top: 4px;
+    width: 24px;
+    height: 24px;
+    background: url(/Plugins/Support.Involve365/Content/Images/с_responses.png);
+    -ms-opacity: 0.5;
+    opacity: 0.5;
+    cursor: pointer;
+}
+
+    #canned_responses .k-dropdown {
+        -ms-opacity: 0;
+        opacity: 0;
+        width: 300px;
+    }
+
+#viewed_pages {
+    background: url(/Plugins/Support.Involve365/Content/Images/history.png);
+    height: 16px;
+    width: 16px;
+    cursor: pointer;
+    display: inline;
+    position: absolute;
+    right: 4px;
+    bottom: 0;
+    -ms-opacity: 0.6;
+    opacity: 0.6;
+}
+
+#viewed_pages .k-dropdown {
+        -ms-opacity: 0;
+        opacity: 0;
+        width: 300px;
+    }
+
+#viewed_pages_select-list li {
+text-align: center;
+    border: 0 !important;
+    background-image: none;
+    background-color: transparent;
+    padding: 2px;
+}

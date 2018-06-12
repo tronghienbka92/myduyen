@@ -1,0 +1,136 @@
+﻿@model QuanHuyenListModel
+@using Nop.Admin.Models.ChonVes
+@{
+    var defaultGridPageSize = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().DefaultGridPageSize;
+    var gridPageSizes = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().GridPageSizes;
+    ViewBag.Title = T("Admin.Configuration.QuanHuyen").Text;
+}
+<script>
+    function CreateNew()
+    {
+        location.href="Create/"+$('#@Html.FieldIdFor(model => model.ProvinceID)').val();
+    }
+</script>
+<div class="section-header">
+    <div class="title">
+        <img src="@Url.Content("~/Administration/Content/images/ico-configuration.png")" alt="" />
+        @T("Admin.Configuration.QuanHuyen")
+    </div>
+    <div class="options">
+        <a href="javascript:CreateNew();" class="k-button">@T("Admin.Common.AddNew")</a>
+    </div>
+</div>
+<table width="100%">
+    <tr>
+        <td class="adminTitle">
+            @Html.NopLabelFor(model => model.ProvinceID):
+        </td>
+        <td class="adminData">
+            @Html.DropDownListFor(model => model.ProvinceID, Model.AvailableStates)
+            @Html.ValidationMessageFor(model => model.ProvinceID)
+        </td>
+    </tr>
+    <tr>
+        <td class="adminTitle">
+            @Html.NopLabelFor(model => model.TenQuanHuyen):
+        </td>
+        <td class="adminData">
+            @Html.EditorFor(model => model.TenQuanHuyen)
+            @Html.ValidationMessageFor(model => model.TenQuanHuyen)
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <input type="button" id="btnSearch" class="k-button" value="@T("Admin.Common.Search")" />
+        </td>
+    </tr>
+</table>
+<table class="adminContent">
+    <tr>
+        <td>
+            <div id="hopdong-grid"></div>
+
+            <script>
+                $(document).ready(function () {
+                    $("#hopdong-grid").kendoGrid({
+                        dataSource: {
+                            type: "json",
+                            transport: {
+                                read: {
+                                    url: "@Html.Raw(Url.Action("List", "QuanHuyen"))",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: additionalData
+                                }
+                            },
+                            schema: {
+                                data: "Data",
+                                total: "Total",
+                                errors: "Errors"
+                            },
+                            error: function(e) {
+                                display_kendoui_grid_error(e);
+                                // Cancel the changes
+                                this.cancelChanges();
+                            },
+                            pageSize: @(defaultGridPageSize),
+                            serverPaging: true,
+                            serverFiltering: true,
+                            serverSorting: true
+                        },
+                        pageable: {
+                            refresh: true,
+                            pageSizes: [@(gridPageSizes)]
+                        },
+                        editable: {
+                            confirmation: false,
+                            mode: "inline"
+                        },
+                        scrollable: false,
+                        columns: [{
+                            field: "Ma",
+                            title: "@T("Admin.ChonVe.QuanHuyen.Ma")"
+                        }, {
+                            field: "Ten",
+                            title: "@T("Admin.ChonVe.QuanHuyen.Ten")"
+                        }, {
+                            field: "TenTinh",
+                            title: "@T("Admin.ChonVe.QuanHuyen.TenTinh")",
+                        },{
+                            field: "Id",
+                            title: "@T("Admin.Common.Edit")",
+                            width: 100,
+                            template: '<a href="Edit/#=Id#">@T("Admin.Common.Edit")</a>'
+                        }]
+                    });
+                });
+            </script>
+
+            <script type="text/javascript">
+                $(document).ready(function () {
+                    //search button
+                    $('#btnSearch').click(function () {
+                        //search
+                        var grid = $('#hopdong-grid').data('kendoGrid');
+                        grid.dataSource.page(1); //new search. Set page size to 1
+                        //grid.dataSource.read(); we already loaded the grid above using "page" function
+                        return false;
+                    });
+                    $("#@Html.FieldIdFor(model => model.TenQuanHuyen)").keydown(function (event) {
+                        if (event.keyCode == 13) {
+                            $("#btnSearch").click();
+                            return false;
+                        }
+                    });                  
+                });
+
+                function additionalData() {
+                    return {
+                        TenQuanHuyen: $('#@Html.FieldIdFor(model => model.TenQuanHuyen)').val(),
+                        ProvinceID: $('#@Html.FieldIdFor(model => model.ProvinceID)').val()
+                    };
+                }
+            </script>
+        </td>
+    </tr>
+</table>

@@ -1,0 +1,141 @@
+﻿@model NguonVeXeModel
+@using Nop.Web.Models.VeXeKhach
+@{
+    Layout = null;// "~/Views/Shared/_RootPopup.cshtml";
+}
+<!-- Modal -->
+
+<div class="modal-footer">
+    <div class="row">
+       
+        <div class="col-md-4" style="float:right">
+            <button type="button" class="btn btn-primary active" id="btndatmuavethanhtoan" style="width:120px">@T("checkout")</button>
+            <button type="button" class="btn btn-default" id="btndatmuaveclose">@T("common.close")</button>
+        </div>
+    </div>
+</div>
+<h4>@Model.NhaXeInfo.TenNhaXe</h4>
+<div class="row">
+    <div id="current_sodoghexe_quytac" style="width:100%;">
+    </div>
+</div>
+<script>
+    function CloseDialog(acttype) {
+
+        SetCloseWindowDatMuaVeXe()
+        if (acttype == 1) {
+            document.location.href = "@Url.Action("VeXeThanhToan")";
+        }
+    }
+    $(document).ready(function () {
+
+        LoadSoDoGhe();
+        $("#btndatmuaveclose").click(function (e) {
+            HuyChon();
+        });
+        $("#btndatmuavethanhtoan").click(function (e) {
+            ThanhToan();
+        });
+    });
+
+    function LoadSoDoGhe() {
+        var TangIndex = $('#selected-tab-index').val();
+        $.ajax({
+            cache: false,
+            type: "GET",
+            dataType: "html",
+            contentType: 'application/html;charset=utf-8',
+            data: { "TangIndex": TangIndex },
+            url: "@(Url.Action("GetSoDoGheXeInfo", "VeXeKhach"))",
+            success: function (data) {
+                $("#current_sodoghexe_quytac").html(data);
+                SetCenterWindowDatMuaVeXe();
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert('Error bind data of seat');
+            }
+        });
+    }
+
+    function HuyChon() {
+        var NguonVeXeId =@Model.Id
+        $.ajax({
+            cache: false,
+            type: "POST",
+            data: { "NguonVeXeId": NguonVeXeId },
+            url: "@(Url.Action("HuyChon", "VeXeKhach"))",
+            success: function (data) {
+                CloseDialog(0);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                CloseDialog(0);
+                //alert('Failed to retrieve states.');
+            }
+        });
+
+    }
+    function ThanhToan() {
+        var NguonVeXeId =@Model.Id
+        $.ajax({
+            cache: false,
+            type: "POST",
+            data: { "NguonVeXeId": NguonVeXeId },
+            url: "@(Url.Action("GiuCho", "VeXeKhach"))",
+            success: function (data) {
+                if (data == "OK") {
+                    CloseDialog(1);
+                }
+                else
+                {
+                    alert('Không có ghế nào được chọn');
+                }
+
+
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                CloseDialog(0);
+            }
+        });
+    }
+
+    function ChonGhe(kyhieu, tang) {
+        $.ajax({
+            cache: false,
+            type: "GET",
+            url: "@(Url.Action("KiemTraChoNgoi", "VeXeKhach"))",
+            data: {
+                "KyHieuGhe": kyhieu,
+                "Tang": tang
+            },
+            success: function (data) {
+                if (data != "OK") {
+                    alert("@T("ChonVe.VeXeKhach.DatMuaVe.DaMua")");
+                }
+                LoadSoDoGhe();
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert('Failed to retrieve states.');
+            }
+        });
+
+    }
+    function HuyGheDatCho(PhoiVeId) {
+        $.ajax({
+            cache: false,
+            type: "POST",
+            data: {
+                "PhoiVeId": PhoiVeId
+            },
+            url: "@(Url.Action("HuyGheDatCho", "VeXeKhach"))",
+            success: function (data) {
+                if (data != "OK") {
+                    alert("@T("ChonVe.Nhaxes.QuanLyPhoive.KhongSoHuu")");
+                }
+                LoadSoDoGhe();
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                return alert('Error huy ghe');
+            }
+        });
+    }
+</script>

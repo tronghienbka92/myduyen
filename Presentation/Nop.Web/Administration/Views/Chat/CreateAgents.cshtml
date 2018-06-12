@@ -1,0 +1,20 @@
+﻿@model AgentsModel
+@using Nop.Admin.Models.Chat
+@{
+    //page title
+    ViewBag.Title = "Tạo mới NVCSKH";
+}
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "agents-form" }))
+{
+    <div class="section-header">
+        <div class="title">
+            <img src="@Url.Content("~/Administration/Content/images/ico-dashboard.png")" alt="" />
+            @T("Admin.ChonVe.HopDong.TaoMoi") @Html.ActionLink("(" + T("Admin.ChonVe.HopDong.BackToList") + ")", "ListAgents")
+        </div>
+        <div class="options">
+            <input type="submit" name="save" class="k-button" value="@T("Admin.Common.Save")" />
+            <input type="submit" name="save-continue" class="k-button" value="@T("Admin.Common.SaveContinue")" />
+        </div>
+    </div>
+    @Html.Partial("_EditAgents", Model)
+}

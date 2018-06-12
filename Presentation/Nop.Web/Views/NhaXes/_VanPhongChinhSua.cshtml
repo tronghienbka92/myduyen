@@ -1,0 +1,275 @@
+﻿@model VanPhongModel
+@using Nop.Web.Models.NhaXes
+@using Nop.Core.Infrastructure
+@using Nop.Web.Framework.Events
+@using Nop.Services.Events
+
+@Html.HiddenFor(model => model.Id)
+@Html.HiddenFor(model => model.DiaChiID)
+@Html.HiddenFor(model => model.ThongTinDiaChi.Id)
+
+<div id="modeldetail-edit">
+    <ul>
+        <li @Html.RenderSelectedTabIndex(0, GetSelectedTabIndex())>
+            @T("ChonVe.NhaXe.TabThongTin")
+        </li>
+        <li @Html.RenderSelectedTabIndex(1, GetSelectedTabIndex())>
+            @T("ChonVe.Common.TabDiaChi")
+        </li>
+        <li @Html.RenderSelectedTabIndex(2, GetSelectedTabIndex())>
+            @T("ChonVe.Common.TabBanDo")
+        </li>
+        <li @Html.RenderSelectedTabIndex(3, GetSelectedTabIndex())>
+            Tổ vận chuyển
+        </li>
+    </ul>
+    <div>
+        @TabInfo()
+    </div>
+    <div>
+        @TabDiaChi()
+    </div>
+    <div>
+        @TabBanDo()
+    </div>
+    <div>
+        @TabVanChuyen()
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        //khoi tao vi tri ban do
+        if ($("#@Html.FieldIdFor(model => model.Id)").val() == "0")
+            $("#btnSearchVitri").click();
+        var onActivate = function (e) {
+            var curtapid = $("#selected-tab-index").val();
+            if (curtapid == 2) {
+
+                var _diachi = $("#@Html.FieldIdFor(model => model.ThongTinDiaChi.DiaChi1)").val();
+                if (_diachi != "")
+                    _diachi = _diachi + ", ";
+                var _tinh = $("#@Html.FieldIdFor(model => model.ThongTinDiaChi.ProvinceID) option:selected").text();
+                var _huyen = $("#@Html.FieldIdFor(model => model.ThongTinDiaChi.QuanHuyenID)").val();
+                if (_huyen != "0")
+                    _huyen = $("#@Html.FieldIdFor(model => model.ThongTinDiaChi.QuanHuyenID) option:selected").text() + ", ";
+                else
+                    _huyen = "";
+                $("#addressinput").val(_diachi + _huyen + _tinh + ", Việt Nam");
+                if ($("#@Html.FieldIdFor(model => model.Id)").val() == "0")
+                    $("#btnSearchVitri").click();
+                else
+                    MapGoogleInitialize();
+            }
+
+        };
+        $("#modeldetail-edit").kendoTabStrip({
+            animation: {
+                open: {
+                    effects: "fadeIn"
+                }
+            },
+            activate: onActivate,
+            select: tabstrip_on_tab_select
+        });
+        $("#@Html.FieldIdFor(model => model.ThongTinDiaChi.ProvinceID)").change(function () {
+            var selectedItem = $(this).val();
+            var ddlStates = $("#@Html.FieldIdFor(model => model.ThongTinDiaChi.QuanHuyenID)");
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: "@(Url.Action("GetQuanHuyenByProvinceId", "NhaXes"))",
+                data: { "ProvinceId": selectedItem, "addSelectStateItem": "false" },
+                success: function (data) {
+                    ddlStates.html('');
+                    $.each(data, function (id, option) {
+                        ddlStates.append($('<option></option>').val(option.id).html(option.name));
+                    });
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert('Failed to retrieve states.');
+                }
+            });
+        });
+    });
+</script>
+@{
+    //custom tabs
+    var eventMessage = new AdminTabStripCreated(this.Html, "modeldetail-edit");
+    EngineContext.Current.Resolve<IEventPublisher>().Publish(eventMessage);
+    foreach (var eventBlock in eventMessage.BlocksToRender)
+    {
+        @eventBlock
+    }
+}
+
+@*save selected tab index*@
+<input type="hidden" id="selected-tab-index" name="selected-tab-index" value="@(GetSelectedTabIndex())">
+@helper TabInfo()
+{
+    <table class="adminContent">
+        <tr>
+            <td class="adminTitle">
+                Mã văn phòng:
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.Ma)
+                @Html.ValidationMessageFor(model => model.Ma)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                Tên văn phòng:
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.TenVanPhong)
+                @Html.ValidationMessageFor(model => model.TenVanPhong)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                Phân loại:
+            </td>
+            <td class="adminData">
+                @Html.DropDownListFor(model => model.KieuVanPhongID, Model.KieuVanPhongs)
+                @Html.ValidationMessageFor(model => model.KieuVanPhongID)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                Điện thoại đặt vé:
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.DienThoaiDatVe)
+                @Html.ValidationMessageFor(model => model.DienThoaiDatVe)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                Điện thoại gửi hàng:
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.DienThoaiGuiHang)
+                @Html.ValidationMessageFor(model => model.DienThoaiGuiHang)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+               Yêu cầu duyệt hủy:
+            </td>
+            <td class="adminData">
+                @Html.CheckBoxFor(model=>model.IsYeuCauDuyetHuy)             
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                Khu vực:
+            </td>
+            <td class="adminData">
+                @Html.DropDownListFor(model => model.KhuVucId, Model.khuvucs)
+            </td>
+        </tr>
+    </table>
+}
+
+@helper TabDiaChi()
+{
+    <table class="adminContent">
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.ThongTinDiaChi.DiaChi1):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.ThongTinDiaChi.DiaChi1)
+                @Html.ValidationMessageFor(model => model.ThongTinDiaChi.DiaChi1)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.ThongTinDiaChi.DiaChi2):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.ThongTinDiaChi.DiaChi2)
+                @Html.ValidationMessageFor(model => model.ThongTinDiaChi.DiaChi2)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.ThongTinDiaChi.ProvinceID):
+            </td>
+            <td class="adminData">
+                @Html.DropDownListFor(model => model.ThongTinDiaChi.ProvinceID, Model.ThongTinDiaChi.AvailableStates)
+                @Html.ValidationMessageFor(model => model.ThongTinDiaChi.ProvinceID)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.ThongTinDiaChi.QuanHuyenID):
+            </td>
+            <td class="adminData">
+                @Html.DropDownListFor(model => model.ThongTinDiaChi.QuanHuyenID, Model.ThongTinDiaChi.AvailableQuanHuyens)
+                @Html.ValidationMessageFor(model => model.ThongTinDiaChi.QuanHuyenID)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.ThongTinDiaChi.MaBuuDien):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.ThongTinDiaChi.MaBuuDien)
+                @Html.ValidationMessageFor(model => model.ThongTinDiaChi.MaBuuDien)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.ThongTinDiaChi.DienThoai):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.ThongTinDiaChi.DienThoai)
+                @Html.ValidationMessageFor(model => model.ThongTinDiaChi.DienThoai)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.ThongTinDiaChi.Fax):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.ThongTinDiaChi.Fax)
+                @Html.ValidationMessageFor(model => model.ThongTinDiaChi.Fax)
+            </td>
+        </tr>
+    </table>
+}
+@helper TabBanDo()
+{
+    //<input type="submit" id="btnAddNewRelatedProduct" value="@T("Admin.Catalog.Products.RelatedProducts.AddNew")" onclick="javascript:OpenWindow('@(Url.Action("VitriBanDoPopUp", "NhaXes"))    ', 800, 800, true); return false;" class="k-button" />
+    var dataDictAddress = new ViewDataDictionary();
+    //Merge ModelState (required for validation)
+    dataDictAddress.ModelState.Merge(ViewData.ModelState);
+    dataDictAddress.TemplateInfo.HtmlFieldPrefix = "ThongTinDiaChi";
+   @Html.Partial("_ViTriBanDo", Model.ThongTinDiaChi, dataDictAddress)
+
+}
+@helper TabVanChuyen()
+{
+    if (Model.Id > 0)
+    {
+        <p><h3>Thiết lập quản lý tổ vận chuyển trong văn phòng</h3>    </p>
+        <table class="adminContent">
+            <tr>
+                <td class="adminTitle" style="width:50px"></td>
+                <td class="adminData">
+                    @foreach (var mg in Model.AllToVanChuyens)
+                    {
+                        <div style="margin-bottom:15px">
+                            <input type="checkbox" name="SelectedToVanChuyenIds" value="@mg.Id" checked="@(Model.SelectedToVanChuyenIds != null && Model.SelectedToVanChuyenIds.Contains(mg.Id))" />&nbsp;@mg.TenTo (@mg.MoTa)
+                        </div>
+                    }
+                </td>
+            </tr>
+        </table>
+    }
+    else
+    {
+        <h3>Bạn phải lưu thông tin văn phòng trước</h3>
+    }
+}

@@ -1,0 +1,171 @@
+﻿.InfoTitle {
+}
+
+.MenuPage {
+    height: 50px;
+    width: 100%;
+}
+
+.TitleInfo {
+    text-align: left;
+    font-weight: 700;
+}
+
+.Title_pass {
+    margin-top: 14px;
+}
+
+.MenuLeft {
+    margin-top: 90px;
+    margin-right: 16px;
+}
+
+    .MenuLeft ul {
+    }
+
+        .MenuLeft ul li {
+            margin-bottom: 5px;
+            height: 50px;
+        }
+
+            .MenuLeft ul li:hover {
+                background: rgb(20, 176, 230);
+            }
+
+                .MenuLeft ul li:hover a {
+                    color: #fff;
+                }
+
+            .MenuLeft ul li a {
+                padding: 15px 25px;
+                color: #343434;
+                position: relative;
+                display: block;
+                font-size: 14px;
+            }
+
+            .MenuLeft ul li.selected a {
+                background: red;
+            }
+
+            .MenuLeft ul li.selected a:after,.MenuLeft ul li a:after {
+                width: 0;
+                height: 0;
+                border-style: solid;
+                border-width: 25px 0 25px 15px;
+                border-color: transparent;
+                position: absolute;
+                left: 100%;
+                top: 0px;
+                content: "";
+            }
+
+            .MenuLeft ul li a:hover:after {
+                border-color: transparent transparent transparent #14b0e6;
+            }
+
+.active {
+    color: red;
+}
+
+.inactive {
+    color: red;
+}
+
+.i_style {
+    margin-right: 5px;
+    font-size: 18px;
+}
+
+.i_home {
+    font-size: 24px;
+}
+
+.MenuLeft ul li p {
+    text-align: left;
+    font-weight: bold;
+    font-size: 16px;
+    color: #FFF;
+    padding-bottom: 8px;
+    padding-top: 8px;
+    padding-left: 10px;
+    background-color: #0A8043;
+}
+/*trang thong tin*/
+.loginv1 {
+    text-align: right;
+    margin: 5px 0;
+}
+
+.account_info {
+    padding-left: 30px;
+    border-left: 1px solid rgba(70, 93, 75, 0.32);
+    margin: 5px;
+    min-height: 292px;
+}
+
+.account_title {
+    font-size: 20px;
+    font-family: monospace;
+    color: #2D2F9A;
+    text-align: left;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 9px;
+}
+
+p.button input {
+    width: 18%;
+    cursor: pointer;
+    background: rgb(32, 141, 19);
+    padding: 8px 5px;
+    font-family: -webkit-body;
+    color: #fff;
+    font-size: 20px;
+    border: 1px solid rgb(28, 108, 122);
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    -webkit-box-shadow: 0px 1px 6px 4px rgba(0, 0, 0, 0.07) inset, 0px 0px 0px 3px rgb(254, 254, 254), 0px 5px 3px 3px rgb(210, 210, 210);
+    -moz-box-shadow: 0px 1px 6px 4px rgba(0, 0, 0, 0.07) inset, 0px 0px 0px 3px rgb(254, 254, 254), 0px 5px 3px 3px rgb(210, 210, 210);
+    box-shadow: 0px 1px 6px 4px rgba(0, 0, 0, 0.07) inset, 0px 0px 0px 3px rgb(254, 254, 254), 0px 5px 3px 3px rgb(210, 210, 210);
+    -webkit-transition: all 0.2s linear;
+    -moz-transition: all 0.2s linear;
+    -o-transition: all 0.2s linear;
+    transition: all 0.2s linear;
+}
+
+    p.button input:hover {
+        background: rgb(88, 182, 61);
+    }
+
+    p.button input:focus {
+        background: rgb(40, 137, 154);
+        position: relative;
+        top: 1px;
+        border: 1px solid rgb(12, 76, 87);
+        -webkit-box-shadow: 0px 1px 6px 4px rgba(0, 0, 0, 0.2) inset;
+        -moz-box-shadow: 0px 1px 6px 4px rgba(0, 0, 0, 0.2) inset;
+        box-shadow: 0px 1px 6px 4px rgba(0, 0, 0, 0.2) inset;
+    }
+
+input {
+    width: 72%;
+    margin-top: 4px;
+    padding: 10px 5px 10px 32px;
+    border: 1px solid rgb(178, 178, 178);
+    -webkit-appearance: textfield;
+    -webkit-box-sizing: content-box;
+    -moz-box-sizing: content-box;
+    box-sizing: content-box;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    -webkit-box-shadow: 0px 1px 4px 0px rgba(168, 168, 168, 0.6) inset;
+    -moz-box-shadow: 0px 1px 4px 0px rgba(168, 168, 168, 0.6) inset;
+    box-shadow: 0px 1px 4px 0px rgba(168, 168, 168, 0.6) inset;
+    -webkit-transition: all 0.2s linear;
+    -moz-transition: all 0.2s linear;
+    -o-transition: all 0.2s linear;
+    transition: all 0.2s linear;
+}

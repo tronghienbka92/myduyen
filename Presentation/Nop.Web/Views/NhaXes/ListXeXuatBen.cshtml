@@ -1,0 +1,126 @@
+﻿@model XeXuatBenInforModel
+@using Nop.Web.Models.NhaXes
+@using Nop.Core.Infrastructure
+@Html.ValidationSummary(false)
+@{
+
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+
+    //page title
+    ViewBag.Title = T("ChonVe.NhaXe.NguonVe.List.Title").Text;
+}
+
+<div class="section-header">
+    <div class="title">
+        <img src="@Url.Content("~/Content/chonve/nxmenu/quanlychuyen.png")" alt="" />
+        @T("ChonVe.NhaXe.XeXuatBen.Title")
+    </div>
+</div>
+
+<table style="width:100%">
+    <tr>
+        <td></td>
+        <td style="text-align:right">Khung giờ: @Html.DropDownListFor(m => m.KhungGioId, Model.khunggios)</td>
+        <td style="text-align:right">Hành trình: @Html.DropDownListFor(m => m.HanhTrinhId, Model.HanhTrinhs)</td>
+        <td style="text-align:right">Loại xe: @Html.DropDownListFor(m => m.LoaiXeId, Model.ListLoaiXes)</td>
+        <td style="text-align:right">
+            Ngày đi: @Html.EditorFor(model => model.NgayDi)
+        </td>
+    </tr>
+</table>
+<div id="XeXuatBenInfo">
+</div>
+
+
+<script>
+    var laiphuxedatasoures = [
+                       @for (int i = 0; i < Model.AllLaiXePhuXes.Count; i++)
+    {
+        var _item = Model.AllLaiXePhuXes[i];
+        <text>
+    {
+        Id: @(_item.Id),
+        TenLaiXe: "@(Html.Raw(HttpUtility.JavaScriptStringEncode(_item.ThongTin)))"
+    }
+    </text>
+        if (i != Model.AllLaiXePhuXes.Count - 1)
+        {
+            <text>,</text>
+        }
+    }
+    ];
+    //tao thong tin xe
+    var xevanchuyendatasoures = [
+           @for (int i = 0; i < Model.AllXeInfo.Count; i++)
+    {
+        var _item = Model.AllXeInfo[i];
+        <text>
+    {
+        Id: @(_item.Id),
+        BienSo: "@(Html.Raw(HttpUtility.JavaScriptStringEncode(_item.BienSo)))"
+    }
+    </text>
+        if (i != Model.AllXeInfo.Count - 1)
+        {
+            <text>,</text>
+        }
+    }
+    ];
+    $(document).ready(function () {
+        //tao thong tin nhan vien lai xe
+
+        LoadDanhSachNguonVe();
+        $("#@Html.FieldIdFor(model => model.NgayDi)").change(function () {
+            LoadDanhSachNguonVe();
+            return false;
+        });
+        $("#@Html.FieldIdFor(model => model.HanhTrinhId)").change(function () {
+            LoadDanhSachNguonVe();
+            return false;
+        });
+
+        $("#@Html.FieldIdFor(model => model.LoaiXeId)").change(function () {
+            LoadDanhSachNguonVe();
+            return false;
+        });
+
+        $("#@Html.FieldIdFor(model => model.KhungGioId)").change(function () {
+            LoadDanhSachNguonVe();
+            return false;
+        });
+    });
+
+    function LoadDanhSachNguonVe() {
+        var additionalData = {
+            KhungGioId : $('#@Html.FieldIdFor(m => m.KhungGioId)').val(),
+            HanhTrinhId : $('#@Html.FieldIdFor(m => m.HanhTrinhId)').val(),
+            NgayDi :  ConvertDateTimeSystem($("#@Html.FieldIdFor(m=>m.NgayDi)").val()),
+            LoaiXeId : $('#@Html.FieldIdFor(m => m.LoaiXeId)').val(),
+        };
+
+        $.ajax({
+            cache: false,
+            type: "GET",
+            dataType: "html",
+            contentType: 'application/html;charset=utf-8',
+            data: additionalData,
+            url: "@(Url.Action("_GetListXeXuatBenInfo", "NhaXes"))",
+            success: function (data) {
+
+                if (data != null)
+                {
+                    $("#XeXuatBenInfo").html(data);
+                }
+                else
+                {
+                    $("#XeXuatBenInfo").html("<p>Không có quyền</p>")
+                }
+
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert('Chưa đủ thông tin');
+            }
+        });
+    }
+</script>
+

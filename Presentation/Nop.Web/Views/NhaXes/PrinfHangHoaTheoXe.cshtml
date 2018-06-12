@@ -1,0 +1,128 @@
+﻿@model Nop.Web.Models.VeXeKhach.XeXuatBenModel
+@{
+    Layout = null;
+    string ngayhientai = string.Format("Ngày {0} tháng {1} năm {2}", DateTime.Now.ToString("dd"), DateTime.Now.ToString("MM"), DateTime.Now.ToString("yyyy"));
+    string vanphongnhan = "", vanphonggui = "", nguoikiemtra = "";
+    if (Model.phieuguihangs.Count > 0)
+    {
+        vanphongnhan = Model.phieuguihangs[0].VanPhongNhan.TenVanPhong;
+        vanphonggui = Model.phieuguihangs[0].VanPhongGui.TenVanPhong;
+        nguoikiemtra = Model.phieuguihangs[0].TenNguoiKiemTraHang;
+    }
+}
+
+<table style="width:860px">
+    <tr>
+        <td>
+            <table style="width:100%;font-weight:bold;font-size:14px;">
+                <tr>
+                    <td style="width:50%">Hành trình từ @Model.TuyenXeChay</td>
+                    <td style="text-align:right">Thời gian đi  @Model.NgayDi.ToString("dd/MM/yyyy") @Model.nguonvexe.ThoiGianDi.ToString("HH:mm")</td>
+                </tr>
+            </table>
+        </td>
+    </tr>    
+    <tr>
+        <td style="text-align:center;height:80px;vertical-align:middle">
+            <h1>HÀNG HÓA KÝ GỬI</h1>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <table style="width:100%">
+                <tr>
+                    <td style="width:50%"><strong>Nơi gửi :</strong> @vanphongnhan</td>
+                    <td><strong>Nơi nhận :</strong>  @vanphonggui</td>
+                </tr>
+                <tr>
+                    <td><strong>Thời gian dự kiến đến :</strong>  @Model.nguonvexe.ThoiGianDen.ToString("HH:mm")</td>
+                    <td><strong>Xe đi :</strong> @Model.TenBienSoXe</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td>
+
+            <table style="width:100%;border-collapse:collapse" border="1">
+                <tr style="font-weight:bold;text-align:center">
+                    <td style="width:60px">
+                        STT
+                    </td>
+                    <td style="width:120px">
+                        Mã Phiếu
+                    </td>
+                    <td style="width:120px">
+                        Người gửi
+                    </td>
+                    <td style="width:120px">
+                        Người nhận
+                    </td>
+                    <td>
+                        Thông tin
+                    </td>
+                    <td style="width:100px">
+                        Cước
+                    </td>
+                    <td style="width:60px"></td>
+                </tr>
+                @for (int i = 0; i < Model.phieuguihangs.Count; i++)
+                {
+                    var phieu = Model.phieuguihangs[i];
+                    <text>
+                        <tr style="text-align:center">
+                            <td>
+                                @(i + 1)
+                            </td>
+                            <td>
+                                @phieu.MaPhieu
+                            </td>
+                            <td>
+                                @phieu.NguoiGui.HoTen
+                            </td>
+                            <td>
+                                @phieu.NguoiNhan.HoTen
+                            </td>
+                            <td style="text-align:left;padding-left:5px">
+                                @phieu.HangHoaInfo
+                            </td>
+                            <td style="text-align:right;padding-right:5px">
+                                @phieu.TongCuocPhi
+                            </td>
+                            <td>
+                                <input type="checkbox" />
+                            </td>
+
+                        </tr>
+                    </text>
+                }
+            </table>
+
+
+        </td>
+    </tr>
+    <tr>
+        <td style="text-align:right;height:35px;vertical-align:bottom;font-style:italic">
+            @ngayhientai
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <table style="width:100%;text-align:center;font-weight:bold;">               
+                <tr>
+                    <td style="width:50%">Người kiểm tra</td>
+                    <td>Lái xe</td>
+                </tr>
+                <tr>
+                    <td colspan="2" style="height:45px"></td>
+                </tr>
+                <tr>
+                    <td>@nguoikiemtra</td>
+                    <td>@Model.TenLaiXe1</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+
+

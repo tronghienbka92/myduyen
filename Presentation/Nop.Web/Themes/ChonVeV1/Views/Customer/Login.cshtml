@@ -1,0 +1,60 @@
+﻿@model LoginModel
+@using Nop.Web.Models.Customer;
+@using Nop.Core;
+@using Nop.Core.Infrastructure;
+@{
+    //title
+    Html.AddTitleParts(T("PageTitle.Login").Text);
+
+    //register URL with return URL (if specified)
+    var registerUrl = Url.RouteUrl("Register");
+    if (!String.IsNullOrEmpty(this.Context.Request.QueryString["returnUrl"]))
+    {
+        var webHelper = EngineContext.Current.Resolve<IWebHelper>();
+        registerUrl = webHelper.ModifyQueryString(registerUrl, "returnurl=" + HttpUtility.UrlEncode(this.Context.Request.QueryString["returnUrl"]), null);
+    }
+}
+<link href="~/Themes/ChonVeV1/Content/css/loginregister.css" rel="stylesheet" />
+<div id="formloginregister">
+    <div id="loginv1">
+        @using (Html.BeginForm())
+        {
+
+            <h1>Đăng nhập</h1>
+            <p>
+                <label for="username" class="uname" data-icon="e">Email</label>
+                @Html.TextBoxFor(m => m.Email, new { id = "username", required = "required", oninvalid = "InvalidMsg(this,'Bạn chưa nhập thông tin email')",oninput="InvalidMsg(this,'');",type="email",  placeholder = "Email của bạn" })                
+            </p>
+            <p>
+                <label for="password" class="youpasswd" data-icon="p">Mật khẩu </label>
+                @Html.PasswordFor(m => m.Password, new { id = "password", required = "required", oninvalid = "InvalidMsg(this,'Bạn chưa nhập mật khẩu')", oninput = "InvalidMsg(this,'');", placeholder = "Mật khẩu" })
+            </p>
+            <p class="keeplogin">
+                @Html.CheckBoxFor(m => m.RememberMe, new { id = "loginkeeping" })
+                <label for="loginkeeping">Nhớ mật khẩu</label>
+            </p>
+            <p class="loginv1 button">
+                <input type="submit" value="Đăng nhập" />
+            </p>
+            <p class="change_link">
+                Bạn chưa phải là thành viên ?
+                <a href="@Url.RouteUrl("Register", new { registerUrl = registerUrl })">Đăng ký</a>
+            </p>
+
+        }
+    </div>
+</div>
+<script>
+    function InvalidMsg(textbox,strmsg) {
+        if (textbox.value == '') {
+            textbox.setCustomValidity(strmsg);
+        }
+        else if (textbox.validity.typeMismatch){
+            textbox.setCustomValidity('Email không đúng định dạng');
+        }
+        else {
+           textbox.setCustomValidity('');
+        }
+        return true;
+    }
+</script>

@@ -1,0 +1,161 @@
+﻿@model XeInfoListModel
+@using Nop.Web.Models.NhaXes
+@using Nop.Core.Infrastructure
+@Html.ValidationSummary(false)
+@{
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+    var defaultGridPageSize = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().DefaultGridPageSize;
+    var gridPageSizes = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().GridPageSizes;
+
+    //page title
+    ViewBag.Title = T("ChonVe.NhaXe.XeInfo.List.Title").Text;
+}
+<div class="section-header">
+    <div class="title">
+        <img src="@Url.Content("~/Content/chonve/nxmenu/quanlyxethongtin.png")" alt="" />
+        @T("ChonVe.NhaXe.XeInfo.List.Title")
+    </div>
+    <div class="options">
+        <a href="@Url.Action("XeInfoTao")" class="k-button">@T("Admin.Common.AddNew")</a>
+    </div>
+</div>
+<table width="100%">
+    <tr>
+        <td class="adminTitle">
+            @Html.NopLabelFor(model => model.TenXe):
+        </td>
+        <td class="adminData">
+            @Html.EditorFor(model => model.TenXe)
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <input type="button" id="btnSearch" class="k-button" value="@T("Admin.Common.Search")" />
+        </td>
+    </tr>
+</table>
+<table class="adminContent">
+    <tr>
+        <td>
+            <div id="danhsach-grid"></div>
+
+            <script>
+                $(document).ready(function () {
+                    $("#danhsach-grid").kendoGrid({
+                        dataSource: {
+                            type: "json",
+                            transport: {
+                                read: {
+                                    url: "@Html.Raw(Url.Action("XeInfoList", "NhaXes"))",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: additionalData
+                                }
+                            },
+                            schema: {
+                                data: "Data",
+                                total: "Total",
+                                errors: "Errors"
+                            },
+                            error: function(e) {
+                                display_kendoui_grid_error(e);
+                                // Cancel the changes
+                                this.cancelChanges();
+                            },
+                            pageSize: @(defaultGridPageSize),
+                            serverPaging: true,
+                            serverFiltering: true,
+                            serverSorting: true
+                        },
+                        pageable: {
+                            refresh: true,
+                            pageSizes: [@(gridPageSizes)],
+                            messages: {
+                                display: "@T("Nop.Common.KendoGrid.display")", //{0} is the index of the first record on the page, {1} - index of the last record on the page, {2} is the total amount of records
+                                empty: "@T("Nop.Common.KendoGrid.Empty")",
+                                page: "@T("Nop.Common.KendoGrid.Page")",
+                                of: "@T("Nop.Common.KendoGrid.Of")", //{0} is total amount of pages
+                                itemsPerPage: "@T("Nop.Common.KendoGrid.itemsPerPage")",
+                                first: "@T("Nop.Common.KendoGrid.first")",
+                                previous: "@T("Nop.Common.KendoGrid.previous")",
+                                next: "@T("Nop.Common.KendoGrid.next")",
+                                last: "@T("Nop.Common.KendoGrid.last")",
+                                refresh: "@T("Nop.Common.KendoGrid.refresh")"
+                            }
+                        },
+                        editable: {
+                            confirmation: false,
+                            mode: "inline"
+                        },
+                        scrollable: false,
+                        columns: [{
+                            field: "TenXe",
+                            title: "@T("ChonVe.NhaXe.XeInfo.TenXe")"
+                        }, {
+                            field: "LoaiXeText",
+                            title: "@T("ChonVe.NhaXe.XeInfo.LoaiXeId")"
+                        }, {
+                            field: "BienSo",
+                            title: "@T("ChonVe.NhaXe.XeInfo.BienSo")"
+                        },  {
+                            field: "DienThoai",
+                            title: "@T("ChonVe.NhaXe.XeInfo.DienThoai")"
+                        },  {
+                            field: "NgayDangKiem",
+                            title: "Ngày đăng kiểm",
+                            width: 100,
+                            type: "date",
+                            format: "{0:dd/MM/yyyy}"
+                        },  {
+                            field: "PhuHieuXe",
+                            title: "Phù hiệu"
+                        },  {
+                            field: "NgayDangKy",
+                            title: "Ngày đăng ký",
+                            width: 100,
+                            type: "date",
+                            format: "{0:dd/MM/yyyy}"
+                        },  {
+                            field: "BaoHiem",
+                            title: "Bảo hiểm"
+                        },  {
+                            field: "TrangThaiXeText",
+                            title: "@T("ChonVe.NhaXe.XeInfo.TrangThaiXeId")"
+                        },{
+                            field: "Id",
+                            title: "@T("Admin.Common.Edit")",
+                            width: 100,
+                            template: '<a href="XeInfoSua/#=Id#">@T("Admin.Common.Edit")</a>'
+                        }]
+                    });
+                });
+            </script>
+
+            <script type="text/javascript">
+                $(document).ready(function () {
+                    //search button
+                    $('#btnSearch').click(function () {
+                        //search
+                        var grid = $('#danhsach-grid').data('kendoGrid');
+                        grid.dataSource.page(1); //new search. Set page size to 1
+                        //grid.dataSource.read(); we already loaded the grid above using "page" function
+                        return false;
+                    });
+
+                    $("#@Html.FieldIdFor(model => model.TenXe)").keydown(function (event) {
+                        if (event.keyCode == 13) {
+                            $("#btnSearch").click();
+                            return false;
+                        }
+                    });
+                });
+
+                function additionalData() {
+                    return {
+                        TenXe: $('#@Html.FieldIdFor(model => model.TenXe)').val()
+                    };
+                }
+            </script>
+        </td>
+    </tr>
+</table>

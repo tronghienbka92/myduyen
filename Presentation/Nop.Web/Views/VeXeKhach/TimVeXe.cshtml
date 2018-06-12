@@ -1,0 +1,60 @@
+﻿@model TimVeXeModel
+@using Nop.Web.Models.VeXeKhach
+@Html.HiddenFor(m=>m.NgayDi.Ticks)
+<div class="row">
+    <div class="col">
+        <h1>Bo loc </h1>
+    </div>
+</div>
+<div class="row">
+    <div class="col">
+        <div class="brands_products">
+            <div class="brands-name">
+                <ul class="nav nav-pills nav-stacked">
+                    @foreach (var item in Model.NguoVeXes)
+                    {
+                        <li class="inactive">
+                            @Html.Partial("_VeXeItemBasic", item)
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("input[name='datmuavexe-button']").each(function () {
+            $(this).click(function () {
+                var _id = $(this).attr("itemdata");
+                DatMuaVe(_id);
+            })
+        });
+
+    });
+    function DatMuaVe(nguonveid) {
+        var formopen = $("#popupDatMuaVeXe");
+        var ngaydi =  $('#@Html.FieldIdFor(model => model.NgayDi.Ticks)').val();
+        formopen.kendoWindow({
+            width: "1024px",
+            title: "@T("ChonVe.NhaXe.QuanLyPhoiVe.DatVeXe")",
+            content: "@(Url.Action("DatMuaVeXe", "VeXeKhach"))?NguonVeXeId=" +nguonveid +  "&Ngay=" + ngaydi  ,
+        actions: [
+            "Close"
+        ]
+    }).data('kendoWindow').center();
+    formopen.data('kendoWindow').open();
+    }
+    function SetCloseWindowDatMuaVeXe() {
+        $("#popupDatMuaVeXe").data('kendoWindow').close();
+
+    }
+    function SetCenterWindowDatMuaVeXe() {
+        $("#popupDatMuaVeXe").data('kendoWindow').center();
+    }
+   
+</script>
+
+<div id="popupDatMuaVeXe">
+
+</div>

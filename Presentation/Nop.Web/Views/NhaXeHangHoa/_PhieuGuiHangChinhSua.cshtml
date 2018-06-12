@@ -1,0 +1,577 @@
+﻿@model PhieuGuiHangModel
+@using Nop.Web.Models.NhaXes
+@using Nop.Core.Infrastructure;
+@Html.ValidationSummary(false)
+@Html.HiddenFor(model => model.Id)
+@Html.HiddenFor(model => model.HangHoa.Id)
+@{
+    var defaultGridPageSize = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().DefaultGridPageSize;
+    var gridPageSizes = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().GridPageSizes;
+    
+}
+<style>
+    .LegendTitle {
+        height: 20px;
+        font-size: initial;
+        padding: 5px;
+        color: #673AB7;
+        font-weight: bold;
+        border: 1px solid #03A9F4;
+        border-radius: 5px;
+    }
+
+    .fieldset {
+        border: 1px solid rgba(139, 195, 74, 0.44);
+        margin-left: 20px;
+        margin-top: 20px;
+    }
+</style>
+<fieldset class="fieldset">
+    <legend class="LegendTitle">
+        <label>
+            <img src="@Url.Content("~/Administration/Content/images/ico-orderstatus.png")" alt="" />
+            @T("Web.NhaXe.PhieuGuiHang.ThongTinPhieu")
+        </label>
+    </legend>
+    <table width="100%">
+        <tr>
+            <td>
+                <h4>Người gửi</h4>
+                <table class="adminContent">
+                    <tr>
+                        <td class="adminTitle">
+                            @Html.NopLabelFor(model => model.NguoiGui.HoTen):
+                        </td>
+                        <td class="adminData">
+                            <input id="cbbSearchNguoiGui" value="@Model.NguoiGui.HoTen" style="width:280px" />
+                            @Html.HiddenFor(model => model.NguoiGui.Id)
+                            @Html.HiddenFor(model => model.NguoiGui.HoTen)
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="adminTitle">
+                            @Html.NopLabelFor(model => model.NguoiGui.SoDienThoai):
+                        </td>
+                        <td class="adminData">
+                            @Html.EditorFor(model => model.NguoiGui.SoDienThoai)
+                            @Html.ValidationMessageFor(model => model.NguoiGui.SoDienThoai)
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="adminTitle">
+                            @Html.NopLabelFor(model => model.NguoiGui.DiaChi):
+                        </td>
+                        <td class="adminData">
+                            @Html.TextAreaFor(model => model.NguoiGui.DiaChi)
+                            @Html.ValidationMessageFor(model => model.NguoiGui.DiaChi)
+
+                        </td>
+                    </tr>
+                    <tr></tr>
+
+                </table>
+            </td>
+            <td>
+                <h4>Người Nhận</h4>
+                <table class="adminContent">
+                    <tr>
+                        <td class="adminTitle">
+                            @Html.NopLabelFor(model => model.VanPhongNhan.TenVanPhong):
+                        </td>
+                        <td class="adminData">
+                            @Html.DropDownListFor(model => model.VanPhongNhan.Id, Model.VanPhongs)
+                            @Html.ValidationMessageFor(model => model.VanPhongNhan.Id)
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="adminTitle">
+                            @Html.NopLabelFor(model => model.NguoiNhan.HoTen):
+                        </td>
+                        <td class="adminData">
+                            <input id="cbbSearchNguoiNhan" value="@Model.NguoiNhan.HoTen" style="width:280px" />
+                            @Html.HiddenFor(model => model.NguoiNhan.Id)
+                            @Html.HiddenFor(model => model.NguoiNhan.HoTen)
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="adminTitle">
+                            @Html.NopLabelFor(model => model.NguoiNhan.SoDienThoai):
+                        </td>
+                        <td class="adminData">
+                            @Html.EditorFor(model => model.NguoiNhan.SoDienThoai)
+                            @Html.ValidationMessageFor(model => model.NguoiNhan.SoDienThoai)
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="adminTitle">
+                            @Html.NopLabelFor(model => model.NguoiNhan.DiaChi):
+                        </td>
+                        <td class="adminData">
+                            @Html.TextAreaFor(model => model.NguoiNhan.DiaChi)
+
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <h4>Thông tin</h4>
+                <table class="adminContent">
+                    <tr>
+                        <td class="adminTitle">
+                            @Html.NopLabelFor(model => model.NguoiKiemTraHangId):
+                        </td>
+                        <td class="adminData">
+                            @Html.DropDownListFor(model => model.NguoiKiemTraHangId, Model.NguoiKiemTraHangs)
+
+                        </td>
+                    </tr>
+                    @if (Model.Id > 0)
+                    {
+                        <tr>
+                            <td class="adminTitle">
+                                @Html.NopLabelFor(model => model.TinhTrangVanChuyen):
+                            </td>
+                            <td class="adminData">
+                                @Html.DisplayFor(model => model.TinhTrangVanChuyen)
+
+                            </td>
+                        </tr>
+                                         
+                       
+                    }
+                    
+                         <tr>
+                        <td class="adminTitle">
+                            @Html.NopLabelFor(model => model.DaThuCuoc):
+                        </td>
+                        <td class="adminData">
+                            @Html.CheckBoxFor(model => model.DaThuCuoc) Đã thu cước
+                        </td>
+                    </tr>
+                   
+                    <tr id="ngaythanhtoan" style="display:none">
+                        <td class="adminTitle">
+                            @Html.NopLabelFor(model => model.NgayThanhToan):
+                        </td>
+                        <td class="adminData">
+                            @Html.EditorFor(model => model.NgayThanhToan)
+                        </td>
+                    </tr>
+                   
+                    <tr>
+                        <td class="adminTitle">
+                            @Html.NopLabelFor(model => model.GhiChu):
+                        </td>
+                        <td class="adminData">
+                            @Html.TextAreaFor(model => model.GhiChu)
+
+                        </td>
+                    </tr>
+                </table>
+            </td>
+            @if (Model.SoLuongHang <= 1)
+            {
+                <td>
+                    <h4>Thông tin hàng hóa</h4>
+                    <table>
+                        <tr>
+                            <td class="adminTitle">
+                                Tên hàng hóa:
+                            </td>
+                            <td class="adminData">
+                                @Html.EditorFor(model => model.HangHoa.TenHangHoa)
+                                @Html.ValidationMessageFor(model => model.HangHoa.TenHangHoa)
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="adminTitle">
+                                Loại hàng hóa:
+                            </td>
+                            <td class="adminTitle">
+                                @Html.DropDownListFor(model => model.HangHoa.LoaiHangHoaId, Model.HangHoa.LoaiHangHoas)
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="adminTitle">
+                                Cân nặng (kg):
+                            </td>
+                            <td class="adminData">
+                                @Html.EditorFor(model => model.HangHoa.CanNang)
+
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="adminTitle">
+                                Giá trị(VNĐ):
+                            </td>
+                            <td class="adminData">
+                                @Html.EditorFor(model => model.HangHoa.GiaTri)
+
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="adminTitle">
+                                Số lượng:
+                            </td>
+                            <td class="adminData">
+                                @Html.EditorFor(model => model.HangHoa.SoLuong)
+
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="adminTitle">
+                                Giá cước(VNĐ):
+                            </td>
+                            <td class="adminData">
+                                @Html.EditorFor(model => model.HangHoa.GiaCuoc)
+
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="adminTitle">
+                                Ghi chú:
+                            </td>
+                            <td class="adminData">
+                                @Html.TextAreaFor(model => model.HangHoa.GhiChu)
+
+                            </td>
+                        </tr>
+
+                    </table>
+                </td>
+            }
+
+        </tr>
+        @if (Model.Id > 0)
+        {
+            <tr>
+
+                <td colspan="2">
+                    @if (Model.SoLuongHang >= 1)
+                    {
+                    <div class="options">
+                        <input type="button" id="btnThemMoiHangHoa" class="k-button" value="Thêm mới hàng hóa" />
+                    </div>
+                    }
+
+                    @if (Model.SoLuongHang > 1)
+                    {
+                    <div id="HangHoa_grid"></div>
+                    <script>
+                            $(document).ready(function () {
+
+                                $("#HangHoa_grid").kendoGrid({
+                                    dataSource: {
+                                        type: "json",
+                                        transport: {
+                                            read: {
+                                                url: "@Html.Raw(Url.Action("GetHangHoaInPhieuGui", "NhaXeHangHoa"))",
+                                                type: "POST",
+                                                dataType: "json",
+                                                data: additionalData
+                                            },
+                                            update: {
+                                                url:"@Html.Raw(Url.Action("HangHoaInfoUpdate", "NhaXeHangHoa"))",
+                                                type: "POST",
+                                                dataType: "json"
+                                            },
+                                            destroy: {
+                                                url: "@Html.Raw(Url.Action("HangHoaInfoDelete", "NhaXeHangHoa"))",
+                                                type: "POST",
+                                                dataType: "json"
+                                            }
+                                        },
+                                        schema: {
+                                            data: "Data",
+                                            total: "Total",
+                                            errors: "Errors",
+                                            model: {
+                                                id: "Id",
+                                                fields: {
+                                                    TenHangHoa: { editable: true, type: "string" },
+                                                    LoaiHangHoa: { editable: true, type: "string" },
+                                                    CanNang: { editable: true, type: "number" },
+                                                    CanNangText: { editable: true, type: "string" },
+                                                    GiaTri: { editable: true, type: "number" },
+                                                    SoLuong: { editable: true, type: "number" },
+                                                    GiaTriText: { editable: true, type: "string" },
+                                                    GiaCuoc: { editable: true, type: "number" },
+                                                    GiaCuocText: { editable: true, type: "string" },
+                                                    GhiChu: { editable: true, type: "string" },
+
+                                                }
+                                            }
+                                        },
+                                        requestEnd: function (e) {
+                                            if ( e.type == "update") {
+                                                this.read();
+                                            }
+                                        },
+                                        error: function(e) {
+                                            display_kendoui_grid_error(e);
+                                            // Cancel the changes
+                                            this.cancelChanges();
+                                        },
+                                        pageSize: @(defaultGridPageSize),
+                                        serverPaging: true,
+                                        serverFiltering: true,
+                                        serverSorting: true
+                                    },
+                                    pageable: {
+                                        refresh: true,
+                                        pageSizes: [@(gridPageSizes)],
+                                        messages: {
+                                            display: "@T("Nop.Common.KendoGrid.display")", //{0} is the index of the first record on the page, {1} - index of the last record on the page, {2} is the total amount of records
+                                            empty: "@T("Nop.Common.KendoGrid.Empty")",
+                                            page: "@T("Nop.Common.KendoGrid.Page")",
+                                            of: "@T("Nop.Common.KendoGrid.Of")", //{0} is total amount of pages
+                                            itemsPerPage: "@T("Nop.Common.KendoGrid.itemsPerPage")",
+                                            first: "@T("Nop.Common.KendoGrid.first")",
+                                            previous: "@T("Nop.Common.KendoGrid.previous")",
+                                            next: "@T("Nop.Common.KendoGrid.next")",
+                                            last: "@T("Nop.Common.KendoGrid.last")",
+                                            refresh: "@T("Nop.Common.KendoGrid.refresh")"
+                                        }
+                                    },
+                                    editable: {
+                                        confirmation: "@T("Admin.Common.AreYouSure")",
+                                        mode: "inline"
+                                    },
+                                    scrollable: false,
+                                    columns: [{
+                                        field: "TenHangHoa",
+                                        title: "Tên hàng hóa",
+                                        width: 200
+                                    }, {
+                                        field: "LoaiHangHoaId",
+                                        title: "Loại hàng hóa",
+                                        editor: LoaiHangHoaDropDownEditor,
+                                        template: "#:LoaiHangHoa#",
+                                        width: 250
+                                    }, {
+                                        field: "CanNang",
+                                        title: "cân nặng",
+                                        template: "#:CanNangText#",
+                                        width: 100
+                                    }, {
+                                        field: "GiaTri",
+                                        title: "Giá trị",
+                                        template: "#:GiaTriText#",
+                                        width: 150
+
+                                    }, {
+                                        field: "SoLuong",
+                                        title: "Số lượng",
+                                        width: 150
+
+                                    },{
+                                        field: "GiaCuoc",
+                                        title: "Giá cước",
+                                        template: "#:GiaCuocText#",
+                                        width: 100
+
+                                    },
+                                    {
+                                        field: "GhiChu",
+                                        title: "Ghi chú",
+
+                                    },{
+                                        command: [{
+                                            name: "edit",
+                                            text: "@T("Admin.Common.Edit")"
+                                        }, {
+                                            name: "destroy",
+                                            text: "@T("Admin.Common.Delete")"
+                                        }],
+                                        width: 200
+                                    }]
+                                });
+                            });
+
+                            //local datasource
+                            var allLoaiHangHoa = [
+                                @for (int i = 0; i < Model.HangHoa.LoaiHangHoas.Count; i++)
+        {
+            var _item = Model.HangHoa.LoaiHangHoas[i];
+            <text>
+                            {
+                                Id: @(_item.Value),
+                                LoaiHangHoa: "@(Html.Raw(HttpUtility.JavaScriptStringEncode(_item.Text)))"
+                            }
+                            </text>
+            if (i != Model.HangHoa.LoaiHangHoas.Count - 1)
+            {
+                <text>,</text>
+            }
+        }
+                            ];
+                            function additionalData() {
+                                return {
+                                    phieuguihangid: $('#@Html.FieldIdFor(model => model.Id)').val(),
+
+                                };
+                            }
+                            function LoaiHangHoaDropDownEditor(container, options) {
+                                $('<input required data-text-field="LoaiHangHoa" data-value-field="Id" data-bind="value:LoaiHangHoaId"/>')
+                                    .appendTo(container)
+                                    .kendoDropDownList({
+                                        autoBind: false,
+                                        dataSource: allLoaiHangHoa
+                                    });
+                            }
+                    </script>
+                    }
+
+                </td>
+            </tr>
+        }
+    </table>
+
+</fieldset>
+<script>
+    $(document).ready(function () {
+        $('#cbbSearchNguoiGui').kendoComboBox({
+            placeholder: "Họ tên người gửi",
+            dataTextField: "SearchInfo",
+            dataValueField: "Id",
+            filter: "contains",
+            autoBind: false,
+            minLength: 2,
+            dataSource: {
+                type: "json",
+                serverFiltering: true,
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("CbbListKhachHangInNhaXe", "NhaXes"))",
+                        data: dataSearchNguoiGui
+                    }
+                }
+            },
+            change: onChangeGui
+        });
+        function onChangeGui(e) {
+            //alert(e.index);
+            var DataItem = this.dataItem();
+            $("#@Html.FieldIdFor(model => model.NguoiGui.Id)").val(DataItem.Id);
+            $('#@Html.FieldIdFor(model => model.NguoiGui.HoTen)').val(DataItem.HoTen);
+            $('#@Html.FieldIdFor(model => model.NguoiGui.SoDienThoai)').val(DataItem.DienThoai);
+            $('#@Html.FieldIdFor(model => model.NguoiGui.DiaChi)').val(DataItem.DiaChiLienHe);
+
+        }
+
+        function dataSearchNguoiGui() {
+            var _hovaten=$('#cbbSearchNguoiGui').data("kendoComboBox").text();
+            $('#@Html.FieldIdFor(model => model.NguoiGui.HoTen)').val(_hovaten);
+            return {
+                SearchKhachhang: _hovaten
+            };
+        }
+        $('#cbbSearchNguoiNhan').kendoComboBox({
+            placeholder: "Họ tên người nhận",
+            dataTextField: "SearchInfo",
+            dataValueField: "Id",
+            filter: "contains",
+            autoBind: false,
+            minLength: 2,
+            dataSource: {
+                type: "json",
+                serverFiltering: true,
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("CbbListKhachHangInNhaXe", "NhaXes"))",
+                        data: dataSearchNguoiNhan
+                    }
+                }
+            },
+            change: onChangeNhan
+        });
+        function onChangeNhan(e) {
+
+            var DataItem = this.dataItem();
+            $("#@Html.FieldIdFor(model => model.NguoiNhan.Id)").val(DataItem.Id);
+            $('#@Html.FieldIdFor(model => model.NguoiNhan.HoTen)').val(DataItem.HoTen);
+            $('#@Html.FieldIdFor(model => model.NguoiNhan.SoDienThoai)').val(DataItem.DienThoai);
+            $('#@Html.FieldIdFor(model => model.NguoiNhan.DiaChi)').val(DataItem.DiaChiLienHe);
+
+        }
+
+        function dataSearchNguoiNhan() {
+            var _hovaten=$('#cbbSearchNguoiNhan').data("kendoComboBox").text();
+            $('#@Html.FieldIdFor(model => model.NguoiNhan.HoTen)').val(_hovaten);
+            return {
+                SearchKhachhang: _hovaten
+            };
+        }
+        //hien thị ngay thanh toan theo tinh trang thu cuoc
+        @*if($('#@Html.FieldIdFor(model => model.DaThuCuoc)').is(':checked'))
+        {
+            $('#@Html.FieldIdFor(model => model.DaThuCuoc)').attr("disabled", true);
+        }*@
+        $('#@Html.FieldIdFor(model => model.DaThuCuoc)').change(function () {
+            var isChecked = $(this).is(':checked');
+            
+            if (isChecked)
+            {
+                $("#ngaythanhtoan").show();
+            }
+            else
+            {
+                $("#ngaythanhtoan").hide();
+            }
+        });
+
+        $("#btnThemMoiHangHoa").click(function(){
+            var phieuguihangid=$('#@Html.FieldIdFor(model => model.Id)').val();
+            ThemHangHoa(phieuguihangid);
+        });
+      
+
+        //xe xuat ben thay doi theo nguonve
+        $('#@Html.FieldIdFor(model => model.NguonVeId)').change(function () {
+            var selectedItem = $(this).val();
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: "@(Url.Action("GetXeXuatBenByNguonVe", "NhaXeHangHoa"))",
+                data: { "nguonveid": selectedItem },
+                success: function (data) {
+
+                    $('#@Html.FieldIdFor(model => model.TenXeXuatBen)').val(data)
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert('Failed to retrieve nguonve.');
+                }
+            });
+        });
+    });
+    function ThemHangHoa(phieuguihangid) {
+        var formopen = $("#PopupHangHoaTao");
+        formopen.kendoWindow({
+            width: "785px",
+            title: "Thêm hàng hóa",
+            content: "@(Url.Action("HangHoaInfo", "NhaXeHangHoa"))?phieuguihangid=" +phieuguihangid  ,
+
+            actions: [
+                "Close"
+            ]
+        }).data('kendoWindow').center();
+        formopen.data('kendoWindow').open();
+    }
+    function SetCloseWindowDatMuaVeXe() {
+        $("#PopupHangHoaTao").data('kendoWindow').close();
+
+    }
+    function SetCenterWindowDatMuaVeXe() {
+        $("#PopupHangHoaTao").data('kendoWindow').center();
+    }
+</script>
+<div id="PopupHangHoaTao">
+
+</div>
+
+
+
+

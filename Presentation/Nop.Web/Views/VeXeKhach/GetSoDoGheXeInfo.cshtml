@@ -1,0 +1,308 @@
+﻿@model LoaiXeModel.SoDoGheXeModel
+@using Nop.Web.Models.NhaXes
+@using Nop.Core.Domain.Chonves
+@if (Model.SoTang == 1)
+{
+    <div style="border:1px solid #0e6780">
+        <table style="width:100%">
+            <tr>
+                <td>
+                    @SoDoGhe(1)
+                </td>
+                <td style="width:10px;vertical-align:top;">
+                    <div style="position:relative">
+                        <div class="cell_lai_xe_ghe_ngoi">
+
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+}
+else
+{
+    <div id="tabstripSoDoLoadGhe_@(Model.PhanLoai)" style="border:none">
+        <ul>
+            <li @Html.RenderSelectedTabIndex(0, GetSelectedTabIndex())>
+                <img src="/Content/chonve/nhaxe/giuongnam.png" />
+                &nbsp;&nbsp;&nbsp;<span style="font-size:14pt;font-weight:bold">@T("ChonVe.LoaiXe.LoaiXe.ChonSoDoGhe.Tang") 1</span>&nbsp;&nbsp;
+            </li>
+            <li @Html.RenderSelectedTabIndex(1, GetSelectedTabIndex())>
+                <img src="/Content/chonve/nhaxe/giuongnam2.png" />
+                &nbsp;&nbsp;&nbsp;<span style="font-size:14pt;font-weight:bold">@T("ChonVe.LoaiXe.LoaiXe.ChonSoDoGhe.Tang") 2</span>&nbsp;&nbsp;
+            </li>
+        </ul>
+        <div>
+            <table style="width:100%">
+                <tr>
+                    <td>
+                        @SoDoGhe(1)
+                    </td>
+                    <td style="width:100px;vertical-align:top;">
+                        <div style="position:relative;">
+                            <div class="cell_lai_xe_giuong_nam">
+
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div>
+            <table style="width:100%">
+                <tr>
+                    <td>
+                        @SoDoGhe(2)
+                    </td>
+                    <td style="width:100px;vertical-align:top;">
+                        <div style="position:relative">
+                            <div class="cell_lai_xe_giuong_nam">
+
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <input type="hidden" id="selected-tab-index" name="selected-tab-index" value="@(GetSelectedTabIndex())">
+        <script>
+            $(document).ready(function () {
+                $("#tabstripSoDoLoadGhe_@(Model.PhanLoai)").kendoTabStrip({
+                    animation: {
+                        open: {
+                            effects: "fadeIn"
+                        }
+                    },
+                    select: tabstrip_on_tab_select
+                });
+            });
+        </script>   
+
+}
+
+@helper SoDoGhe(int tang)
+{
+    <div class="divquytacsodoghe">
+        <table class="quytacsodoghe">
+            @for (int c = 1; c < Model.SoCot + 1; c++)
+            {
+                <tr>
+                    @for (int h = Model.SoHang; h >= 1; h--)
+                    {
+                        @gheInfo(h, c, tang)
+
+                    }
+                </tr>
+            }
+        </table>
+    </div>
+}
+
+
+@helper gheInfo(int h, int c, int tang)
+{
+    var withcol = 100 / Model.SoHang;
+    var _class = "quytacsodoghedamua";
+    var _classmenucontext = "phoive_menucontext_datve";
+    var _classbg = "ghenam_cell_noprint_giuongnam";
+   
+        _classbg = "ghenam_cell_noprint_giuongnam";
+        if (Model.SoTang == 1)
+        {
+            _classbg = "ghenam_cell_noprint_ghengoi";
+        }
+    
+
+    if (Model.MaTran[h - 1, c - 1] == 1)
+    {
+        ENTrangThaiPhoiVe tt = Model.PhoiVes1[h, c].Info.TrangThai;
+        var kyhieu = Model.PhoiVes1[h, c].KyHieu;
+        var idphoive = Model.PhoiVes1[h, c].Info.Id;
+       
+
+        if (tang == 2)
+        {
+            kyhieu = Model.PhoiVes2[h, c].KyHieu;
+            tt = Model.PhoiVes2[h, c].Info.TrangThai;
+            idphoive = Model.PhoiVes2[h, c].Info.Id;
+            
+        }
+        var _actionlink = "javascript:void(0);";
+       
+        switch (tt)
+        {
+            case ENTrangThaiPhoiVe.ConTrong:
+                {
+
+                    _actionlink = string.Format("javascript:ChonGhe('{0}',{1})", kyhieu, tang);
+                   
+                   
+                    _class = "";
+                    break;
+                }
+            case ENTrangThaiPhoiVe.DatCho:
+                {
+                    
+                        _actionlink = string.Format("javascript:HuyGheDatCho('{0}')", idphoive);
+                    
+                    _class = "ghenam_cell_datve";
+                   
+                    break;
+                }
+            case ENTrangThaiPhoiVe.GiuCho:
+                {
+                    _class = "ghenam_cell_giuve";
+                    
+                    break;
+                }
+            case ENTrangThaiPhoiVe.ChoXuLy:
+                {
+                    _class = "ghenam_cell_giuve";
+                    
+                    break;
+                }
+            case ENTrangThaiPhoiVe.DaGiaoHang:
+                {
+                    _class = "ghenam_cell_thanhtoan";
+                    
+                    break;
+                }
+        }
+       
+        <td style="width:@withcol%;">
+            @if (!string.IsNullOrWhiteSpace(kyhieu))
+            {
+                <div class="@_classmenucontext" data_phoiveid="@idphoive" data_kyhieu="@kyhieu" data_tang="@tang" data_trangthai="@((int)tt)">
+                    <a href="@_actionlink"  style="width:100%;height:100%">
+                        <div class="ghenam_cell @_classbg @_class">
+                            <div class="ghenam_cell_kyhieu">@kyhieu</div>
+                            <div class="ghenam_cell_thongtin">
+                                @if (tt == ENTrangThaiPhoiVe.DaGiaoHang || tt == ENTrangThaiPhoiVe.ChoXuLy || tt == ENTrangThaiPhoiVe.GiuCho)
+                                {                                    
+                                   
+                                        <span class="trangthaithanhtoan_ok"></span>
+                                   
+                                }
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            }
+            else
+            {
+                <div style="width:100%;height:68px" class="ghenam_cell"></div>
+            }
+
+        </td>
+    }
+    else
+    {
+        <td style="width:@withcol%"></td>
+    }
+
+}
+
+
+<style>
+    .divquytacsodoghe {
+        width: 100%;
+        padding: 2px;
+    }
+
+    .quytacsodoghe {
+        width: 100%;
+    }
+
+        .quytacsodoghe td {
+            padding: 0px 5px;
+        }
+
+    .ghenam_cell {
+        width: 100%;
+        position: relative;
+        border: solid 1px #bebbbb;
+        margin: 2px;
+        padding: 2px;
+    }
+
+    .ghenam_cell_print {
+        height: 100px;
+    }
+
+    .ghenam_cell_noprint_giuongnam {
+        background: url(/Content/chonve/nhaxe/giuongnambgv2.png) no-repeat bottom left;
+        height: 68px;
+    }
+
+    .ghenam_cell_noprint_ghengoi {
+        background: url(/Content/chonve/nhaxe/ghengoibgv4.png) no-repeat bottom left;
+        height: 68px;
+    }
+
+    .ghenam_cell_datve {
+        background-color: rgb(119, 146, 167);
+    }
+
+    .ghenam_cell_giuve {
+        background-color: rgba(238, 233, 129, 0.25);
+    }
+
+    .ghenam_cell_thanhtoan {
+        background-color: rgba(192, 248, 200, 0.25);
+    }
+
+    .ghenam_cell_kyhieu {
+        background-color: #0d4862;
+        color: white;
+        font-size: 12px;
+        height: 18px;
+        width: 25px;
+        position: absolute;
+        float: right;
+        top: 1px;
+        right: 1px;
+        text-align: center;
+        font-weight: bold;
+        border-radius: 5px;
+        padding-top:3px;
+    }
+
+    .ghenam_cell_thongtin {
+        font-size: 12px;
+        height: 18px;
+        width: 25px;
+        position: absolute;
+        float: left;
+        top: 2px;
+        left: 24%;
+        text-align: left;
+        width: 70%;
+        color: #082d48;
+    }
+
+    .trangthaithanhtoan_chua {
+        color: #891515;
+        font-weight: bold;
+    }
+
+    .trangthaithanhtoan_ok {
+        color: #094e0a;
+        font-weight: bold;
+    }
+
+    .cell_lai_xe_ghe_ngoi {
+        background: url(/Content/chonve/nhaxe/laixe1.png) no-repeat center;
+        width: 100px;
+        height: 104px;
+        position: absolute;        
+        left: -90px;
+        float:right;                
+    }
+    .cell_lai_xe_giuong_nam {
+        background: url(/Content/chonve/nhaxe/laixe1.png) no-repeat right;
+        width: 100px;
+        height: 104px;        
+    }
+</style>

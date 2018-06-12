@@ -1,0 +1,103 @@
+﻿@model BaoCaoNhaXeModel
+@using Nop.Web.Models.NhaXes
+@using Nop.Core.Infrastructure
+@Html.HiddenFor(model => model.NgayBan)
+@{
+    var defaultGridPageSize = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().DefaultGridPageSize;
+    var gridPageSizes = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().GridPageSizes;
+}
+<table class="adminContent">
+    <tr>
+        <td>
+            <div id="DoanhThuDetail_grid">
+
+            </div>
+
+            <script>
+                $(document).ready(function () {
+
+                    $("#DoanhThuDetail_grid").kendoGrid({
+                        dataSource: {
+                            type: "json",
+                            transport: {
+                                read: {
+                                    url: "@Html.Raw(Url.Action("_ChiTietDoanhThu", "NhaXeBaoCao"))",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: additionalData
+                                },
+                            },
+                            schema: {
+                                data: "Data",
+                                total: "Total",
+                                errors: "Errors",
+
+                            },
+                            requestEnd: function (e) {
+                                if (e.type == "create" || e.type == "update") {
+                                    this.read();
+                                }
+                            },
+                            error: function (e) {
+                                display_kendoui_grid_error(e);
+                                // Cancel the changes
+                                this.cancelChanges();
+                            },
+                            serverPaging: true,
+                            serverFiltering: true,
+                            serverSorting: true
+                        },
+                        pageable: {
+                            refresh: true,
+                            numeric: false,
+                            previousNext: false,
+                            info: false,
+                            messages: {
+                                display: "@T("Nop.Common.KendoGrid.display")", //{0} is the index of the first record on the page, {1} - index of the last record on the page, {2} is the total amount of records
+                                empty: "@T("Nop.Common.KendoGrid.Empty")",
+                                page: "@T("Nop.Common.KendoGrid.Page")",
+                                of: "@T("Nop.Common.KendoGrid.Of")", //{0} is total amount of pages
+                                itemsPerPage: "@T("Nop.Common.KendoGrid.itemsPerPage")",
+                                first: "@T("Nop.Common.KendoGrid.first")",
+                                previous: "@T("Nop.Common.KendoGrid.previous")",
+                                next: "@T("Nop.Common.KendoGrid.next")",
+                                last: "@T("Nop.Common.KendoGrid.last")",
+                                refresh: "@T("Nop.Common.KendoGrid.refresh")"
+                            }
+                        },
+
+                        scrollable: false,
+                        columns: [{
+                            field: "TenKhachHang",
+                            title: "@T("ChonVe.NhaXe.BaoCao.TenKhachHang")",
+                        }, {
+                            field: "SoDienThoai",
+                            title: "@T("address.phone")",
+                        }, {
+                            field: "ThongTinChuyenDi",
+                            title: "@T("ChonVe.NhaXe.BaoCao.ThongTinChuyenDi")",
+                        },
+                        {
+                            field: "KyHieuGhe",
+                            title: "@T("ChonVe.NhaXe.BaoCao.KyHieuGhe")",
+                        },
+                        
+                        {
+                            field: "GiaVe",
+                            title: "@T("nhaxeinfo.banggia.giave")",
+                            format: "{0:N0} đ",
+                        }
+                        ],
+
+                    });
+                });
+                function additionalData() {
+                    return {
+                        thoigian: $('#@Html.FieldIdFor(model => model.NgayBan)').val()
+                    };
+                }
+
+            </script>
+        </td>
+    </tr>
+</table>

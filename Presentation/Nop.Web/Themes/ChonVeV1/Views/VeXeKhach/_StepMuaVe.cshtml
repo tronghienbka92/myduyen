@@ -1,0 +1,49 @@
+﻿@model int
+@if (Model == 2)
+{
+    <div class="row">
+        <div class="col-md-12 identity">
+                <ul class="it-search">                 
+                    <li><span>1</span>Ngày đi</li>
+                    <li class="active" style="display:inline"><span>2</span>Đặt vé</li>
+                    <li><span>3</span>Thanh toán</li>
+                    <li><span>4</span>Nhận vé</li>
+                </ul>
+            </div>
+    </div>
+}
+else
+{
+        <div class="col-md-12 identity">
+            <div class="container">
+                <ul class="it-search">
+                    @if (Model == 1)
+                    {
+                        <li class="active"><span>1</span>Ngày đi</li>
+                    }
+                    else
+                    {
+                        <li><span>1</span>Ngày đi</li>
+                    }
+                    <li><span>2</span>Đặt vé</li>
+                    @if (Model == 3)
+                    {
+                        <li class="active"><span>3</span>Thanh toán</li>
+                    }
+                    else
+                    {
+                        <li><span>3</span>Thanh toán</li>
+                    }
+                    @if (Model == 4)
+                    {
+                        <li class="active"><span>4</span>Nhận vé</li>
+                    }
+                    else
+                    {
+                        <li><span>4</span>Nhận vé</li>
+                    }
+
+                </ul>
+            </div>
+        </div>
+}

@@ -1,0 +1,41 @@
+﻿@model NhaXeCauHinhModel
+@using Nop.Web.Models.NhaXes
+@{
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+    //page title
+    ViewBag.Title = "Chỉnh sửa mẫu cuống vé";
+}
+@using (Html.BeginForm(null, null, FormMethod.Post))
+{
+    @Html.HiddenFor(m=>m.KieuDuLieuId)
+    @Html.HiddenFor(m => m.MaId)
+    @Html.HiddenFor(m => m.Id)
+    @Html.HiddenFor(m => m.Ten)
+    <div class="section-header">
+        <div class="title">
+            <img src="@Url.Content("~/Content/chonve/nxmenu/nhaxeinfomauve.png")" alt="" />
+            @ViewBag.Title
+        </div>
+        <div class="options">
+            <input type="submit" name="save" class="k-button" style="width:150px;" value="@T("Admin.Common.Save")" />
+        </div>
+    </div>
+    <table class="adminContent">
+        <tr>
+            <td class="adminTitle" style="vertical-align:top">
+                Nội dung:
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(x => x.GiaTri, "RichEditor")
+            </td>
+        </tr>  
+        <tr>
+            <td class="adminTitle" style="vertical-align:top">
+                Số liên:
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(x => x.SoLien)
+            </td>
+        </tr>       
+    </table>
+  }

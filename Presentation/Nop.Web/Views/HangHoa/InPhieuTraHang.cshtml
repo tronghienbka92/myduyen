@@ -1,0 +1,74 @@
+﻿@model InPhieuModel
+@using Nop.Web.Models.ChuyenPhatNhanh
+@{
+    Layout = "~/Views/Shared/_Print.cshtml";
+    //page title
+    ViewBag.Title = "In phiếu";
+    int i = 0;
+}
+<table style="height: 145px; width: 860px; font-size: 13px; text-align: left;">
+    <tbody>
+        <tr>
+            <td style="width: 150px; vertical-align: top; text-align: center;"><img src="/Content/chonve/nhaxe/logonew.png" alt="" width="90" height="90" /></td>
+            <td style="vertical-align: top;">
+                <table style="width: 100%;">
+                    <tbody>
+                        <tr>
+                            <td style="text-align: center; font-size: 23px; font-weight: bold;">PHIẾU TRẢ H&Agrave;NG</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: center; font-style: italic;">Ng&agrave;y @Model.NgayTraHang.Day th&aacute;ng @Model.NgayTraHang.Month năm @Model.NgayTraHang.Year</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+            <td style="vertical-align: top;">
+                <table style="width: 100%;">
+                    <tbody>
+                        <tr>
+                            <td style="text-align: left;"><strong>Số:</strong>&nbsp;@Model.SoPhieu</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left;"><strong>VP:</strong>@Model.TenVanPhongNhan</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="3">
+                <table style="width: 100%; border-collapse: collapse; text-align: center;" border="1">
+                    <thead>
+                        <tr style="text-align: center;">
+                            <td>TT</td>
+                            <td>M&Atilde; PHIẾU</td>
+                            <td >NGƯỜI GỬI</td>
+                            <td >NGƯỜI NHẬN</td>
+                            <td >LOẠI H&Agrave;NG</td>
+                            <td >CƯỚC ĐTT</td>
+                            <td >CƯỚC CTT</td>
+                            <td>K&Iacute; NHẬN</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                      @foreach (var item in Model.PhieuChuyenPhats)
+                      {
+                          i++;
+                          var cuocctt = @item.TongTienCuoc - @item.TongCuocDaThanhToan;
+                        <tr>
+                            <td>@i</td>
+                            <td>@item.MaPhieu</td>
+                            <td>@item.NguoiGui.HoTen - @item.NguoiGui.SoDienThoai</td>
+                            <td>@item.NguoiNhan.HoTen - @item.NguoiNhan.SoDienThoai</td>
+                            <td>@item.TenHang</td>
+                            <td style="width: 60px;">@item.TongCuocDaThanhToan.ToString("###,###")</td>
+                            <td style="width: 60px;">@cuocctt.ToString("###,###")</td>
+                            <td>&nbsp;</td>
+                        </tr>
+                      }
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+    </tbody>
+</table>

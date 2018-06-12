@@ -1,0 +1,59 @@
+﻿@model AddressModel
+@using Nop.Web.Models.Common;
+@Html.HiddenFor(model => model.Id)
+<table class="adminContent">
+    <tr>
+        <td class="adminTitle">
+            Tên người nhận:
+        </td>
+        <td class="adminData">
+            @Html.EditorFor(model => model.FirstName)
+            @Html.EditorFor(model => model.LastName)
+        </td>
+    </tr>
+    <tr>
+        <td class="adminTitle">
+            Email:
+        </td>
+        <td class="adminData">
+            @Html.EditorFor(model => model.Email)
+            @Html.ValidationMessageFor(model => model.Email)
+        </td>
+    </tr>
+    <tr>
+        <td class="adminTitle">
+            Điện thoại:
+        </td>
+        <td class="adminData">
+            @Html.EditorFor(model => model.PhoneNumber)
+            @Html.ValidationMessageFor(model => model.PhoneNumber)
+        </td>
+    </tr>
+    <tr>
+        <td class="adminTitle">
+            Tỉnh:
+        </td>
+        <td class="adminData">
+            @Html.DropDownListFor(model => model.StateProvinceId, Model.AvailableStates)
+            @Html.ValidationMessageFor(model => model.StateProvinceId)
+        </td>
+    </tr>
+    <tr>
+        <td class="adminTitle">
+            Thành phố:
+        </td>
+        <td class="adminData">
+            @Html.EditorFor(model => model.City)
+            @Html.ValidationMessageFor(model => model.City)
+        </td>
+    </tr>
+    <tr>
+        <td class="adminTitle">
+            Địa chỉ:
+        </td>
+        <td class="adminData">
+            @Html.EditorFor(model => model.Address1)
+            @Html.ValidationMessageFor(model => model.Address1)
+        </td>
+    </tr>
+</table>

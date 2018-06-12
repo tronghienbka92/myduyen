@@ -1,0 +1,155 @@
+﻿@model DanhSachChuyenDiModel
+@using Nop.Core.Infrastructure
+@using Nop.Core.Domain.NhaXes;
+@using Nop.Web.Models.NhaXes
+@using Nop.Services.NhaXes
+@{
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+}
+
+
+<table style="width:100%">
+    <tr>        
+        <td align="center" width="15%">
+            <table class="adminContent">
+                <tr>
+                    <td class="adminTitle" style="text-align:right">
+                        Ngày đi:
+                    </td>
+                    <td class="adminData">
+                        @Html.EditorFor(model => model.NgayDi)
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td align="center" width="20%">
+            <table class="adminContent">
+                <tr>
+                    <td class="adminTitle" style="text-align:right">
+                        Khung giờ:
+                    </td>
+                    <td class="adminData">
+                        @Html.DropDownListFor(model => model.KhungGioId, Model.khunggios)
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td align="center" width="20%">
+            <table class="adminContent">
+                <tr>
+                    <td class="adminTitle" style="text-align:right">
+                        Loại xe:
+                    </td>
+                    <td class="adminData">
+                        @Html.DropDownListFor(model => model.LoaiXeId, Model.ListLoaiXes)
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td>
+            <input type="button" id="btnSearch" class="k-button" value="Tìm kiếm" />
+        </td>
+        <td></td>
+    </tr>
+</table>
+
+<div id="tabChuyenDi"></div>
+<div id="FormWindowTaoChuyenDi" style="display:none">
+</div>
+<script>
+    var laiphuxedatasoures = [
+                       @for (int i = 0; i < Model.AllLaiXePhuXes.Count; i++)
+    {
+        var _item = Model.AllLaiXePhuXes[i];
+        <text>
+    {
+        Id: @(_item.Id),
+        TenLaiXe: "@(Html.Raw(HttpUtility.JavaScriptStringEncode(_item.ThongTin)))"
+    }
+    </text>
+        if (i != Model.AllLaiXePhuXes.Count - 1)
+        {
+            <text>,</text>
+        }
+    }
+    ];
+    //tao thong tin xe
+    var xevanchuyendatasoures = [
+           @for (int i = 0; i < Model.AllXeInfo.Count; i++)
+    {
+        var _item = Model.AllXeInfo[i];
+        <text>
+    {
+        Id: @(_item.Id),
+        BienSo: "@(Html.Raw(HttpUtility.JavaScriptStringEncode(_item.BienSo)))"
+    }
+    </text>
+        if (i != Model.AllXeInfo.Count - 1)
+        {
+            <text>,</text>
+        }
+    }
+    ];
+    function ConvertDateTimeSystem(dtinput)
+    {
+        if (dtinput == "")
+            return dtinput;
+        var res = dtinput.replace(/-/g, "/");
+        var arrdt = dtinput.split('/');
+        return arrdt[2] + "-" + arrdt[1] + "-" + arrdt[0];
+    }
+    function LoadChuyenDi() {
+        var _ngaydi = ConvertDateTimeSystem($("#@Html.FieldIdFor(m=>m.NgayDi)").val());
+        var _khunggioid = $("#@Html.FieldIdFor(m=>m.KhungGioId)").val();
+        var _loaixeid = $("#@Html.FieldIdFor(m=>m.LoaiXeId)").val();
+
+        var additionalData = {
+            KhungGioId:_khunggioid,
+            NgayDi: _ngaydi,
+            LoaiXeId:_loaixeid,
+        };
+        $.ajax({
+            cache: false,
+            type: "GET",
+            dataType: "html",
+            contentType: 'application/html;charset=utf-8',
+            data: additionalData,
+            url: "@(Url.Action("_BangDieuChuyen", "NhaXes"))",
+            success: function (data) {
+
+                if (data != null)
+                {
+                    $("#tabChuyenDi").html(data);
+                }
+                else
+                {
+                    $("#tabChuyenDi").html("<p>Không có quyền</p>")
+                }
+
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert('Chưa đủ thông tin');
+            }
+        });
+    }
+    $(document).ready(function () {
+        LoadChuyenDi();
+        $('#@Html.FieldIdFor(model => model.KhungGioId)').change(function () {
+            LoadChuyenDi();
+        });
+        $("#@Html.FieldIdFor(model => model.NgayDi)").change(function () {
+            LoadChuyenDi();
+        });
+        $("#@Html.FieldIdFor(model => model.LoaiXeId)").change(function () {
+            LoadChuyenDi();
+        });
+        $('#btnSearch').click(function () {
+            LoadChuyenDi();
+            return false;
+        });
+    });
+
+</script>
+
+
+

@@ -1,0 +1,184 @@
+﻿@model RegisterCustomerModel
+@using Nop.Web.Extensions
+@using Nop.Web.Models.Customer;
+@{
+
+    //register URL with return URL (if specified)
+    var returl = "";
+    if (!String.IsNullOrEmpty(this.Context.Request.QueryString["returnUrl"]))
+    {
+
+        returl = HttpUtility.UrlDecode(this.Context.Request.QueryString["returnUrl"]);
+    }
+
+    @Html.AntiForgeryToken()
+}
+<script src="~/Scripts/jquery.validate.min.js"></script>
+<link href="~/Themes/ChonVe/Content/bootstrap-3.2.0/css/bootstrap.min.css" rel="stylesheet" />
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div style="width:600px;margin:0 auto">
+                @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "registration-form" }))
+                {
+                    Model.ReturnUrl = returl;
+                    @Html.HiddenFor(model => model.ReturnUrl)
+                    <div class="text-left" style="margin-left:15px">
+                        <h3 style="color: #608309">Đăng ký</h3>
+                    </div>
+                    <div class="form-group feedback CvGroup">
+                        <i class="glyphicon glyphicon-user CvIcon"></i>
+                        @Html.TextBoxFor(model => model.Fullname, new { @class = "form-control CvInput", @Id = "FullName", @Name = "FullName", @placeholder = "Họ và tên" })
+                    </div>
+                    <div class="form-group has-feedback CvGroup">
+                        <i class="glyphicon glyphicon-envelope CvIcon"></i>
+                        @Html.TextBoxFor(model => model.Email, new { @class = "form-control CvInput", @Id = "Email", @Name = "Email", @placeholder = "Email" })
+
+                    </div>
+                    <div class="form-group has-feedback CvGroup">
+                        <i class="glyphicon glyphicon-phone CvIcon"></i>
+                        @Html.TextBoxFor(model => model.Phone, new { @class = "form-control CvInput", @Id = "Phone", @Name = "Phone", @placeholder = "Số điện thoại" })
+                    </div>
+                    <div class="form-group has-feedback CvGroupRead" style="padding-left:15px">
+                        <input id="agree" type="checkbox" name="agree" />
+                        <div style="margin-top:-5px">
+                            <span style="font-weight:bold;line-height:31px;">Tôi đồng ý với <a class="read" href='@Url.RouteUrl("Topic", new { SeName = Html.GetTopicSeName("privacyinfo") })'>Điều khoản dịch vụ và Chính sách bảo mật</a> của CHONVE.VN</span>
+                        </div>
+                    </div>
+
+                    <div class="form-actions" style=" margin-bottom:30px;padding-left:15px">
+
+                        <button id="btnregister" type="submit" style="width:180px" class="btn btn-success btn-large disabled">@T("Account.RegisterCustomer.Register")</button>
+
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<script>    
+    $(document).ready(function () {
+        $('#agree').click(function () {
+            if (this.checked == false) {
+                $("#btnregister").addClass("disabled");
+            }
+            else
+                $("#btnregister").removeClass("disabled");
+        });
+    });
+    $('#registration-form').validate({
+        rules: {
+
+            FullName: {
+                minlength: 3,
+                required: true
+            },
+
+            Email:
+                 {
+                     required: true,
+                     email: true,
+                     //remote: "CheckForDuplication"
+                     remote: function () {
+                         var r = {
+
+                             url: '/Customer/CheckForDuplication',
+                             type: "POST",
+                             dataType: "json",
+
+                         }
+                         return r;
+                     }
+
+                 },
+
+            Phone: {
+                minlength: 9,
+                required: true,
+                number: true
+            },
+
+        },
+        messages: {
+
+            FullName: {
+                required: "Thông tin bắt buộc",
+                minlength: jQuery.format("Nhập ít nhất {0} ký tự")
+            },
+            Email: {
+                required: "Thông tin bắt buộc",
+                email: "Yêu cầu nhập Email",
+                remote: "xin lỗi email này đã tồn tại"
+            },
+            Phone: {
+                required: "Thông tin bắt buộc",
+                minlength: jQuery.format("Nhập ít nhất {0} ký tự"),
+                number: "yêu cầu nhập số"
+            }
+        },
+        highlight: function (element) {
+            $(element).closest('.form-group has-feedback').removeClass('success').addClass('error');
+        },
+        success: function (element) {
+            element
+            .text('OK!').addClass('valid')
+            .closest('.form-group has-feedback').removeClass('error').addClass('success');
+        }
+    });
+
+</script>
+<style>
+    label.valid {
+        width: 24px;
+        height: 24px;
+        background: url(/Themes/ChonVe/Content/img/valid.png) center center no-repeat;
+        display: inline-block;
+        text-indent: -9999px;
+    }
+
+    label.error {
+        font-weight: bold;
+        color: red;
+        padding: 2px 8px;
+        margin-top: 2px;
+    }
+
+    .CvIcon {
+        top: 10px;
+        left: 20px;
+        float: left;
+    }
+
+    .CvInput {
+        padding-left: 34px;
+        width: 65%;
+    }
+
+    .CvGroup {
+        display: inline-block;
+        width: 100%;
+    }
+
+        .CvGroup input {
+            float: left;
+        }
+
+        .CvGroup label {
+            float: left;
+            text-align: left;
+        }
+
+    .CvGroupRead {
+        display: inline-block;
+        width: 100%;
+    }
+
+        .CvGroupRead input {
+            float: left;
+        }
+
+        .CvGroupRead label {
+            float: right;
+            text-align: left;
+        }
+</style>

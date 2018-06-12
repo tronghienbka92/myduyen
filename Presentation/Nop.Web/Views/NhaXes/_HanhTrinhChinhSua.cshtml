@@ -1,0 +1,1075 @@
+﻿@model HanhTrinhModel
+@using Nop.Web.Models.NhaXes
+@using Nop.Core.Infrastructure
+@using Nop.Web.Framework.Events
+@using Nop.Services.Events
+@Html.ValidationSummary(false)
+@Html.HiddenFor(model => model.Id)
+
+@{
+    var width_of_line = 760;
+    var height_of_line = 90;
+}
+<div id="modeldetail-edit">
+    <ul>
+        <li @Html.RenderSelectedTabIndex(0, GetSelectedTabIndex())>
+            @T("ChonVe.NhaXe.TabThongTin")
+        </li>
+        <li @Html.RenderSelectedTabIndex(1, GetSelectedTabIndex())>
+            @T("ChonVe.NhaXe.HanhTrinh.DiemDon")
+        </li>
+        <li @Html.RenderSelectedTabIndex(2, GetSelectedTabIndex())>
+            Cấu hình điểm chốt
+        </li>
+        <li @Html.RenderSelectedTabIndex(3, GetSelectedTabIndex())>
+            Văn phòng
+        </li>
+        <li @Html.RenderSelectedTabIndex(4, GetSelectedTabIndex())>
+            Cấu hình giá vé
+        </li>
+       
+    </ul>
+    <div>
+        @TabInfo()
+    </div>
+    <div>
+        @TabDiemDon1(width_of_line, height_of_line)
+    </div>
+    <div>
+        @TabDiemChot();
+    </div>
+    <div>
+        @VanPhongInfo()
+    </div>
+    <div>
+        @GiaVeHanhTrinh()
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#modeldetail-edit").kendoTabStrip({
+            animation: {
+                open: {
+                    effects: "fadeIn"
+                }
+            },
+            select: tabstrip_on_tab_select
+        });
+    });
+</script>
+@{
+    //custom tabs
+    var eventMessage = new AdminTabStripCreated(this.Html, "modeldetail-edit");
+    EngineContext.Current.Resolve<IEventPublisher>
+    ().Publish(eventMessage);
+    foreach (var eventBlock in eventMessage.BlocksToRender)
+    {
+        @eventBlock
+    }
+}
+
+@*save selected tab index*@
+<input type="hidden" id="selected-tab-index" name="selected-tab-index" value="@(GetSelectedTabIndex())">
+@helper TabInfo()
+{
+    <table class="adminContent">
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.MaHanhTrinh):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.MaHanhTrinh)
+                @Html.ValidationMessageFor(model => model.MaHanhTrinh)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.MoTa):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.MoTa)
+                @Html.ValidationMessageFor(model => model.MoTa)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.TongKhoangCach):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.TongKhoangCach)
+                @Html.ValidationMessageFor(model => model.TongKhoangCach)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                Tuyến xe chạy:
+            </td>
+            <td class="adminData">
+                @Html.DropDownListFor(model => model.TuyenId, Model.ListTuyens)
+            </td>
+        </tr>
+    </table>
+}
+@helper TabDiemDon1(int w_of_l, int h_of_l)
+{
+    if (Model.Id > 0)
+    {
+        <div style="margin:5px auto;width:@(w_of_l + 100)+100px;">
+            <div class="hanhtrinhline_view_top">
+                @Model.TongKhoangCach km
+            </div>
+            <div id="hanhtrinhline" class="hanhtrinhline_view" style="width:@(w_of_l)px;height:@(h_of_l)px">
+
+                @if (Model.DiemDons.Count > 0)
+                {
+                    <div id="diemdonstart_point" class="startend-diemdon diemdonstart_view" diemdonid_select="@Model.DiemDons[0].DiemDonId"
+                         diemdonthutu_select="@Model.DiemDons[0].ThuTu" diemdonkhoangcach_select="@Model.DiemDons[0].KhoangCach" id_select="@Model.DiemDons[0].Id">
+                        @Model.DiemDons[0].DiemDonText
+                    </div>
+                }
+                else
+                {
+                    <div class="startend-diemdon diemdonstart_view" diemdonid_select="-1" id="diemdonstart_point">
+                        <span>&nbsp;</span>
+                    </div>
+                }
+
+                @for (int i = 1; i < Model.DiemDons.Count - 1; i++)
+                {
+                    int _distance = (w_of_l * Model.DiemDons[i].KhoangCach) / Model.TongKhoangCach;
+                    _distance = _distance - 2 * 36;
+                    <div class="startend-diemdon diemdon_view" style="left:@(_distance)px" diemdonid_select="@Model.DiemDons[i].DiemDonId"
+                         diemdonthutu_select="@Model.DiemDons[i].ThuTu" diemdonkhoangcach_select="@Model.DiemDons[i].KhoangCach" id_select="@Model.DiemDons[i].Id">
+                        @Model.DiemDons[i].DiemDonText
+                    </div>
+                }
+
+                @if (Model.DiemDons.Count > 1)
+                {
+                    <div id="diemdonend_point" class="startend-diemdon diemdonend_view" diemdonid_select="@Model.DiemDons[Model.DiemDons.Count - 1].DiemDonId"
+                         diemdonthutu_select="@Model.DiemDons[Model.DiemDons.Count - 1].ThuTu" diemdonkhoangcach_select="@Model.DiemDons[Model.DiemDons.Count - 1].KhoangCach" id_select="@Model.DiemDons[Model.DiemDons.Count - 1].Id">
+                        @Model.DiemDons[Model.DiemDons.Count - 1].DiemDonText
+                    </div>
+                }
+                else
+                {
+                    <div class="startend-diemdon diemdonend_view" diemdonid_select="-2" id="diemdonend_point">
+                        <span>&nbsp;</span>
+                    </div>
+                }
+
+            </div>
+            <div class="hanhtrinhline_view_bottom">
+                <table style="width:100%">
+                    <tr>
+                        <td style="text-align:center">
+                            <button class="k-button" id="btnthemdiemdon">@T("chonve.nhaxes.hanhtrinh.themdiemdon").Text</button>
+                            <script>
+                                $('#btnthemdiemdon').click(function () {
+                                    OpenWindowDiemDon(0,0,10,0);
+                                    return false;
+                                });
+                            </script>
+                        </td>
+                    </tr>
+                </table>
+                <input type="hidden" id="hidhanhtrinhdiemdonid" />
+                <input type="hidden" id="hiddiemdonid" />
+                <input type="hidden" id="hiddiemdonthutu" />
+                <input type="hidden" id="hiddiemdonkhoangcach" />
+                <ul id="menudiemdonstartend">
+                    <li>
+                        @T("chonve.nhaxes.hanhtrinh.chondiemdon").Text
+                        <ul>
+                            @if (Model.AllDiemDonStartEnds.Count > 0)
+                            {
+                                <li>
+                                    @T("chonve.nhaxes.hanhtrinh.startend").Text
+                                    <ul>
+                                        @foreach (var dd in Model.AllDiemDonStartEnds)
+                                        {
+                                            <li actionid="1" diemdonid_menu="@(dd.Id)">@dd.TenDiemDon</li>
+                                        }
+                                    </ul>
+                                </li>
+                                <li class="k-separator"></li>
+                            }
+                            @if (Model.AllDiemDonMids.Count > 0)
+                            {
+                                <li>
+                                    @T("chonve.nhaxes.hanhtrinh.mid").Text
+                                    <ul>
+                                        @foreach (var dd in Model.AllDiemDonMids)
+                                        {
+                                            <li actionid="1" diemdonid_menu="@(dd.Id)">@dd.TenDiemDon</li>
+                                        }
+                                    </ul>
+                                </li>
+                                <li class="k-separator"></li>
+                            }
+                        </ul>
+                    </li>
+                    <li class="k-separator"></li>
+                    <li actionid="2" diemdonid_menu="0">
+                        @T("chonve.nhaxes.hanhtrinh.suadiadiem").Text
+                    </li>
+                    <li class="k-separator"></li>
+                    <li actionid="3" diemdonid_menu="0">
+                        @T("Admin.Common.Delete").Text
+                    </li>
+                    <li class="k-separator"></li>
+                    <li actionid="0" diemdonid_menu="0">
+                        @T("chonve.nhaxes.hanhtrinh.taomoidiadiem").Text
+                    </li>
+                </ul>
+                <script>
+                    function ReloadLineView()
+                    {
+                        var hanhtrinhline=$('#hanhtrinhline');
+                        var hanhtrinhid=$('#@Html.FieldIdFor(model => model.Id)').val();
+                        $.ajax({
+                            cache: false,
+                            type: "GET",
+                            url: "/NhaXes/HanhTrinhLineView",
+                            data: {"id":hanhtrinhid, "w_of_l": @w_of_l },
+                            success: function (data)
+                            {
+                                hanhtrinhline.html('');
+                                hanhtrinhline.html(data);
+                            },
+                            error: function (xhr, ajaxOptions, thrownError)
+                            {
+                                alert('Failed to retrieve data.');
+                            }
+                        });
+                    }
+                    function ProcessDiemDon(e) {
+                        var actionid = $(e.item).attr('actionid');
+                        var diemdonid_menu = $(e.item).attr('diemdonid_menu');
+
+                        switch (parseInt(actionid)) {
+                            case 0: //them moi diem don xuat phat, dich
+                                {
+                                    setLocation("/NhaXes/DiemDonTao");
+                                    break;
+                                }
+                            case 1: //chon diem don xuat phat/dich,diem don o giua
+                                {
+                                    var diemdonid_select = $(e.target).attr('diemdonid_select');
+                                    var diemdonthutu_select,diemdonkhoangcach_select,hanhtrinhdiemdonid;
+                                    //cho diem di
+                                    if(diemdonid_select=="-1")
+                                    {
+                                        diemdonid_select=diemdonid_menu;
+                                        diemdonthutu_select = 0;
+                                        diemdonkhoangcach_select = 0;
+                                        hanhtrinhdiemdonid=0;
+                                    }
+                                    else if(diemdonid_select=="-2")//cho diem den
+                                    {
+                                        diemdonid_select=diemdonid_menu;
+                                        diemdonkhoangcach_select = @Model.TongKhoangCach;
+                                        diemdonthutu_select = diemdonkhoangcach_select;
+                                        hanhtrinhdiemdonid=0;
+                                    }
+                                    else //chinh sua
+                                    {
+                                        diemdonid_select=diemdonid_menu;
+                                        diemdonthutu_select = $(e.target).attr('diemdonthutu_select');
+                                        diemdonkhoangcach_select = $(e.target).attr('diemdonkhoangcach_select');
+                                        hanhtrinhdiemdonid= parseInt($(e.target).attr('id_select'));
+                                    }
+                                    if(hanhtrinhdiemdonid==0) //tao moi thong tin diem xuat phat, ket thuc
+                                        OpenWindowDiemDon(hanhtrinhdiemdonid,diemdonid_select,diemdonthutu_select,diemdonkhoangcach_select);
+                                    else
+                                    {
+                                        //cap nhat luon
+                                        InsertDiemDon(hanhtrinhdiemdonid,diemdonid_select,diemdonthutu_select,diemdonkhoangcach_select);
+                                    }
+                                    break;
+                                }
+                            case 2: //chinh sua
+                                {
+                                    var hanhtrinhdiemdonid= $(e.target).attr('id_select')
+                                    if(hanhtrinhdiemdonid)
+                                    {
+                                        var diemdonid_select = $(e.target).attr('diemdonid_select');
+                                        var diemdonthutu_select = $(e.target).attr('diemdonthutu_select');
+                                        var diemdonkhoangcach_select = $(e.target).attr('diemdonkhoangcach_select');
+                                        OpenWindowDiemDon(hanhtrinhdiemdonid,diemdonid_select,diemdonthutu_select,diemdonkhoangcach_select);
+                                    }
+                                    break;
+                                }
+                            case 3: //xoa diem don o giua
+                                {
+                                    var hanhtrinhdiemdonid= $(e.target).attr('id_select');
+                                    if(hanhtrinhdiemdonid)
+                                        DeleteDiemDon(hanhtrinhdiemdonid)
+                                    break;
+                                }
+                        }
+                    }
+                    function paraDiemDon(HanhTrinhDiemDonId,DiemDonId,ThuTu,KhoangCach)
+                    {
+                        var HanhTrinhId=$('#@Html.FieldIdFor(model => model.Id)').val();
+                        return {
+                            'Id':HanhTrinhDiemDonId,
+                            'HanhTrinhId': HanhTrinhId,
+                            'DiemDonId': DiemDonId,
+                            'ThuTu': ThuTu,
+                            'KhoangCach': KhoangCach,
+                        }
+                    }
+                    //insert or update diem don cho hanh trinh
+                    function InsertDiemDon(HanhTrinhDiemDonId,DiemDonId,ThuTu,KhoangCach)
+                    {
+                        var strdata=paraDiemDon(HanhTrinhDiemDonId,DiemDonId,ThuTu,KhoangCach);
+                        $.ajax({
+                            type: "POST",
+                            url: "/NhaXes/HanhTrinhDiemDonInsert",
+                            contentType: "application/json; charset=utf-8",
+                            dataType: "json",
+                            data: JSON.stringify(strdata),
+                            error: function (response) {
+                                alert("Có lỗi!");
+                            },
+                            success:OnSuccessInsert
+                        });
+                    }
+                    function DeleteDiemDon(HanhTrinhDiemDonId)
+                    {
+                        var strdata={'id':HanhTrinhDiemDonId};
+                        $.ajax({
+                            type: "POST",
+                            url: "/NhaXes/HanhTrinhDiemDonDelete",
+                            contentType: "application/json; charset=utf-8",
+                            dataType: "json",
+                            data: JSON.stringify(strdata),
+                            error: function (response) {
+                                alert("Có lỗi!");
+                            },
+                            success:OnSuccessDelete
+                        });
+                    }
+                    function OnSuccessInsert()
+                    {
+                        $("#windowdiemdontaomoi").data("kendoWindow").close();
+                        ReloadLineView();
+                    }
+                    function OnSuccessDelete()
+                    {
+                        ReloadLineView();
+                    }
+                    $(document).ready(function() {
+                        $("#menudiemdonstartend").kendoContextMenu({
+                            orientation: "vertical",
+                            target: "#hanhtrinhline",
+                            filter: ".startend-diemdon",
+                            showOn: "click",
+                            animation: {
+                                open: { effects: "fadeIn" },
+                                duration: 300
+                            },
+                            select: function(e) {
+                                // Do something on select
+                                ProcessDiemDon(e);
+                            }
+                        });
+
+                    });
+                </script>
+
+            </div>
+
+        </div>
+        <style>
+            .hanhtrinhline_view_top {
+                text-align: center;
+                width: 100%;
+                padding-bottom: 15px;
+            }
+
+            .hanhtrinhline_view_bottom {
+                width: 100%;
+            }
+
+            .hanhtrinhline_view {
+                background: url(/Content/chonve/nhaxe/skyline.png) no-repeat center top;
+                margin: 0px auto;
+            }
+
+                .hanhtrinhline_view .diemdon_view {
+                    background: url(/Content/chonve/nhaxe/diemdon1.png) no-repeat center top;
+                    padding-top: 30px;
+                    width: 36px;
+                    height: 56px;
+                    position: relative;
+                    top: -6px;
+                    float: left;
+                    text-align: center;
+                    display: inline-block;
+                    cursor: pointer;
+                }
+
+                .hanhtrinhline_view .diemdonstart_view {
+                    background: url(/Content/chonve/nhaxe/diemstart.png) no-repeat center top;
+                    padding-top: 40px;
+                    width: 36px;
+                    height: 56px;
+                    position: relative;
+                    top: -15px;
+                    left: -18px;
+                    float: left;
+                    text-align: center;
+                    display: inline-block;
+                    cursor: pointer;
+                }
+
+                .hanhtrinhline_view .diemdonend_view {
+                    background: url(/Content/chonve/nhaxe/diemend.png) no-repeat center top;
+                    padding-top: 40px;
+                    width: 36px;
+                    height: 56px;
+                    position: relative;
+                    top: -15px;
+                    right: -20px;
+                    float: right;
+                    text-align: center;
+                    display: inline-block;
+                    cursor: pointer;
+                }
+        </style>
+        <div id="windowdiemdontaomoi">
+            <table style="width:100%" class="adminContent">
+                <tr>
+                    <td class="adminTitle">
+                        @Html.NopLabelFor(model => model.AddHanhTrinhDiemDonModel.DiemDonId):
+                    </td>
+                    <td class="adminData">
+                        @Html.DropDownListFor(model => model.AddHanhTrinhDiemDonModel.DiemDonId, Model.AvailableDiemDons, new { @id = "ddlAddDiemDonDiemDonId" })
+                        @Html.ActionLink(@T("admin.common.addnew").Text, "DiemDonTao")
+                    </td>
+                </tr>
+                <tr>
+                    <td class="adminTitle">
+                        @Html.NopLabelFor(model => model.AddHanhTrinhDiemDonModel.KhoangCach):
+                    </td>
+                    <td class="adminData">
+                        @Html.TextBoxFor(model => model.AddHanhTrinhDiemDonModel.KhoangCach, new { @id = "txtAddDiemDonKhoangCach" })
+                        @Html.ValidationMessageFor(model => model.AddHanhTrinhDiemDonModel.KhoangCach)
+                    </td>
+                </tr>
+                <tr>
+                    <td class="adminTitle">
+                        @Html.NopLabelFor(model => model.AddHanhTrinhDiemDonModel.ThuTu):
+                    </td>
+                    <td class="adminData">
+                        @Html.TextBoxFor(model => model.AddHanhTrinhDiemDonModel.ThuTu, new { @id = "txtAddDiemDonThuTu" })
+                        @Html.ValidationMessageFor(model => model.AddHanhTrinhDiemDonModel.ThuTu)
+                    </td>
+                </tr>
+                <tr>
+                    <td class="adminTitle"></td>
+                    <td class="adminData">
+                        <button class="k-button" id="btnUpdHanhTrinhDiemDon">@T("admin.common.update").Text</button>
+                    </td>
+                </tr>
+            </table>
+
+        </div>
+        <script>
+
+            function OpenWindowDiemDon(hantrinhdiemdonid,DiemDonId,ThuTu,KhoangCach)
+            {
+                $('#hidhanhtrinhdiemdonid').val(hantrinhdiemdonid);
+                $('#hiddiemdonid').val(DiemDonId);
+                $('#hiddiemdonthutu').val(ThuTu);
+                $('#hiddiemdonkhoangcach').val(KhoangCach);
+                $("#windowdiemdontaomoi").data("kendoWindow").open();
+
+            }
+            function onOpenWindowDiemDon()
+            {
+                var DiemDonId=$('#hiddiemdonid').val();
+                if(DiemDonId!="")
+                    $('#ddlAddDiemDonDiemDonId').val(DiemDonId);
+                var ThuTu=$('#hiddiemdonthutu').val();
+                if(ThuTu!="")
+                    $('#txtAddDiemDonThuTu').val(ThuTu);
+                var KhoangCach=$('#hiddiemdonkhoangcach').val();
+                if(KhoangCach!="")
+                    $('#txtAddDiemDonKhoangCach').val(KhoangCach);
+
+
+
+            }
+            $(document).ready(function() {
+                $("#windowdiemdontaomoi").kendoWindow({
+                    width: "500px",
+                    title: "@T("ChonVe.NhaXe.HanhTrinh.DiemDon")",
+                    visible: false,
+                    modal: true,
+                    actions: [
+                        "Close"
+                    ],
+                    open: onOpenWindowDiemDon
+
+                }).data("kendoWindow").center();
+                $("#windowdiemdontaomoi").data("kendoWindow").wrapper.find("#btnUpdHanhTrinhDiemDon").click(function(e){
+                    var HanhTrinhDiemDonId=$('#hidhanhtrinhdiemdonid').val();
+                    var DiemDonId=$('#ddlAddDiemDonDiemDonId option:selected').val();
+                    if(!DiemDonId)
+                    {
+                        alert("@T("ChonVe.NhaXe.HanhTrinh.DiemDon.ChuaChon")");
+                        $('#ddlAddDiemDonDiemDonId').focus();
+                        return;
+                    }
+                    var ThuTu=$('#txtAddDiemDonThuTu').val();
+                    var KhoangCach=$('#txtAddDiemDonKhoangCach').val();
+                    InsertDiemDon(HanhTrinhDiemDonId,DiemDonId,ThuTu,KhoangCach);
+                    return false;
+                });
+                $("#windowdiemdontaomoi").data("kendoWindow").wrapper.find("#txtAddDiemDonKhoangCach").keyup(function(event){
+                    $('#txtAddDiemDonThuTu').val($(this).val());
+                });
+            });
+        </script>
+    }
+    else
+    {
+        <h3>@T("ChonVe.NhaXe.HanhTrinh.DiemDon.SaveBeforeEdit")</h3>
+    }
+}
+
+@helper TabDiemDon()
+{
+    if (Model.Id > 0)
+    {
+        if (Model.AvailableDiemDons.Count > 0)
+        {
+            <div id="hanhtrinhdiemdons-grid"></div>
+
+            <script>
+                $(document).ready(function () {
+                    $("#hanhtrinhdiemdons-grid").kendoGrid({
+                        dataSource: {
+                            type: "json",
+                            transport: {
+                                read: {
+                                    url: "@Html.Raw(Url.Action("HanhTrinhDiemDonList", "NhaXes", new { HanhTrinhId = Model.Id }))",
+                                    type: "POST",
+                                    dataType: "json"
+                                },
+                                create: {
+                                    url: "@Html.Raw(Url.Action("HanhTrinhDiemDonInsert", "NhaXes", new { HanhTrinhId = Model.Id }))",
+                                    type: "POST",
+                                    dataType: "json"
+                                },
+                                update: {
+                                    url:"@Html.Raw(Url.Action("HanhTrinhDiemDonUpdate", "NhaXes"))",
+                                    type: "POST",
+                                    dataType: "json"
+                                },
+                                destroy: {
+                                    url: "@Html.Raw(Url.Action("HanhTrinhDiemDonDelete", "NhaXes"))",
+                                    type: "POST",
+                                    dataType: "json"
+                                }
+                            },
+                            schema: {
+                                data: "Data",
+                                total: "Total",
+                                errors: "Errors",
+                                model: {
+                                    id: "Id",
+                                    fields: {
+                                        DiemDonText: { editable: true, type: "string" },
+                                        DiemDonId: { editable: true, type: "number" },
+                                        ThuTu: { editable: true, type: "number" },
+                                        KhoangCach: { editable: true, type: "number" },
+                                        Id: { editable: false, type: "number" }
+                                    }
+                                }
+                            },
+                            requestEnd: function (e) {
+                                if (e.type == "create" || e.type == "update") {
+                                    this.read();
+                                }
+                            },
+                            error: function (e) {
+                                display_kendoui_grid_error(e);
+                                // Cancel the changes
+                                this.cancelChanges();
+                            },
+                            serverPaging: true,
+                            serverFiltering: true,
+                            serverSorting: true
+                        },
+                        pageable: {
+                            refresh: true,
+                            numeric: false,
+                            previousNext: false,
+                            info: false,
+                            messages: {
+                                display: "@T("Nop.Common.KendoGrid.display")", //{0} is the index of the first record on the page, {1} - index of the last record on the page, {2} is the total amount of records
+                                empty: "@T("Nop.Common.KendoGrid.Empty")",
+                                page: "@T("Nop.Common.KendoGrid.Page")",
+                                of: "@T("Nop.Common.KendoGrid.Of")", //{0} is total amount of pages
+                                itemsPerPage: "@T("Nop.Common.KendoGrid.itemsPerPage")",
+                                first: "@T("Nop.Common.KendoGrid.first")",
+                                previous: "@T("Nop.Common.KendoGrid.previous")",
+                                next: "@T("Nop.Common.KendoGrid.next")",
+                                last: "@T("Nop.Common.KendoGrid.last")",
+                                refresh: "@T("Nop.Common.KendoGrid.refresh")"
+                            }
+                        },
+                        toolbar: [{ name: "create", text: "@T("Nop.Common.KendoGrid.Create")" }],
+                        edit: function(e) {
+                            if (e.model.isNew()) {
+                                //little hack here
+                                //pre-select the first value of kendoui dropdownlist datasource
+                                //for some reasons (maybe, bug) it always sends 0
+                                //if no value has been selected (changed) in the dropdownlist
+                                if (allDiemDons.length > 0) {
+                                    e.model.DiemDonId = allDiemDons[0].Id;
+                                }
+                            }
+                        },
+                        editable: {
+                            confirmation: "@T("Admin.Common.AreYouSure")",
+                            mode: "inline"
+                        },
+                        scrollable: false,
+                        columns: [{
+                            field: "DiemDonId",
+                            title: "@T("ChonVe.NhaXe.HanhTrinh.DiemDon.DiemDonId")",
+                            width: 200,
+                            editor: diemdonDropDownEditor,
+                            template: "#:DiemDonText#"
+                        },{
+                            field: "ThuTu",
+                            title: "@T("ChonVe.NhaXe.HanhTrinh.DiemDon.ThuTu")",
+                            width: 200,
+                            //integer format
+                            format: "{0:0}"
+                        },{
+                            field: "KhoangCach",
+                            title: "@T("ChonVe.NhaXe.HanhTrinh.DiemDon.KhoangCach")",
+                            width: 200,
+                            //integer format
+                            format: "{0:0}"
+                        }, {
+                            command: [{
+                                name: "edit",
+                                text: "@T("Admin.Common.Edit")"
+                            }, {
+                                name: "destroy",
+                                text: "@T("Admin.Common.Delete")"
+                            }],
+                            width: 200
+                        }]
+                    });
+                });
+
+                //local datasource
+                var allDiemDons = [
+                    @for (int i = 0; i < Model.AvailableDiemDons.Count; i++)
+                    {
+                        var _item = Model.AvailableDiemDons[i];
+                        <text>
+                        {
+                            Id: @(_item.Value),
+                            TenDiemDon: "@(Html.Raw(HttpUtility.JavaScriptStringEncode(_item.Text)))"
+                        }
+                        </text>
+                        if (i != Model.AvailableDiemDons.Count - 1)
+                        {
+                            <text>,</text>
+                        }
+                    }
+                ];
+
+                function diemdonDropDownEditor(container, options) {
+                    $('<input required data-text-field="TenDiemDon" data-value-field="Id" data-bind="value:DiemDonId"/>')
+                        .appendTo(container)
+                        .kendoDropDownList({
+                            autoBind: false,
+                            dataSource: allDiemDons
+                        });
+                }
+            </script>
+        }
+        else
+        {
+            @T("ChonVe.NhaXe.HanhTrinh.DiemDon.NoDiemDonsAvailable")
+        }
+    }
+    else
+    {
+        <h3>@T("ChonVe.NhaXe.HanhTrinh.DiemDon.SaveBeforeEdit")</h3>
+    }
+
+}
+@helper TabDiemChot()
+{
+    if (Model.Id > 0)
+    {
+        if (Model.AvailableDiemChots.Count > 0)
+        {
+            <div id="hanhtrinhDiemChots-grid"></div>
+
+            <script>
+                $(document).ready(function () {
+                    $("#hanhtrinhDiemChots-grid").kendoGrid({
+                        dataSource: {
+                            type: "json",
+                            transport: {
+                                read: {
+                                    url: "@Html.Raw(Url.Action("HanhTrinhDiemChotList", "NhaXes", new { HanhTrinhId = Model.Id }))",
+                                    type: "POST",
+                                    dataType: "json"
+                                },
+                                create: {
+                                    url: "@Html.Raw(Url.Action("HanhTrinhDiemChotInsert", "NhaXes", new { HanhTrinhId = Model.Id }))",
+                                    type: "POST",
+                                    dataType: "json"
+                                },
+                                update: {
+                                    url:"@Html.Raw(Url.Action("HanhTrinhDiemChotUpdate", "NhaXes"))",
+                                    type: "POST",
+                                    dataType: "json"
+                                },
+                                destroy: {
+                                    url: "@Html.Raw(Url.Action("HanhTrinhDiemChotDelete", "NhaXes"))",
+                                    type: "POST",
+                                    dataType: "json"
+                                }
+                            },
+                            schema: {
+                                data: "Data",
+                                total: "Total",
+                                errors: "Errors",
+                                model: {
+                                    id: "Id",
+                                    fields: {
+                                        DiemDonText: { editable: true, type: "string" },
+                                        DiemDonId: { editable: true, type: "number" },
+                                        ThuTu: { editable: true, type: "number" },
+                                        KhoangCach: { editable: true, type: "number" },
+                                        Id: { editable: false, type: "number" }
+                                    }
+                                }
+                            },
+                            requestEnd: function (e) {
+                                if (e.type == "create" || e.type == "update") {
+                                    this.read();
+                                }
+                            },
+                            error: function (e) {
+                                display_kendoui_grid_error(e);
+                                // Cancel the changes
+                                this.cancelChanges();
+                            },
+                            serverPaging: true,
+                            serverFiltering: true,
+                            serverSorting: true
+                        },
+                        pageable: {
+                            refresh: true,
+                            numeric: false,
+                            previousNext: false,
+                            info: false,
+                            messages: {
+                                display: "@T("Nop.Common.KendoGrid.display")", //{0} is the index of the first record on the page, {1} - index of the last record on the page, {2} is the total amount of records
+                                empty: "@T("Nop.Common.KendoGrid.Empty")",
+                                page: "@T("Nop.Common.KendoGrid.Page")",
+                                of: "@T("Nop.Common.KendoGrid.Of")", //{0} is total amount of pages
+                                itemsPerPage: "@T("Nop.Common.KendoGrid.itemsPerPage")",
+                                first: "@T("Nop.Common.KendoGrid.first")",
+                                previous: "@T("Nop.Common.KendoGrid.previous")",
+                                next: "@T("Nop.Common.KendoGrid.next")",
+                                last: "@T("Nop.Common.KendoGrid.last")",
+                                refresh: "@T("Nop.Common.KendoGrid.refresh")"
+                            }
+                        },
+                        toolbar: [{ name: "create", text: "@T("Nop.Common.KendoGrid.Create")" }],
+                        edit: function(e) {
+                            if (e.model.isNew()) {
+                                //little hack here
+                                //pre-select the first value of kendoui dropdownlist datasource
+                                //for some reasons (maybe, bug) it always sends 0
+                                //if no value has been selected (changed) in the dropdownlist
+                                if (allDiemChots.length > 0) {
+                                    e.model.DiemDonId = allDiemChots[0].Id;
+                                }
+                            }
+                        },
+                        editable: {
+                            confirmation: "@T("Admin.Common.AreYouSure")",
+                            mode: "inline"
+                        },
+                        scrollable: false,
+                        columns: [{
+                            field: "DiemDonId",
+                            title: "Tên điểm chốt",
+                            width: 200,
+                            editor: DiemChotDropDownEditor,
+                            template: "#:DiemDonText#"
+                        },{
+                            field: "ThuTu",
+                            title: "Thứ tự",
+                            width: 200,
+                            //integer format
+                            format: "{0:0}"
+                        },{
+                            field: "KhoangCach",
+                            title: "Khoảng cách",
+                            width: 200,
+                            //integer format
+                            format: "{0:0}"
+                        }, {
+                            command: [{
+                                name: "edit",
+                                text: "@T("Admin.Common.Edit")"
+                            }, {
+                                name: "destroy",
+                                text: "@T("Admin.Common.Delete")"
+                            }],
+                            width: 200
+                        }]
+                    });
+                });
+
+                //local datasource
+                var allDiemChots = [
+                    @for (int i = 0; i < Model.AvailableDiemChots.Count; i++)
+                    {
+                        var _item = Model.AvailableDiemChots[i];
+                        <text>
+                        {
+                            Id: @(_item.Value),
+                            TenDiemChot: "@(Html.Raw(HttpUtility.JavaScriptStringEncode(_item.Text)))"
+                        }
+                        </text>
+                        if (i != Model.AvailableDiemChots.Count - 1)
+                        {
+                            <text>,</text>
+                        }
+                    }
+                ];
+
+                function DiemChotDropDownEditor(container, options) {
+                    $('<input required data-text-field="TenDiemChot" data-value-field="Id" data-bind="value:DiemDonId"/>')
+                        .appendTo(container)
+                        .kendoDropDownList({
+                            autoBind: false,
+                            dataSource: allDiemChots
+                        });
+                }
+            </script>
+        }
+        else
+        {
+            <p>Không có điểm chốt nào cả</p>
+        }
+    }
+    else
+    {
+        <h3>Bạn phải lưu hành trình trước lúc cấu hình điểm chốt</h3>
+    }
+}
+@helper VanPhongInfo()
+{
+    if (Model.Id > 0)
+    {
+        <p><h3>Thiết lập quản lý tuyến xe hiện tại cho các Văn Phòng trong công tác bán vé</h3>    </p>
+        <table class="adminContent">
+            <tr>
+                <td class="adminTitle" style="width:50px"></td>
+                <td class="adminData">
+                    @foreach (var vp in Model.AllVanPhongs)
+                    {
+                        <div style="margin-bottom:15px">
+                            <input type="checkbox" name="SelectedVanPhongIds" value="@vp.Id" checked="@(Model.SelectedVanPhongIds != null && Model.SelectedVanPhongIds.Contains(vp.Id))" />&nbsp;@vp.TenVanPhong - @vp.Ma
+                        </div>
+                    }
+                </td>
+            </tr>
+        </table>
+    }
+    else
+    {
+        <h3>@T("ChonVe.NhaXe.HanhTrinh.DiemDon.SaveBeforeEdit")</h3>
+    }
+
+}
+@helper GiaVeHanhTrinh()
+{
+    if (Model.Id > 0)
+    {
+        <form id="formupdategiave">
+            @Html.HiddenFor(model => model.SoDiemDon)
+            @Html.HiddenFor(model => model.Id)
+            @Html.HiddenFor(model => model.GiaVeResult)
+            <div id="subdanhsach-grid">
+                <input type="button" id="btnupdategiave" value="Cập nhật" class="SuaGiaVe" />
+                <table class="BangGiaVe">
+                    @for (int i = 0; i < Model.SoDiemDon + 1; i++)
+                    {
+                        <tr>
+                            @for (int j = 0; j < Model.SoDiemDon + 1; j++)
+                            {
+                                var withcol = 100 / (Model.SoDiemDon + 1);
+                                <td style="width:@withcol%;">
+                                    @if (i == 0 && j > 0)
+                                    {
+                                        <span> @Model.HanhTrinhGiaVes[0, j].TenToDiemDon</span>
+
+                                    }
+                                    @if (j == 0 && i > 0)
+                                    {
+                                        <span> @Model.HanhTrinhGiaVes[i, 0].TenFromDiemDon</span>
+
+                                    }
+                                    @if (i > 0 && j > 0 && j >= i)
+                                    {
+                                        <table class="loaixegiave">
+                                            @foreach (var item in Model.HanhTrinhGiaVes[i,j].hanhtrinhgiaves)
+                                            {
+                                                <tr>
+                                                    <td>@item.MaLoaiXe</td>
+                                                    <td>
+                                                        <input type='text' name="hanhtrinhgiaveinput" id='vitrihanhtrinhgiave_@(Model.HanhTrinhGiaVes[i, j].FromDiemDonId)_@(Model.HanhTrinhGiaVes[i, j].ToDiemDonId)_@(item.HanhTrinhGiaVeId)_@(item.LoaiXeId)' value='@(item.GiaNguonVe)' class='text-box single-line' style='width:80px;text-align:center'>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </table>
+                                       
+
+
+                                    }
+                                </td>
+                            }
+
+                        </tr>
+                    }
+                </table>
+            </div>
+            <script type="text/javascript">
+                function LuuThongTingiave()
+                {
+
+                    //luu theo cu phap IdDiemDon;IdDiemDen;GiaVe|IdDiemDon;IdDiemDen;hanhtrinhgiaveid;loaixeid;GiaVe
+                    var thongtingiave="";
+
+                    $("input[name='hanhtrinhgiaveinput']").each(function() {
+                        var input = $(this);
+                        var idinfo=input.attr('id');
+                        idinfo=idinfo.replace("vitrihanhtrinhgiave_","");
+                        idinfo=idinfo.replace(/_/g,";");
+                        thongtingiave=thongtingiave+idinfo+";"+input.val() +"|";
+                    });
+
+                    $('#@Html.FieldIdFor(model => model.GiaVeResult)').val(thongtingiave);
+
+                }
+
+                $(document).ready(function () {
+
+                    $('#btnupdategiave').click(function () {
+                        if (!confirm("@T("Common.areyousure")")) {
+                            return;
+                        }
+                        LuuThongTingiave();
+
+                        var data = $("form").serialize();
+
+                        $.ajax({
+                            cache: false,
+                            type: "POST",
+                            data: data,
+                            dataType: 'json',
+                            url: "@(Url.Action("UpdateGiaVeHanhTrinhChang", "NhaXes"))",
+                            success: function (data) {
+
+                                var id=$('#@Html.FieldIdFor(model => model.Id)').val();
+                                document.location.href = "/NhaXes/HanhTrinhSua/" +id ;
+                            },
+                            error: function (xhr, ajaxOptions, thrownError) {
+
+                            }
+
+                        });
+                    });
+
+                });
+            </script>
+        </form>
+
+
+
+    }
+
+    else
+    {
+        @T("ChonVe.NhaXe.LichTrinh.GiaVe.SaveBeforeEdit")
+    }
+
+}
+<style>
+     .BangGiaVe {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+        .BangGiaVe, .BangGiaVe tr, .BangGiaVe tr td {
+            border: 1px solid #A9A2A2;
+            font-weight:normal;
+        }
+
+            .BangGiaVe tr {
+                height: 30px;
+            }
+
+           
+      .loaixegiave {
+                border-collapse: collapse;                
+                   border: hidden;
+            }
+         .loaixegiave tr,  .loaixegiave tr td {
+            border: 1px solid #928d8d;
+        }
+        .loaixegiave tr
+       {
+           height:30px;
+       }
+          
+
+    .SuaGiaVe {
+        float: right;
+        background: #0e97f2;
+        background-image: -webkit-linear-gradient(top, #0e97f2, #1c7dba);
+        background-image: -moz-linear-gradient(top, #0e97f2, #1c7dba);
+        background-image: -ms-linear-gradient(top, #0e97f2, #1c7dba);
+        background-image: -o-linear-gradient(top, #0e97f2, #1c7dba);
+        background-image: linear-gradient(to bottom, #0e97f2, #1c7dba);
+        -webkit-border-radius: 28;
+        -moz-border-radius: 28;
+        border-radius: 28px;
+        font-family: Arial;
+        color: #ffffff;
+        font-size: 13px;
+        padding: 8px 13px 7px 15px;
+        text-decoration: none;
+    }
+
+        .SuaGiaVe:hover {
+            background: #3cb0fd;
+            background-image: -webkit-linear-gradient(top, #3cb0fd, #3498db);
+            background-image: -moz-linear-gradient(top, #3cb0fd, #3498db);
+            background-image: -ms-linear-gradient(top, #3cb0fd, #3498db);
+            background-image: -o-linear-gradient(top, #3cb0fd, #3498db);
+            background-image: linear-gradient(to bottom, #3cb0fd, #3498db);
+            text-decoration: none;
+        }
+</style>

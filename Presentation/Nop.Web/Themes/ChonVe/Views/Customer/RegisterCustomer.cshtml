@@ -1,0 +1,155 @@
+﻿@model RegisterCustomerModel
+@using Nop.Web.Extensions
+@using Nop.Web.Models.Customer;
+@{
+    Layout = "~/Views/Shared/_ColumnsTwo.cshtml";
+
+}
+@{
+    //register URL with return URL (if specified)
+    var returl = "";
+    if (!String.IsNullOrEmpty(this.Context.Request.QueryString["returnUrl"]))
+    {
+
+        returl = HttpUtility.UrlDecode(this.Context.Request.QueryString["returnUrl"]);
+    }
+
+    @Html.AntiForgeryToken()
+}
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "registration-form" }))
+{
+    Model.ReturnUrl = returl;
+    @Html.HiddenFor(model=>model.ReturnUrl)
+    <div class="panel-heading text-center">
+        <h3 style="color: #0066FF">@T("Account.RegisterOfMy")!</h3>
+    </div>
+    <br />
+
+    <div class="form-group row" style="margin-top:20px">
+        <div class="col-md-1"></div>
+        <div class="col-md-2">
+            @Html.LabelFor(model => model.Fullname, new { @style = "font-weight:bold;line-height: 31px;" }, ":")
+        </div>
+
+        <div class="controls">
+            @Html.TextBoxFor(model => model.Fullname, new { @style = "width:300px; height: 33px;", @Id = "FullName", @Name = "FullName" })
+            <span style="color:red"> @Html.RequiredHint()</span>
+        </div>
+    </div>
+    <div class="form-group row" style="margin-top:20px">
+        <div class="col-md-1"></div>
+        <div class="col-md-2">
+            @Html.LabelFor(model => model.Email, new { @style = "font-weight:bold;line-height: 31px;" }, ":")
+        </div>
+        <div class="controls">
+            @Html.TextBoxFor(model => model.Email, new { @style = "width:300px; height: 33px;", @class = "input-xlarge", @Id = "Email", @Name = "Email" })
+            <span style="color:red"> @Html.RequiredHint()</span>
+        </div>
+    </div>
+    <div class="form-group row" style="margin-top:20px">
+        <div class="col-md-1"></div>
+        <div class="col-md-2">
+            @Html.LabelFor(model => model.Phone, new { @style = "font-weight:bold;line-height: 31px;" }, ":")
+        </div>
+        <div class="controls">
+            @Html.TextBoxFor(model => model.Phone, new { @style = "width:300px;height: 33px;", @class = "input-xlarge", @Id = "Phone", @Name = "Phone" })
+            <span style="color:red"> @Html.RequiredHint()</span>
+        </div>
+    </div>
+    <div class="form-group row">
+        <div class="col-md-1"></div>
+        <input id="agree" type="checkbox" name="agree" />
+        <label style="font-weight:bold;line-height: 31px;">@T("Account.Fields.AcceptPrivacyPolicy")</label>
+        <a class="read" href='@Url.RouteUrl("Topic", new { SeName = Html.GetTopicSeName("privacyinfo") })'>@T("Account.Fields.AcceptPrivacyPolicy.Read")</a>
+
+    </div>
+
+    <div class="form-actions text-center" style=" margin-bottom:30px">
+
+        <button type="submit" style="width:180px" class="btn btn-success btn-large">@T("Account.RegisterCustomer.Register")</button>
+
+    </div>
+}
+<script>
+    $('#registration-form').validate({
+        rules: {
+
+            FullName: {
+                minlength: 3,
+                required: true
+            },
+
+            Email:
+                 {
+                     required: true,
+                     email: true,
+                     //remote: "CheckForDuplication"
+                     remote: function () {
+                         var r = {
+
+                             url: '/Customer/CheckForDuplication',
+                             type: "POST",
+                             dataType: "json",
+
+                         }
+                         return r;
+                     }
+
+                 },
+
+            Phone: {
+                minlength: 9,
+                required: true,
+                number: true
+            },
+
+            agree: "required"
+
+        },
+        messages: {
+
+            FullName: {
+                required: "Thông tin bắt buộc",
+                minlength: jQuery.format("Nhập ít nhất {0} ký tự")
+            },
+            Email: {
+                required: "Thông tin bắt buộc",
+                email: "Yêu cầu nhập Email",
+                remote: "xin lỗi email này đã tồn tại"
+            },
+            Phone: {
+                required: "Thông tin bắt buộc",
+                minlength: jQuery.format("Nhập ít nhất {0} ký tự"),
+                number: "yêu cầu nhập số"
+            },
+            agree: {
+                required: "Thông tin bắt buộc"
+            },
+        },
+        highlight: function (element) {
+            $(element).closest('.control-group').removeClass('success').addClass('error');
+        },
+        success: function (element) {
+            element
+            .text('OK!').addClass('valid')
+            .closest('.control-group').removeClass('error').addClass('success');
+        }
+    });
+
+</script>
+<style>
+    label.valid {
+        width: 24px;
+        height: 24px;
+        background: url(/Themes/ChonVe/Content/img/valid.png) center center no-repeat;
+        display: inline-block;
+        text-indent: -9999px;
+    }
+
+    label.error {
+        font-weight: bold;
+        color: red;
+        padding: 2px 8px;
+        margin-top: 2px;
+    }
+</style>

@@ -1,0 +1,28 @@
+﻿@model NewsItemListModel
+@using Nop.Web.Extensions;
+@using Nop.Web.Models.News;
+@if (Model.NewsItems.Count > 0)
+{
+    var item1 = Model.NewsItems[0];
+    <text>
+        <a href="@Url.RouteUrl("NewsItem", new { SeName = item1.SeName })"><strong>@item1.Title</strong></a>
+        <div class="custumer">
+            <a href="@Url.RouteUrl("NewsItem", new { SeName = item1.SeName })"><img alt="@(item1.PictureModel.Title)" title="@(item1.PictureModel.Title)" src="@(item1.PictureModel.ImageUrl)" /></a>
+            <p>@Html.Raw(item1.Short)</p>
+        </div>
+        <div class="custumer">
+            <ul>
+                @for (int i = 1; i < Model.NewsItems.Count && i<6; i++)
+                {
+                    var item = Model.NewsItems[i];
+
+                    <li>
+                        <a class="news-home" href="@Url.RouteUrl("NewsItem", new { SeName = item.SeName })">@item.Title</a>
+                    </li>
+
+                }
+            </ul>
+        </div>
+    </text>
+}
+

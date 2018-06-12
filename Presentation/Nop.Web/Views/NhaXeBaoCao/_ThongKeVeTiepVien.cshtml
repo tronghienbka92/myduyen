@@ -1,0 +1,182 @@
+﻿@model ThongKeVeDaSuDungModel
+@using Nop.Web.Models.NhaXeBaoCao
+@{
+    var i = 1;
+}
+<table border="1" class="thongtinbaocao" width="100%">
+    <tr class="tieudebang">
+        <td >
+            STT
+        </td>
+        <td >
+           Quyển
+        </td>
+        <td >
+          Từ số
+        </td>
+        <td >
+          Đến số
+        </td>
+        <td >
+          Mệnh giá
+        </td>
+        <td >
+           Ngày nhận
+        </td>
+        <td >
+           Người nhận
+        </td>
+        <td >
+           NTV
+        </td>
+        <td >
+           QN
+        </td>
+        <td >
+           Số Lượng còn
+        </td>
+        <td>
+            Từ số
+        </td>
+        <td>
+            Đến số
+        </td>
+        @for (int m = 1; m < 32;m++ )
+        {
+            <td>
+                @m
+            </td>
+        }
+      
+    </tr>    
+
+    @foreach (var item in Model.VeTiepVienDaDung)
+    {
+
+        <tr>
+            <td> @i</td>
+            <td>@item.SoQuyen</td>
+            <td>@item.SeriFrom</td>
+            <td>@item.SeriTo</td>
+            <td>@item.MenhGia</td>
+            <td>@item.NgayNhan.ToString("dd-MM-yyyy")</td>
+            <td>@item.TenNguoiNhan</td>
+            <td> NTV</td>
+            <td> QN</td>
+            <td>@item.SoLuongCon</td>
+            <td>@item.SeriConFrom</td>
+            <td>@item.SeriConTo</td>         
+            @for (int m = 1; m < 32; m++)
+            {
+                <td>
+                    @if (item.SoLuongDungs != null)
+                    {
+                        foreach (var x in item.SoLuongDungs)
+                        {
+                            if ( x.Ngay == m)
+                            {
+                                <text>@x.SoVe</text>
+                            }
+
+                        }
+                    }
+                
+                </td>
+            }
+        </tr>
+        i++;
+    }
+    <tr class="Tong">
+        <td> @i</td>
+        <td colspan="6">Tổng</td>
+        <td colspan="1">@*@Model.VeTiepVienDaDung.Sum(c => c.MenhGia).ToString("###,###")*@</td>
+        <td> </td>
+        <td> </td>
+    </tr>
+   
+</table>
+
+
+
+<style>
+    .Tong td{
+        font-size:15px;
+        font-weight:bold;
+    }
+    table {
+        border-collapse: collapse;
+    }
+
+    .phuluc {
+        text-decoration: underline;
+        font-weight: bold;
+        font-size: 12px;
+        text-align: right;
+    }
+
+    .baocao {
+        text-align: center;
+        font-weight: bold;
+        font-size: 20px;
+    }
+
+    .xe {
+        text-align: center;
+        font-style: italic;
+        font-size: 12px;
+    }
+
+    .ngaythang {
+        text-align: center;
+        font-size: 12px;
+    }
+
+    .cty {
+        text-align: center;
+        font-weight: bold;
+        font-size: 12px;
+    }
+
+    .thongtinbaocao {
+        text-align: center;
+        font-size: 12px;
+    }
+
+        .thongtinbaocao tr {
+            height: 35px;
+        }
+
+            .thongtinbaocao tr td {
+               
+                padding-right: 2px;
+            }
+
+    .tieudebang {
+        font-weight: bold;
+    }
+
+    .bienso {
+        width: 90px;
+        font-weight: bold;
+    }
+
+    .bienso1 {
+        width: 90px;
+    }
+
+    .tentuyen {
+        width: 130px;
+    }
+
+    .tentuyen1 {
+        width: 130px;
+    }
+
+    .culy {
+        width: 50px;
+    }
+
+    .culy1 {
+        width: 50px;
+    }
+</style>

@@ -1,0 +1,48 @@
+﻿@model Nop.Web.Models.NhaXes.XeXuatBenItemModel
+@{
+    Layout = null;
+}
+<table width="100%" class="BangTieuDe">
+    <tr>
+        <td></td>
+        <td class="TenTuyen">
+            @Model.TuyenXeChay
+            <br />
+            <span>(@Model.GioDi->@Model.GioDen) </span>
+
+
+        </td>
+        <td>
+            @Model.NgayDi.ToString("dd/MM/yyyy")
+            <span class="Bienso">Biển số: @Model.BienSo</span>
+        </td>
+
+    </tr>
+    <tr>
+        <td>LX:@(Model.laivaphuxes.Count > 0 ? Model.laivaphuxes[0].TenLaiXe : "")</td>
+        <td>PX1: @(Model.laivaphuxes.Count > 1 ? Model.laivaphuxes[1].TenLaiXe : "")</td>
+        <td>PX2: @(Model.laivaphuxes.Count > 2 ? Model.laivaphuxes[2].TenLaiXe : "") </td>
+    </tr>
+</table>
+<style>
+    
+    .TenTuyen {
+        font-size: 17px;
+        font-weight: 900;
+    }
+        .TenTuyen span {
+            font-size: 14px;
+            font-weight: 200;
+        }
+   
+    .BangTieuDe tr td{
+        width:30%
+    }
+    .BienSo {
+        font-size: 15px;
+        font-weight: 800;
+        float:right;
+    }
+</style>
+@Html.Action("_GetInfoSoDoGheXe", "NhaXes", new { NguonVeXeID = Model.NguonVeId, NgayDi = Model.NgayDi.ToString("yyyy-MM-dd"), PhanLoai=2 })
+

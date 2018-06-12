@@ -1,0 +1,196 @@
+﻿@model TimVeXeModel
+@using Nop.Web.Models.VeXeKhach
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "timkiem-form" }))
+{
+@Html.HiddenFor(m => m.DiemKhoiHanh.Id)
+@Html.HiddenFor(m => m.DiemDen.Id)
+@Html.HiddenFor(m => m.NgayDi.Ticks)
+@Html.Partial("_TimKiemBanner", Model)
+<div class="row row-content">
+    <div class="container">
+        <div class="col-md-3">
+            <div class="box-refine">
+                <div class="title-refine">
+                    Chọn ngày đi khác
+                </div>
+                <div class="content-refine">
+                        @Html.EditorFor(m => m.NgayDi)
+                        <script>
+                            $(document).ready(function () {
+                                $("#@Html.FieldIdFor(model => model.NgayDi)").change(function () {
+                                    $("#timkiem-form").submit();
+                                });
+                            });
+                        </script>                        
+                    
+                    
+                </div>
+            </div>
+            <div class="box-refine">
+                <div class="title-refine">
+                    Lọc theo nhà xe
+                </div>
+                <div class="content-refine">
+                    <ul id="nhaxechon">
+                        @foreach (var nx in Model.NhaXes)
+                        {
+                            <li><label><input type="checkbox" value="@nx.Id" />@nx.TenNhaXe</label></li>
+                        }
+                    </ul>
+                    @Html.HiddenFor(m => m.NhaXeIds)
+                    <script>
+                        $(document).ready(function () {
+                            $("#nhaxechon").find("input").click(function () {
+                                LocTheoKetQua();
+                            });
+                        });
+                    </script>
+                </div>
+            </div>
+            <div class="box-refine">
+                <div class="title-refine">
+                    Thời gian đi
+                </div>
+                <div class="content-refine">
+                    <ul id="khunggiochon">
+                        <li><label><input type="checkbox" value="1" />Buối sáng (0:00 - 11:59)</label></li>
+                        <li><label><input type="checkbox" value="2" />Buổi chiều (12:00 - 18:59)</label></li>
+                        <li><label><input type="checkbox" value="3" />Buổi tối (19:00 - 23:59)</label></li>
+                    </ul>
+                    @Html.HiddenFor(m => m.KhungGioIds)
+                    <script>
+                        $(document).ready(function () {
+                            $("#khunggiochon").find("input").each(function () {
+                                var khunggioids = $("#@Html.FieldIdFor(m=>m.KhungGioIds)").val();
+                                if (khunggioids.indexOf(this.value) >= 0) {
+                                    $(this).prop('checked', true);
+                                }
+                                else
+                                    $(this).prop('checked', false);
+                            });
+                            $("#khunggiochon").find("input").click(function () {
+                                LocTheoKetQua();
+                            });
+
+                        });
+                    </script>
+
+                </div>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="resul-search">
+                <div class="nav-resul">
+                    <ul id="tabsortketquatimkiem">
+                        <li data-active=".nav1" class="active" tabvalue="1">Sắp xếp theo thời gian xuất phát</li>
+                        <li data-active=".nav1" tabvalue="3">Sắp xếp theo giá</li>
+                    </ul>
+                    <input type="hidden" id="cursortkqtkval" value="1" />
+                </div>
+                <div id="formketquatimkiem">
+                    <div class="total-resul">Có @Model.NguoVeXes.Count kết quả</div>
+                    <div class="tab-resul">
+                        <div class="tab nav1 active" id="ListVeXe">
+                            @foreach (var item in Model.NguoVeXes)
+                            {
+                                @Html.Partial("_VeXeItemBasic", item)
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#tabsortketquatimkiem").find("li").each(function () {
+            $(this).click(function () {
+                var _id = $(this).attr("tabvalue");
+                if ($("#cursortkqtkval").val() == _id) {
+                    $("#cursortkqtkval").val(parseInt(_id) + 1);
+                }
+                else {
+                    $("#cursortkqtkval").val(_id);
+                }
+                LocTheoKetQua();
+            })
+        });
+        $("a[name='datmuavexe-button']").each(function () {
+            $(this).click(function () {
+                CloseSoDoGhe();
+                var _id = $(this).attr("itemdata");
+                DatMuaVe(_id);
+            })
+        });
+       
+    });
+    function CloseSoDoGhe() {
+        $(".ChonChoDatVe").html("");
+    }
+    function DatMuaVe(nguonveid) {
+        var formopen = $("#ChonCho_DatMuaVeXe_" + nguonveid);
+        var ngaydi = $('#@Html.FieldIdFor(model => model.NgayDi.Ticks)').val();
+        $.ajax({
+            cache: false,
+            type: "GET",
+            dataType: "html",
+            contentType: 'application/html;charset=utf-8',
+            url:"@(Url.Action("DatMuaVeXe", "VeXeKhach"))?NguonVeXeId=" + nguonveid + "&Ngay=" + ngaydi,
+            success: function (data) {
+                formopen.show();
+                formopen.html(data);
+            },
+
+        });
+    }
+
+    function LocTheoKetQua() {
+        var khunggioids = "";
+        $("#khunggiochon").find("input").each(function () {
+            if (this.checked) {
+                if (khunggioids == "")
+                    khunggioids = this.value;
+                else
+                    khunggioids = khunggioids + "," + this.value;
+            }
+        });
+        var nhaxeids = "";
+        $("#nhaxechon").find("input").each(function () {
+            if (this.checked) {
+                if (nhaxeids == "")
+                    nhaxeids = this.value;
+                else
+                    nhaxeids = nhaxeids + "," + this.value;
+            }
+        });
+        //reload ket qua tim kiem
+        var formketqua = $('#formketquatimkiem');
+        var datafilter = {
+            "khid": $("#@Html.FieldIdFor(m=>m.DiemKhoiHanh.Id)").val(),
+            "ddid": $("#@Html.FieldIdFor(m=>m.DiemDen.Id)").val(),
+            "dt": $("#@Html.FieldIdFor(m=>m.NgayDi.Ticks)").val(),
+            "khunggioids": khunggioids,
+            "nhaxeids": nhaxeids,
+            "sortid": $("#cursortkqtkval").val(),
+        };
+        $.ajax({
+            cache: false,
+            type: "POST",
+            url: "/VeXeKhach/_KetQuaTimKiem",
+            data: datafilter,
+            success: function (data) {
+                formketqua.html('');
+                formketqua.html(data);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert('Failed to retrieve data.');
+            }
+        });
+    }
+</script>
+
+
+}

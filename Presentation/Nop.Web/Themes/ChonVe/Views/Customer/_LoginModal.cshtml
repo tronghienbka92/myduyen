@@ -1,0 +1,97 @@
+﻿@model Nop.Web.Models.Customer.LoginModel
+@using Nop.Core.Infrastructure;
+@using Nop.Core;
+@{
+    <style>
+        .modal-header, h4, .close {
+            background-color: #5cb85c;
+            color: white !important;
+            text-align: center;
+            font-size: 30px;
+        }
+
+        .modal-footer {
+            background-color: #f9f9f9;
+        }
+    </style>
+}
+@{
+    //register URL with return URL (if specified)
+    var returl = "";
+    if (!String.IsNullOrEmpty(this.Context.Request.QueryString["returnUrl"]))
+    {
+
+        returl = HttpUtility.UrlDecode(this.Context.Request.QueryString["returnUrl"]);
+    }
+
+    @Html.AntiForgeryToken()
+}
+<div class="modal-content">
+    <div class="modal-header" style="padding:35px 50px;">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4><span class="glyphicon glyphicon-lock"></span> @T("Header.HeaderLink.Login")</h4>
+    </div>
+    <div class="modal-body" style="padding:40px 50px;">
+        <div class="text-danger" id="loi">
+            @Html.ValidationSummary(true, T("Account.Login.Unsuccessful").Text)
+        </div>
+        <form role="form">
+            <div class="form-group">
+                <label for="usrname"><span class="glyphicon glyphicon-user"></span> @T("Account.Login.Fields.Email")</label>
+                @Html.TextBoxFor(m => m.Email, new { @Id = "Email", @class = "form-control", @placeholder = "Enter email" })
+
+            </div>
+            <div class="form-group">
+                <label for="psw"><span class="glyphicon glyphicon-eye-open"></span> @T("Account.Login.Fields.Password")</label>
+                @Html.PasswordFor(m => m.Password, new { @Id = "Password", @class = "form-control", @placeholder = "Enter password" })
+            </div>
+            <div class="checkbox">
+                <label>@Html.CheckBoxFor(m => m.RememberMe) @T("Account.Login.Fields.RememberMe")</label>
+            </div>
+            <button id="btnDangNhap" class="btn btn-success btn-block"><span class="glyphicon glyphicon-off"></span> @T("Header.HeaderLink.Login")</button>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-danger btn-default pull-left" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> Cancel</button>
+        <p>@T("LoginModal.NotMember")? <a href="@Url.RouteUrl("Register")"> @T("Account.Register")</a></p>
+        <p>@T("LoginModal.Forgot") <a href="#">Password?</a></p>
+    </div>
+</div>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $('#btnDangNhap').click(function () {
+            var Email = $('#@Html.FieldIdFor(model => model.Email)').val()
+            var Password = $('#@Html.FieldIdFor(model => model.Password)').val()
+            var RememberMe = $('#@Html.FieldIdFor(model => model.RememberMe)').is(':checked')
+            var returnurl = "@returl"
+            $('#btnDangNhap').attr('disabled', true);
+            $.ajax({
+                cache: false,
+                type: "POST",
+                data: { "returnurl": returnurl, "Email": Email, "Password": Password, "RememberMe": RememberMe },
+                dataType: 'json',
+                url: "@(Url.Action("_LoginModal", "Customer"))",
+
+                success: function (data) {
+
+                    if (data.success) {
+                        document.location.href = data.retUrl;
+                    }
+                    if (!data.success) {
+                        $("#loi").html(data.retUrl);
+                    }
+                    $('#btnDangNhap').attr('disabled', false);
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert('@T("Admin.ChonVe.HopDong.Loi")');
+                    $('#btnDangNhap').attr('disabled', false);
+                }
+
+            });
+            return false;
+        });
+
+    });
+</script>
+

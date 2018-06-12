@@ -1,0 +1,362 @@
+﻿@model PhieuGuiHangModel
+@using Nop.Web.Models.NhaXes
+@using Nop.Core.Infrastructure;
+@Html.ValidationSummary(false)
+@Html.HiddenFor(model => model.Id)
+@{
+    Layout = null;
+    var defaultGridPageSize = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().DefaultGridPageSize;
+    var gridPageSizes = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().GridPageSizes;
+}
+<style>
+    .LegendTitle {
+        height: 20px;
+        font-size: initial;
+        padding: 5px;
+        color: #673AB7;
+        font-weight: bold;
+        border: 1px solid #03A9F4;
+        border-radius: 5px;
+    }
+
+    .fieldset {
+        border: 1px solid rgba(139, 195, 74, 0.44);
+        margin-left: 20px;
+        margin-top: 20px;
+    }
+</style>
+<fieldset class="fieldset">
+    <legend class="LegendTitle">
+        <label>
+            <img src="@Url.Content("~/Administration/Content/images/ico-orderstatus.png")" alt="" />
+            @T("Web.NhaXe.PhieuGuiHang.ThongTinPhieu") - @Model.MaPhieu
+        </label>
+    </legend>
+    <table style="width:100%">
+        <tr>
+            <td style="vertical-align:top">
+                <h4>Thông tin nơi gửi</h4>
+                <table class="adminContent">
+                    <tr>
+                        <td class="adminTitle">
+                            Văn phòng:
+                        </td>
+                        <td class="adminData">
+                            @Model.VanPhongGui.TenVanPhong
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="adminTitle">
+                            Tên người gửi:
+                        </td>
+                        <td class="adminData">
+                            @Model.NguoiGui.HoTen
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="adminTitle">
+                            Số điện thoại:
+                        </td>
+                        <td class="adminData">
+                            @Model.NguoiGui.SoDienThoai
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="adminTitle">
+                            Địa chỉ:
+                        </td>
+                        <td class="adminData">
+                            @Model.NguoiGui.DiaChi
+                        </td>
+                    </tr>
+                </table>
+            </td>
+            <td style="vertical-align:top">
+                <h4>Thông tin nơi nhận</h4>
+                <table class="adminContent">
+                    <tr>
+                        <td class="adminTitle">
+                            Văn phòng:
+                        </td>
+                        <td class="adminData">
+                            @Model.VanPhongNhan.TenVanPhong
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="adminTitle">
+                            Tên người nhận:
+                        </td>
+                        <td class="adminData">
+                            @Model.NguoiNhan.HoTen
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="adminTitle">
+                            Số điện thoại:
+                        </td>
+                        <td class="adminData">
+                            @Model.NguoiNhan.SoDienThoai
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="adminTitle">
+                            Địa chỉ:
+                        </td>
+                        <td class="adminData">
+                            @Model.NguoiNhan.DiaChi
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <hr />
+            </td>
+        </tr>
+        <tr>
+            <td style="vertical-align:top">
+                <h4>Tình trạng </h4>
+                <table class="adminContent">
+                   
+                    <tr>
+                        <td class="adminTitle">
+                            Tình trạng vận chuyển:
+                        </td>
+                        <td class="adminData">
+                            @Model.TinhTrangVanChuyen
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="adminTitle">
+                            Tình trạng thanh toán:
+                        </td>
+                        <td class="adminData">
+                            @if (Model.DaThuCuoc)
+                            {
+                                <span>Đã thu cước</span>
+                            }
+                            else
+                            {
+                                <span>Chưa thu cước</span>
+                            }
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="adminTitle">
+                            Ghi chú:
+                        </td>
+                        <td class="adminData">
+                            @Model.GhiChu
+                        </td>
+                    </tr>
+                </table>
+            </td>
+            <td style="vertical-align:top">
+                <h4>Thông tin xe đi</h4>
+                <table class="adminContent">
+                    <tr>
+                        <td class="adminTitle">
+                            Xe chuyển hàng:
+                        </td>
+                        <td class="adminData">
+                            @if(Model.XeXuatBen!=null)
+                            {
+                            <span>@Model.XeXuatBen.xevanchuyen.TenXe (@Model.XeXuatBen.xevanchuyen.BienSo)</span>    
+                            }
+                            else
+                            {
+                                <span>Chưa có</span>
+                            }
+                            
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="adminTitle">
+                            Ngày đi:
+                        </td>
+                        <td class="adminData">
+                            @Model.NgayDi.ToString("dd/MM/yyyy")
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="adminTitle">
+                            Lái xe:
+                        </td>
+                        <td class="adminData">
+                            @if (Model.XeXuatBen != null)
+                            {
+                                <span>@Model.XeXuatBen.LaiXeHoacPhuXe1CV.HoVaTen (@Model.XeXuatBen.LaiXeHoacPhuXe1CV.diachilienlac.DienThoai)</span>
+                            }
+                            else
+                            {
+                                <span>Chưa có</span>
+                            }
+                            
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <hr />
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <h4>Thông tin hàng hóa</h4>
+                <div id="HangHoa_grid"></div>
+                <script>
+                    $(document).ready(function () {
+
+                        $("#HangHoa_grid").kendoGrid({
+                            dataSource: {
+                                type: "json",
+                                transport: {
+                                    read: {
+                                        url: "@Html.Raw(Url.Action("GetHangHoaInPhieuGui", "NhaXeHangHoa"))",
+                                        type: "POST",
+                                        dataType: "json",
+                                        data: additionalData
+                                    },
+                                    update: {
+                                        url:"@Html.Raw(Url.Action("HangHoaInfoUpdate", "NhaXeHangHoa"))",
+                                        type: "POST",
+                                        dataType: "json"
+                                    },
+                                    destroy: {
+                                        url: "@Html.Raw(Url.Action("HangHoaInfoDelete", "NhaXeHangHoa"))",
+                                        type: "POST",
+                                        dataType: "json"
+                                    }
+                                },
+                                schema: {
+                                    data: "Data",
+                                    total: "Total",
+                                    errors: "Errors",
+                                    model: {
+                                        id: "Id",
+                                        fields: {
+                                            TenHangHoa: { editable: true, type: "string" },
+                                            LoaiHangHoa: { editable: true, type: "string" },
+                                            CanNang: { editable: true, type: "number" },
+                                            CanNangText: { editable: true, type: "string" },
+                                            GiaTri: { editable: true, type: "number" },
+                                            SoLuong: { editable: true, type: "number" },
+                                            GiaTriText: { editable: true, type: "string" },
+                                            GiaCuoc: { editable: true, type: "number" },
+                                            GiaCuocText: { editable: true, type: "string" },
+                                            GhiChu: { editable: true, type: "string" },
+
+                                        }
+                                    }
+                                },
+                                requestEnd: function (e) {
+                                    if ( e.type == "update") {
+                                        this.read();
+                                    }
+                                },
+                                error: function(e) {
+                                    display_kendoui_grid_error(e);
+                                    // Cancel the changes
+                                    this.cancelChanges();
+                                },
+                                pageSize: @(defaultGridPageSize),
+                                serverPaging: true,
+                                serverFiltering: true,
+                                serverSorting: true
+                            },
+                            pageable: {
+                                refresh: true,
+                                pageSizes: [@(gridPageSizes)],
+                                messages: {
+                                    display: "@T("Nop.Common.KendoGrid.display")", //{0} is the index of the first record on the page, {1} - index of the last record on the page, {2} is the total amount of records
+                                    empty: "@T("Nop.Common.KendoGrid.Empty")",
+                                    page: "@T("Nop.Common.KendoGrid.Page")",
+                                    of: "@T("Nop.Common.KendoGrid.Of")", //{0} is total amount of pages
+                                    itemsPerPage: "@T("Nop.Common.KendoGrid.itemsPerPage")",
+                                    first: "@T("Nop.Common.KendoGrid.first")",
+                                    previous: "@T("Nop.Common.KendoGrid.previous")",
+                                    next: "@T("Nop.Common.KendoGrid.next")",
+                                    last: "@T("Nop.Common.KendoGrid.last")",
+                                    refresh: "@T("Nop.Common.KendoGrid.refresh")"
+                                }
+                            },
+
+                            scrollable: false,
+                            columns: [{
+                                field: "TenHangHoa",
+                                title: "Tên hàng hóa",
+                                width: 200
+                            }, {
+                                field: "LoaiHangHoaId",
+                                title: "Loại hàng hóa",
+                                template: "#:LoaiHangHoa#",
+                                width: 250
+                            }, {
+                                field: "CanNang",
+                                title: "Cân nặng",
+                                template: "#:CanNangText#",
+                                width: 100
+                            }, {
+                                field: "GiaTri",
+                                title: "Giá trị",
+                                template: "#:GiaTriText#",
+                                width: 150
+
+                            }, {
+                                field: "SoLuong",
+                                title: "Số lượng",
+                                width: 150
+
+                            },{
+                                field: "GiaCuoc",
+                                title: "Giá cước",
+                                template: "#:GiaCuocText#",
+                                width: 100
+
+                            },
+                            {
+                                field: "GhiChu",
+                                title: "Ghi chú",
+
+                            }]
+                        });
+                    });
+
+
+                    function additionalData() {
+                        return {
+                            phieuguihangid: $('#@Html.FieldIdFor(model => model.Id)').val(),
+
+                        };
+                    }
+
+                </script>
+
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="text-align:right">
+                <strong>Tổng cước phí: </strong> @Model.TongCuocPhi
+            </td>
+        </tr>
+
+        <tr>
+            <td style="text-align:right" colspan="2">
+                Ngày tạo: @Model.NgayTao.ToString("dd/MM/yyyy HH:mm") - Người kiểm tra: @Model.TenNguoiKiemTraHang
+            </td>
+        </tr>
+    </table>
+
+</fieldset>
+
+<script>
+    $(document).ready(function () {
+        SetWindowPhieuCTCenter();
+    });
+</script>
+
+

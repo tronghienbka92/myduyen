@@ -1,0 +1,32 @@
+﻿@model ThuChiModel
+@using Nop.Web.Models.NhaXes
+@{
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+    //page title
+    if(Model.isChi)
+    {
+        ViewBag.Title = "Tạo khoản chi";
+    }
+    else
+    {
+        ViewBag.Title = "Tạo khoản thu";
+    }
+        
+        
+}
+
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "thuchi-form" }))
+{
+
+    <div class="section-header">
+        <div class="title">
+            <img src="@Url.Content("~/Content/chonve/nxmenu/hanhtrinhdiemdon.png")" alt="" />
+            @ViewBag.Title @Html.ActionLink("(Trở lại quỹ sổ tiền mặt)", "List")
+        </div>
+        <div class="options">
+            <input type="submit" name="save" class="k-button" value="@T("Admin.Common.Save")" />
+            <input type="submit" name="save-continue" class="k-button" value="@T("Admin.Common.SaveContinue")" />
+        </div>
+    </div>
+    @Html.Partial("_ThuChiChinhSua", Model)
+}

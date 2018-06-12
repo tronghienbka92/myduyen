@@ -1,0 +1,120 @@
+﻿@model ListAgentsModel
+@using Nop.Admin.Models.Chat
+@{
+   
+    ViewBag.Title = "Danh sách NVCSKH";
+}
+<div class="section-header">
+    <div class="title">
+        <img src="@Url.Content("~/Administration/Content/images/ico-dashboard.png")" alt="" />
+        Danh sách NVCSKH
+    </div>
+    <div class="options">
+        <a href="@Url.Action("CreateAgents")" class="k-button">@T("Admin.Common.AddNew")</a>
+    </div>
+</div>
+<table width="100%">
+    <tr>
+        <td class="adminTitle">
+            @Html.NopLabelFor(model => model.NameAgents):
+        </td>
+        <td class="adminData">
+            @Html.EditorFor(model => model.NameAgents)
+        </td>
+    </tr>   
+
+    <tr>
+        <td colspan="2">
+            <input type="button" id="btnSearch" class="k-button" value="@T("Admin.Common.Search")" />
+        </td>
+    </tr>
+</table>
+<table class="adminContent">
+    <tr>
+        <td>
+            <div id="agents_grid"></div>
+        </td>
+    </tr>
+</table>
+
+<script>
+                $(document).ready(function () {
+                    $("#agents_grid").kendoGrid({
+                        dataSource: {
+                            type: "json",
+                            transport: {
+                                read: {
+                                    url: "@Html.Raw(Url.Action("ListAgents", "Chat"))",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: additionalData
+                                }
+                            },
+                            schema: {
+                                data: "Data",
+                                total: "Total",
+                                errors: "Errors"
+                            },
+                            error: function(e) {
+                                display_kendoui_grid_error(e);
+                                // Cancel the changes
+                                this.cancelChanges();
+                            },
+                          
+                            serverPaging: true,
+                            serverFiltering: true,
+                            serverSorting: true
+                        },
+                        pageable: {
+                            refresh: true,
+                            
+                        },
+                        editable: {
+                            confirmation: false,
+                            mode: "inline"
+                        },
+                        scrollable: false,
+                        columns: [{
+                            field: "NickName",
+                            title: "Nick hiển thị"
+                        }, {
+                            field: "NgayTao",
+                            title: "Ngày tạo",
+                            width: 200,
+                            type: "date",
+                            format: "{0:G}"
+                        }, {
+                            field:"Id",
+                            title:"@T("Admin.ChonVe.HopDong.ChiTiet")",
+                            width: 100,
+                            template:'<a href="EditAgents/#=Id#">@T("Admin.ChonVe.HopDong.ChiTiet") </a>'
+                        },]
+                    });
+                });
+</script>
+
+<script type="text/javascript">
+                $(document).ready(function () {
+                    //search button
+                    $('#btnSearch').click(function () {
+                        //search
+                        var grid = $('#agents_grid').data('kendoGrid');
+                        grid.dataSource.page(1); //new search. Set page size to 1
+                        //grid.dataSource.read(); we already loaded the grid above using "page" function
+                        return false;
+                    });
+                    $("#@Html.FieldIdFor(model => model.NameAgents)").keydown(function (event) {
+                        if (event.keyCode == 13) {
+                            $("#btnSearch").click();
+                            return false;
+                        }
+                    });
+                  
+                });
+                function additionalData() {
+                    return {
+                        NameAgents: $('#@Html.FieldIdFor(model => model.NameAgents)').val(),
+                       
+                    };
+                }
+</script>

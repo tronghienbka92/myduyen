@@ -1,0 +1,94 @@
+﻿@Html.ValidationSummary(false)
+@{
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+
+    //page title
+    ViewBag.Title = "Quản lý tổ vẩn chuyển";
+}
+
+<div class="section-header">
+    <div class="title">
+        <img src="@Url.Content("~/Content/chonve/nxmenu/phoive.png")" alt="" />
+        @ViewBag.Title
+    </div>
+</div>
+
+
+<table style="width:100%">
+    <tr>
+        <td style="vertical-align:top">
+            <div id="grid-items"></div>
+
+            <script>
+                var indexrow = 0;
+                $(document).ready(function () {
+                    $("#grid-items").kendoGrid({
+                        dataSource: {
+                            transport: {
+                                read: {
+                                    url: "/HangHoa/ListToVanChuyen",
+                                    dataType: "jsonp"
+                                },
+                                update: {
+                                    url: "/HangHoa/EditToVanChuyen",
+                                    dataType: "jsonp"
+                                },
+                                destroy: {
+                                    url: "/HangHoa/DeleteToVanChuyen",
+                                    dataType: "jsonp"
+                                },
+                                create: {
+                                    url: "/HangHoa/CreateToVanChuyen",
+                                    dataType: "jsonp"
+                                },
+                                parameterMap: function (options, operation) {
+                                    indexrow = 0;
+                                    if (operation !== "read" && options.models) {
+                                        return { models: kendo.stringify(options.models) };
+                                    }
+                                }
+                            },
+                            batch: true,
+                            schema: {
+                                model: {
+                                    id: "Id",
+                                    fields: {
+                                        Id: { type: "number", editable: false, nullable: false },
+                                        TenTo: { type: "string", validation: { required: true }, editable: true },
+                                        MoTa: { type: "string", validation: { required: true }, editable: true },
+                                    }
+                                }
+                            },
+                            requestEnd: function (e) {
+                                indexrow = 0;
+                                if (e.type == "create" || e.type == "update" || e.type == "destroy") {
+                                    this.read();
+                                }
+                            },
+                        },
+                        pageable: false,
+                        toolbar: [{ name: "create", text: "Thêm mới" }],
+                        columns: [
+                             {
+                                 title: "STT",
+                                 template: "#= ++indexrow #",
+                                 width: 50,
+                                 attributes: { style: "text-align:center" },
+                             },
+                            { field: "TenTo", title: "Tên tổ" },
+                            { field: "MoTa", title: "Mô tả" },
+
+                            {
+                                command: [{ name: "edit", text: "Sửa" },
+                                      { name: "destroy", text: "Xóa" }, ], title: "&nbsp;"
+                            }],
+                        editable: "inline"
+                    });
+                });
+            </script>
+
+        </td>
+
+    </tr>
+
+</table>

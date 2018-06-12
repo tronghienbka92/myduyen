@@ -1,0 +1,111 @@
+﻿@model TimVeXeModel
+@using Nop.Web.Models.VeXeKhach
+<div class="cv-search-left">
+    <div class="cv-title-search">
+        <div>
+
+        </div>
+    </div>
+    <div class="cv-content-search">
+        <div class="cv-item-search">
+            <input id="cbbdiemkhoihanh" style="width:100%" />
+            @Html.HiddenFor(m => m.DiemKhoiHanh.Id)
+        </div>
+        <div class="cv-item-search">
+            <input id="cbbdiemden" style="width:100%" />
+            @Html.HiddenFor(m => m.DiemDen.Id)
+        </div>
+        <div class="cv-item-search text-right">
+            @Html.LabelFor(m => m.NgayDi) :
+            @Html.EditorFor(m => m.NgayDi)
+            @Html.ValidationMessageFor(m => m.NgayDi)
+        </div>
+        <div class="cv-item-search text-right">
+            <span id="lberrornotice" style="color:#ffffff;margin-right:5px"></span>
+            <button type="button" class="cv-button-search" id="btntimkiemvexe">&nbsp;&nbsp;&nbsp;@T("ChonVe.VeXeKhach.TimVeXe.Button")&nbsp;&nbsp;&nbsp;</button>
+        </div>
+
+        <script>
+            $(document).ready(function () {
+                $('#btntimkiemvexe').click(function () {
+                    if (parseInt($("#@Html.FieldIdFor(model => model.DiemKhoiHanh.Id)").val()) == 0) {
+                        $('#cbbdiemkhoihanh').data("kendoComboBox").focus();
+                        $('#lberrornotice').html('@T("ChonVe.VeXeKhach.DiemKhoiHanh.ChuaChon")');
+                        return false;
+                    }
+                    if (parseInt($("#@Html.FieldIdFor(model => model.DiemDen.Id)").val()) == 0) {
+                        $('#cbbdiemden').data("kendoComboBox").focus();
+                        $('#lberrornotice').html('@T("ChonVe.VeXeKhach.DiemDen.ChuaChon")');
+                        return false;
+                    }
+                    if ($("#@Html.FieldIdFor(model => model.NgayDi)").val().trim() == "") {
+                        $("#@Html.FieldIdFor(model => model.NgayDi)").focus();
+                        $('#lberrornotice').html('@T("ChonVe.VeXeKhach.NgayDi.ChuaChon")');
+                        return false;
+                    }
+
+                    document.location.href = "/VeXeKhach/TimVeXe?khid=" + $("#@Html.FieldIdFor(model => model.DiemKhoiHanh.Id)").val() + "&ddid=" + $("#@Html.FieldIdFor(model => model.DiemDen.Id)").val() + "&dt=" + $("#@Html.FieldIdFor(model => model.NgayDi)").val();
+                    return false;
+
+                });
+                //diem don
+                $('#cbbdiemkhoihanh').kendoComboBox({
+                    placeholder: "@T("ChonVe.DiaDiem.ChonDiemKhoiHanh")",
+                    dataTextField: "Ten",
+                    dataValueField: "Id",
+                    filter: "contains",
+                    autoBind: false,
+                    minLength: 3,
+                    dataSource: {
+                        type: "json",
+                        serverFiltering: true,
+                        transport: {
+                            read: {
+                                url: "@Html.Raw(Url.Action("DiaDiemSearch", "VeXeKhach"))",
+                                data: additionalData1
+                            }
+                        }
+                    },
+                    change: onChange1
+                });
+                function onChange1() {
+                    $("#@Html.FieldIdFor(model => model.DiemKhoiHanh.Id)").val($('#cbbdiemkhoihanh').data("kendoComboBox").value());
+                }
+                function additionalData1() {
+                    return {
+                        keyword: $('#cbbdiemkhoihanh').data("kendoComboBox").text()
+                    };
+                }
+                ///diem den
+                $('#cbbdiemden').kendoComboBox({
+                    placeholder: "@T("ChonVe.DiaDiem.ChonDiemDen")",
+                    dataTextField: "Ten",
+                    dataValueField: "Id",
+                    filter: "contains",
+                    autoBind: false,
+                    minLength: 3,
+                    dataSource: {
+                        type: "json",
+                        serverFiltering: true,
+                        transport: {
+                            read: {
+                                url: "@Html.Raw(Url.Action("DiaDiemSearch", "VeXeKhach"))",
+                                data: additionalData2
+                            }
+                        }
+                    },
+                    change: onChange2
+                });
+                function onChange2() {
+                    $("#@Html.FieldIdFor(model => model.DiemDen.Id)").val($('#cbbdiemden').data("kendoComboBox").value());
+                }
+                function additionalData2() {
+                    return {
+                        keyword: $('#cbbdiemden').data("kendoComboBox").text()
+                    };
+                }
+
+            });
+        </script>
+    </div>
+</div>

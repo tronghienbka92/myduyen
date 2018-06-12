@@ -1,0 +1,89 @@
+﻿@model HeaderLinksModel
+@using Nop.Web.Models.Common;
+@using Nop.Core;
+@using Nop.Core.Infrastructure;
+@{
+    var returl = Url.RouteUrl("Register");
+    if (!String.IsNullOrEmpty(this.Context.Request.QueryString["returnUrl"]))
+    {
+        var webHelper = EngineContext.Current.Resolve<IWebHelper>();
+        returl = webHelper.ModifyQueryString(returl, "returnurl=" + HttpUtility.UrlEncode(this.Context.Request.QueryString["returnUrl"]), null);
+       
+    }
+}
+<div class="shop-menu pull-right">
+   
+    <ul  class="nav navbar-nav">
+        
+        @Html.Action("AdminHeaderLinks", "Common")
+        @Html.Action("NhaXeLink", "Common")
+        @if (Model.IsAuthenticated)
+        {             
+            <li><a href="@Url.RouteUrl("CustomerInfo")"><i class="fa fa-user"></i> @Model.CustomerEmailUsername</a></li>
+            <li><a href="@Url.RouteUrl("Logout")" ><i class="fa fa-power-off"></i> @T("Account.Logout")</a></li>            
+        }
+        else
+        {
+            <li><a href="@returl" ><i class="fa fa-cog"></i>@T("Account.Register")</a></li>
+             <li><a id="btnLogin" href="#"><i class="fa fa-cog"></i> @T("Account.Login")</a></li>
+            
+        }
+        @if (Model.AllowPrivateMessages)
+        {
+            <li><a href="@Url.RouteUrl("PrivateMessages", new { tab = "" })"><i class="fa fa-envelope"></i> @T("PrivateMessages.Inbox")</a>
+                @Model.UnreadPrivateMessages</li>
+            if (!string.IsNullOrEmpty(Model.AlertMessage))
+            {
+                <script type="text/javascript">
+                    $(document).ready(function () {
+                        displayPopupNotification('@Html.Raw(HttpUtility.JavaScriptStringEncode(Model.AlertMessage))', 'success', false);
+                    });
+                </script>
+            }
+        }
+        
+    </ul>
+</div> 
+
+    <!-- Modal -->
+    <div class="modal fade" id="ModalLogin" role="dialog">
+        <div class="modal-dialog">
+            @Html.Action("_LoginModal", "Customer")
+        </div>
+    </div>
+<script>
+    $(document).ready(function () {
+        $("#btnLogin").click(function (e) {
+            $("#ModalLogin").modal();
+            e.preventDefault();
+        });
+    });
+</script>
+@if (Model.ShoppingCartEnabled)
+    {
+        <script type="text/javascript">
+            $(document).ready(function () {
+                $('.top-menu').on('mouseenter', '#topcartlink', function () {
+                    $('#flyout-cart').addClass('active');
+
+                });
+                $('.top-menu').on('mouseleave', '#topcartlink', function () {
+                    $('#flyout-cart').removeClass('active');
+
+                });
+                $('.top-menu').on('mouseenter', '#flyout-cart', function () {
+                    $('#flyout-cart').addClass('active');
+                });
+                $('.top-menu').on('mouseleave', '#flyout-cart', function () {
+                    $('#flyout-cart').removeClass('active');
+                });
+                
+                $('ul.minicart-dropdown-menu li').slimScroll({
+                    color: '#FE980F',
+                    size: '10px',
+                    height: '400px'
+                });
+            });
+        </script>
+    }
+

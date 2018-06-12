@@ -1,0 +1,208 @@
+﻿@model QLPhoiVeModel
+@using Nop.Services.NhaXes
+@Html.HiddenFor(m => m.ChuyenDiId)
+@Html.HiddenFor(m=>m.NguonVeId)
+<div style="width:100%">
+
+    @if (Model.chuyendis.Count > 0)
+    {
+        <div class="tabchuyendicss">
+            @foreach (var item in Model.chuyendis)
+            {
+                var _class = "tabchuyendiitemcss";
+                if (item.Id == Model.ChuyenDiId)
+                {
+                    _class = "tabchuyendiitemcssactive";
+                }
+                <div class="@_class tabchuyendiitemcssaction" id="ChuyenDidiv_@item.Id" chuyendi_id="@item.Id">
+                    <div class="tabchuyendi_boxinfo">
+                        <div class="tabchuyendi_boxinfo_ma"><strong style="font-size:16px">@item.GioDi</strong></div>
+                        <div class="tabchuyendi_boxinfo_soluong">
+                            <div style="position:relative;width:100%;height:100%;">
+                                <div id="SoKhach_Progress_@item.Id" style="position:absolute;top:0px;left:0px;height:100%;background-color: rgba(254, 83, 109, @(Convert.ToString((float)item.SoNguoi / item.SoGhe).Replace(",", ".")));width:@(Convert.ToString((float)item.SoNguoi * 100f / item.SoGhe).Replace(",", "."))%"></div>
+                                <div style="position:absolute;top:0px;left:0px; width:100%;text-align:center;padding:3px;"><span id="SoKhach_@item.Id">@item.SoNguoi</span> / @item.SoGhe</div>
+                            </div>
+                        </div>
+                        <div class="tabchuyendi_boxinfo_thongtin">
+                            @item.BienSo
+                        </div>
+                    </div>
+                </div>
+            }
+            <div class="tabchuyendicssadd_new">
+                @if (Model.isTaoChuyen)
+                {
+                    <text>
+                        <a href="javascript:ThemMoiChuyenDi();"><img src="~/Content/chonve/nhaxe/circle_add_new.png" style="height:100%" title="Thêm mới chuyến đi" /></a>&nbsp;&nbsp;&nbsp;<a href="javascript:HuyChuyenDi();"><img src="~/Content/chonve/nhaxe/circle_minus.png" style="height:100%" title="Hủy chuyến đi" /></a>
+                    </text>
+                }
+            </div>
+            <div style="width:100%;margin-top:5px;">
+                <span id="TabDatVeCopy" style="text-align:right;padding:3px;"></span>
+            </div>
+        </div>
+        
+    
+        <script>
+            
+            function GoMenuChuyenDi(isLeft) {
+                var position = $('.tabchuyendicss').position();             
+                var _width = $(".tabchuyendiitemcss").width();
+               
+                var _step = position.left + 5 * _width + 5;
+            
+                if (!isLeft)
+                    _step = position.left - 5 * _width - 5;
+
+                //if (isLeft && _step > 0)
+                //    return;
+
+                $('.tabchuyendicss').animate({
+                    'left': '' + _step + 'px'
+                });
+            }
+            $(document).ready(function () {
+                LoadThongTinGhe();
+                LoadChiPhiChuyenDi();
+            });
+</script>      
+    }
+    else
+    {
+        <div class="tabchuyendiadd_new">
+            @if (Model.isTaoChuyen)
+            {
+                <text>
+            <h2>Không có chuyến đi, bạn hãy nút phía dưới để thêm mới</h2>
+            <br /><br />
+            <a href="javascript:ThemMoiChuyenDi();"><img src="~/Content/chonve/nhaxe/circle_add_new.png" /></a>
+                </text>
+            }
+            else
+            {
+                <h2>Không có chuyến đi</h2>
+            }
+            
+            
+        </div>
+
+    }
+</div>
+
+<script>
+    
+    function SwapChuyenDi(ChuyenDiid) {
+        var _ChuyenDiidold = $('#@Html.FieldIdFor(m=>m.ChuyenDiId)').val();
+        $('#ChuyenDidiv_' + _ChuyenDiidold).removeClass("tabchuyendiitemcssactive").addClass("tabchuyendiitemcss");
+        $('#ChuyenDidiv_' + ChuyenDiid).removeClass("tabchuyendiitemcss").addClass("tabchuyendiitemcssactive");
+        $('#@Html.FieldIdFor(m=>m.ChuyenDiId)').val(ChuyenDiid);
+        LoadThongTinGhe();
+        LoadChiPhiChuyenDi();
+    }
+    
+
+    $(document).ready(function () {        
+        $(".tabchuyendiitemcssaction").each(function (e) {
+            $(this).click(function () {
+                var _ChuyenDiid = $(this).attr('chuyendi_id');
+                SwapChuyenDi(_ChuyenDiid);
+            });
+        });
+        
+    });
+</script>
+<style>
+    .tabchuyendicss {
+        width: 100%;
+        font-size:11px;        
+    }
+
+    .tabchuyendicssadd_new {
+
+        text-align: left;
+        width: 120px;
+        height: 35px;
+        vertical-align:top;
+        padding-top:10px;
+        display: inline-block;
+    }
+
+    .tabchuyendiitemcss {
+        text-align: center;
+        padding: 5px;
+        width: 95px;
+        height: 35px;
+        display: inline-block;
+        border: 1px solid #c1bebe;
+        cursor: pointer;        
+    }
+
+    .tabchuyendiitemcssactive {
+        text-align: center;
+        padding: 5px;
+        width: 95px;
+        height: 35px;
+        display: inline-block;
+        border: 2px solid #099faf;
+        font-weight: bold;
+        background-color: rgb(19, 142, 154);
+    }
+    .tabchuyendiadd_new
+    {        
+        width:100%;
+        text-align:center;
+        margin-top:60px;
+    }
+     .tabchuyendicssstep {
+        position: absolute;
+        width: 70px;
+        height: 30px;
+        top: 0;
+        right: 0;
+        background-color: rgba(255, 255, 255, 0.90);
+    }
+     .tabchuyendi_boxinfo
+     {
+         position:relative;
+         width:100%;
+     }
+     .tabchuyendi_boxinfo .tabchuyendi_boxinfo_ma
+     {
+         position:absolute;
+         background-color: rgba(255, 255, 255, 0.6);
+         color:#313030;
+         font-size:9px;
+         border:1px solid rgba(255, 106, 0, 0.43);
+         top:-4px;
+         left:-4px;
+         text-align:center;
+         padding:2px;
+     }
+     .tabchuyendi_boxinfo .tabchuyendi_boxinfo_soluong
+     {
+         position:absolute;         
+         font-size:12px;         
+         background-color: rgba(255, 255, 255, 0.38);
+         border:1px solid rgba(53, 52, 52, 0.42);
+         top:-2px;
+         right:-2px;
+         width:45px;
+         height:18px;
+         text-align:center;
+         color:#132102;         
+     }
+     .tabchuyendi_boxinfo .tabchuyendi_boxinfo_soluong_progress
+     {                 
+         background-color: rgb(254, 83, 109);         
+     }
+     .tabchuyendi_boxinfo .tabchuyendi_boxinfo_thongtin
+     {
+         position:absolute;         
+         font-size:10px;
+         top:25px;
+         left:0px;         
+         width:100%;
+         text-align:left;
+         padding:2px;
+     }
+</style>

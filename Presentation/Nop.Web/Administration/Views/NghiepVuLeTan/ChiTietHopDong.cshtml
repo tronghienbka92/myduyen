@@ -1,0 +1,265 @@
+﻿@model XuLyHopDongModel
+@using Nop.Admin.Models.ChonVes
+@using Nop.Core.Domain.Chonves;
+@using Nop.Core.Infrastructure
+@using Nop.Web.Framework.Events
+@using Nop.Services.Events
+@Html.ValidationSummary(false)
+@Html.HiddenFor(model => model.Id)
+@Html.HiddenFor(model => model.TrangThaiID)
+@{
+   
+}
+<div class="section-header">
+    <div class="title">
+       
+        <img src="@Url.Content("~/Administration/Content/images/ico-dashboard.png")" alt="" />
+        @T("Admin.ChonVe.HopDong.ChiTietHopDong") @Html.ActionLink("(" + T("Admin.ChonVe.HopDong.QuayVe") + ")", "ListHopDongDaDuyet")
+    </div>
+    <div class="options">       
+        <input type="submit" id="btnSave" class="k-button" value="@T("Admin.Common.Save")" />
+    </div>
+</div>
+<div id="customer-edit">
+    <ul>
+        <li @Html.RenderSelectedTabIndex(0, GetSelectedTabIndex())>
+            @T("Admin.ChonVe.HopDong.InfoBase")
+        </li>
+        <li @Html.RenderSelectedTabIndex(1, GetSelectedTabIndex())>
+            @T("Admin.Customers.Customers.InfoHopDong")
+        </li>
+        <li @Html.RenderSelectedTabIndex(2, GetSelectedTabIndex())>
+            @T("Admin.Customers.Customers.selectcustomers")
+        </li>
+       
+    </ul>
+
+    <div>
+        @TabInfoBase()
+    </div>
+    <div>
+        @TabInfoHopDong()
+    </div>
+    <div>
+        @Tabselectcustomers()
+    </div>
+
+</div>
+<script>
+    $(document).ready(function () {
+        $("#customer-edit").kendoTabStrip({
+            animation: {
+                open: {
+                    effects: "fadeIn"
+                }
+            },
+            select: tabstrip_on_tab_select
+        });
+
+    });
+</script>
+@{
+    //custom tabs
+    var eventMessage = new AdminTabStripCreated(this.Html, "customer-edit");
+    EngineContext.Current.Resolve<IEventPublisher>().Publish(eventMessage);
+    foreach (var eventBlock in eventMessage.BlocksToRender)
+    {
+        @eventBlock
+    }
+}
+@*save selected tab index*@
+<input type="hidden" id="selected-tab-index" name="selected-tab-index" value="@(GetSelectedTabIndex())">
+@helper TabInfoBase()
+{
+
+    <table class="adminContent">
+
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.MaHopDong):
+            </td>
+            <td class="adminData">
+                @Html.DisplayFor(model => model.MaHopDong)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.TenHopDong):
+            </td>
+            <td class="adminData">
+                @Html.DisplayFor(model => model.TenHopDong)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.KhachHang.Fullname):
+            </td>
+            <td class="adminData">
+                @Html.DisplayFor(model => model.KhachHang.Fullname)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.KhachHang.Email):
+            </td>
+            <td class="adminData">
+                @Html.DisplayFor(model => model.KhachHang.Email)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.TenNguoiTao):
+            </td>
+            <td class="adminData">
+                @Html.DisplayFor(model => model.TenNguoiTao)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.TenNguoiDuyet):
+            </td>
+            <td class="adminData">
+                @Html.DisplayFor(model => model.TenNguoiDuyet)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.NgayKichHoat):
+            </td>
+            <td class="adminData">
+                @Html.DisplayFor(model => model.NgayKichHoat)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.LoaiHopDongText):
+            </td>
+            <td class="adminData">
+                @Html.DisplayFor(model => model.LoaiHopDongText)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.NhaXeText):
+            </td>
+            <td class="adminData">
+                @Html.DisplayFor(model => model.NhaXeText)
+            </td>
+        </tr>
+        
+
+    </table>
+}
+@helper TabInfoHopDong()
+{
+    <table >
+        <tr>
+            <td class="adminTitle"></td>
+            <td class="adminData">@Html.Raw(Model.ThongTin)
+</td>
+        </tr>
+    </table>
+   
+       
+    
+}
+@helper Tabselectcustomers()
+{
+    if (Model.Id > 0)
+    {
+        <h2>@T("Admin.ChonVe.HopDong.KhachHang.Title")</h2>
+        <table class="adminContent">
+           
+            <tr>
+                <td class="adminTitle">
+                    @Html.NopLabelFor(model => model.KhachHangID)
+                </td>
+                <td class="adminData">
+                    <input id="cbbEmail" value="@Model.KhachHang.Email" />
+                    @Html.HiddenFor(model => model.KhachHang.Email)                   
+                </td>               
+            </tr>
+            <tr>
+                <td colspan="2" align="left">
+                    
+                  
+                         @Html.ActionLink(@T("Admin.ChonVe.HopDong.KhachHang.ThemMoi").Text, "TaoTaiKhoan", new { @_idhopdong = Model.Id }, new { @class = "k-button" })
+                                  
+                </td>
+            </tr>
+            
+        </table>
+     <script>
+        $(document).ready(function () {            
+            $('#cbbEmail').kendoComboBox({
+                placeholder: "@T("ChonVe.NhaXe.DiemDon.ChonKhachHang")",
+                dataTextField: "Email",
+                dataValueField: "Id",
+                filter: "contains",
+                autoBind: false,
+                minLength: 3,               
+                dataSource: {
+                    type: "json",
+                    serverFiltering: true,
+                    transport: {
+                        read: {
+                            url: "@Html.Raw(Url.Action("KhachHangList", "NghiepVuLeTan"))",
+                            data: additionalData
+                        }
+                    }
+                },
+                change: onChange
+            });
+            function onChange() {
+                $("#@Html.FieldIdFor(model => model.KhachHang.Email)").val($('#cbbEmail').data("kendoComboBox").text());                
+            }
+            function additionalData() {
+                return {
+                    Email: $('#cbbEmail').data("kendoComboBox").text()
+                };
+            }
+
+        });
+    </script>    
+    }
+    else
+    {
+        <h2>@T("Admin.ChonVe.HopDong.KhachHang.UpdateFirst")</h2>
+    }
+}
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $('#btnSave').click(function () {
+            var Id =@(Model.Id)
+             Email = $("#@Html.FieldIdFor(model => model.KhachHang.Email)").val();
+
+            if (Email == "") {
+                alert('@T("Admin.ChonVe.HopDong.KhachHang.NhapEmail")');
+                return;
+            }
+            $('#btnSave').attr('disabled', true);
+            $.ajax({
+                cache: false,
+                type: "POST",
+                data: { "Id": Id, "Email": Email},
+                dataType: 'json',
+                url: "@(Url.Action("ChiTietHopDong", "NghiepVuLeTan"))",
+                success: function (data) {
+                    ////var info = data.split(';');
+                    alert('@T("Admin.NghiepVuLeTan.ThemKhachHangThanhCong")');
+                    document.location.href = "/Admin/NghiepVuLeTan/ListHopDongDaDuyet";
+
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert('@T("Admin.ChonVe.HopDong.Loi")');
+                    $('#btnSave').attr('disabled', false);
+                }
+
+            });
+        });
+
+    });
+</script>
+
+

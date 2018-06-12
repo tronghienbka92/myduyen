@@ -1,0 +1,38 @@
+﻿
+@{
+    Layout = "/Themes/ChonVeV1/Views/Shared/_Root.Head.cshtml";
+}
+@Html.Widget("body_start_html_tag_after")
+<div class="container-fluid">
+    <div class="row-header">
+        <div class="col-md-12">
+            <div id="my-slide">
+                <div style="background-size:cover" data-lazy-background="/Themes/ChonVeV1/Content/images/slide1.png">                   
+                </div>
+                <div style="background-size:cover" data-lazy-background="/Themes/ChonVeV1/Content/images/slide1.png">                    
+                </div>
+            </div>
+        </div>
+        <div class="row row-pos-sl">
+            <div class="col-md-12">
+                <div class="container">
+                    @Html.Action("HeaderTop", "Common")
+                   @Html.Action("VeXeHome", "VeXeKhach")
+                </div>
+            </div>
+        </div>
+    </div>
+    @Html.Action("HuongDan4B", "Common")       
+    @Html.Action("VungVeHome", "VeXeKhach")
+    @Html.Partial("_BlogNewsHome")
+    @Html.Action("Footer", "Common")
+   
+</div>
+
+
+@Html.Widget("body_end_html_tag_before")
+
+
+
+
+

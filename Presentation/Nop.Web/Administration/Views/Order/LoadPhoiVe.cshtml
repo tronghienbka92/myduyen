@@ -1,0 +1,142 @@
+﻿@model OrderModel.PhoiVeModel
+@{
+    Layout = null;// "~/Views/Shared/_RootPopup.cshtml";
+}
+<!-- Modal -->
+@Html.HiddenFor(m => m.PhoiVeId)
+@Html.HiddenFor(m => m.orderId)
+
+
+<h3>@T("PhoiVe.DatVe.ChuyenVe.ThongTinKhachHang")</h3>
+<table>
+    <tr>
+        <td style="width:50%">
+            <table class="adminContent">
+                <tr>
+                    <td class="adminTitle">
+                        @T("ChonVe.NhaXe.QuanLiPhoiVe.KhachHang.HoTen"):
+                    </td>
+                    <td class="adminData">
+                        @Model.TenKhachHang
+                    </td>
+                </tr>
+                <tr>
+                    <td class="adminTitle">
+                        @T("ChonVe.NhaXe.QuanLiPhoiVe.KhachHang.DienThoai"):
+                    </td>
+                    <td class="adminData">
+                        @Model.SoDienThoai
+                    </td>
+                </tr>
+                <tr>
+                    <td class="adminTitle">
+                        @Html.NopLabelFor(model => model.DaThanhToan)
+                    </td>
+                    <td class="adminData">
+                        @Html.CheckBoxFor(model => model.DaThanhToan)
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td>
+            <table class="adminContent">
+                <tr>
+                    <td class="adminTitle">
+                        @T("chonve.nhaxe.nguonve.chuyendi"):
+                    </td>
+                    <td class="adminData">
+                        @Html.DropDownListFor(model => model.NguonVeXeId, Model.ListNguonVeXe)
+                    </td>
+                </tr>
+                <tr>
+                    <td class="adminTitle">
+                        @T("chonve.nhaxe.nguonve.ngaydi"):
+                    </td>
+                    <td class="adminData">
+                        @Html.EditorFor(model => model.NgayDi)
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+<div class="row">
+    <div id="current_sodoghexe_PhoiVe" style="width:100%;">
+    </div>
+</div>
+
+<script>
+   $(document).ready(function () {
+        $("#@Html.FieldIdFor(model => model.NgayDi)").change(function () {
+            LoadThongTinPhoiVe();
+        });
+        $('#@Html.FieldIdFor(model => model.NguonVeXeId)').change(function () {
+            LoadThongTinPhoiVe();
+        });
+        LoadThongTinPhoiVe();
+        $("#btncloseThemMoi").click(function (e) {
+            HuyChon();
+        });
+        $("#btnDongYThemMoi").click(function (e) {
+            ThanhToan();
+        });
+    });
+    function LoadThongTinPhoiVe() {
+        var NguonVeXeId = $('#@Html.FieldIdFor(m=>m.NguonVeXeId)').val();
+        var NgayDi = $('#@Html.FieldIdFor(m=>m.NgayDi)').val();
+        var TangIndex = $('#selected-tab-index1').val();
+        $.ajax({
+            cache: false,
+            type: "GET",
+            dataType: "html",
+            contentType: 'application/html;charset=utf-8',
+             data: { "NguonVeXeId": NguonVeXeId, "ngaydi": NgayDi, "TangIndex": TangIndex },
+              url: "@(Url.Action("_GetInfoSoDoGheXe", "Order"))",
+            success: function (data) {               
+                $("#current_sodoghexe_PhoiVe").html(data);
+                SetCenterWindowPhoiVeCV();
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert('Error bind data of seat');
+            }
+        });
+    }
+    function ChonChuyenVe(kyhieu, tang) {
+        if (!confirm("@T("Common.areyousure")")) {
+            return;
+        }
+        var NguonVeXeId = $('#@Html.FieldIdFor(m => m.NguonVeXeId)').val();
+        var NgayDi = $('#@Html.FieldIdFor(m => m.NgayDi)').val();
+        var PhoiVeId = $('#@Html.FieldIdFor(m => m.PhoiVeId)').val();
+        var DaThanhToan = $('#@Html.FieldIdFor(model => model.DaThanhToan)').is(':checked');
+        $.ajax({
+            cache: false,
+            type: "POST",
+            data: {
+                "PhoiVeId": PhoiVeId,
+                "NguonVeXeId": NguonVeXeId,
+                "NgayDi": NgayDi,
+                "KiHieuGhe": kyhieu,
+                "Tang": tang,
+                "DaThanhToan": DaThanhToan,
+            },
+            url: "@(Url.Action("DoiVe", "Order"))",
+            success: function (data) {
+                if (data != "OK") {
+                    alert(data);
+                }
+                else {
+
+                    SetCloseWindowPhoiVeCV();
+                    var grid = $('#PhoiVe_Grid').data('kendoGrid');
+                    grid.dataSource.page(1);
+                   
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                return alert('Error chon ghe');
+            }
+        });
+    }
+</script>
+ 

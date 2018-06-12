@@ -1,0 +1,171 @@
+﻿@model NguonVeXeModel
+@using Nop.Web.Models.VeXeKhach
+@Html.Partial("_StepMuaVe", 2)
+<div class="row">
+    <div class="col-md-6">
+        <h4>Đặt mua vé nhà xe @Model.NhaXeInfo.TenNhaXe</h4>
+    </div>
+    <div class="col-md-6 price-saerch" style="text-align:right;padding-top:5px">
+        <button type="button" class="btnchonve-green" id="btndatmuavethanhtoan" style="width:120px">Mua vé</button>
+        <button type="button" class="btnchonve-light" id="btndatmuaveclose">Chọn vé khác</button>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-9">
+        <div id="current_sodoghexe_quytac">
+        </div>
+        <div style="display:inline;">
+            Ghế đã chọn: <p id="ketquachonghe" style="display:inline; color:#0094ff;"></p>
+        </div><br />
+        <div style="display:inline;">
+            Tổng Tiền: <p id="tongtien" style="display:inline; color:#0094ff;"></p>
+        </div><br />
+    </div><br />
+</div>
+<script>
+    function ShowSoDoGheWaiting() {
+        var datahtml = $("#current_sodoghexe_quytac").html();
+        datahtml = datahtml + '<div style="text-align: center; position: absolute; top: 50%; left: 0px; width: 100%; height: 1px; overflow: visible; display: block;"><div style="margin-left: -125px; position: absolute; top: -35px; left: 50%; width: 250px; height: 70px;"><img src="/Content/kendo/2014.1.318/BlueOpal/loading_2x.gif" /></div></div>';
+        $("#current_sodoghexe_quytac").html(datahtml);
+    }
+
+
+
+    function CloseDialog(acttype) {
+
+        CloseSoDoGhe();
+        if (acttype == 1) {
+            document.location.href = "@Url.Action("VeXeThanhToan")";
+        }
+    }
+    $(document).ready(function () {
+        $("#btndatmuaveclose").click(function (e) {
+            HuyChon();
+        });
+        $("#btndatmuavethanhtoan").click(function (e) {
+            ThanhToan();
+        });
+        LoadSoDoGhe(0);
+    });
+
+
+    function LoadSoDoGhe(TangIndex) {
+        ShowSoDoGheWaiting();
+        var datasodo = {
+            "NguonVeXeId": "@Model.Id",
+            "ParentId": "@Model.ParentId",
+            "NgayDi": "@Model.NgayDiTick",
+            "TangIndex": TangIndex
+        }
+        $.ajax({
+            cache: false,
+            type: "GET",
+            dataType: "html",
+            contentType: 'application/html;charset=utf-8',
+            data: datasodo,
+            url: "@(Url.Action("GetSoDoGheXeInfo", "VeXeKhach"))",
+            success: function (data) {
+                $("#current_sodoghexe_quytac").html(data);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert('Error bind data of seat');
+            }
+        });
+    }
+
+    function HuyChon() {
+        $.ajax({
+            cache: false,
+            type: "POST",
+            data: {
+                "NguonVeXeId": "@Model.Id",
+                "ParentId": "@Model.ParentId",
+                "NgayDi": "@Model.NgayDiTick"
+            },
+            url: "@(Url.Action("HuyChon", "VeXeKhach"))",
+            success: function (data) {
+                CloseDialog(0);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                CloseDialog(0);
+                //alert('Failed to retrieve states.');
+            }
+        });
+
+    }
+    function ThanhToan() {
+        $.ajax({
+            cache: false,
+            type: "POST",
+            data: {
+                "NguonVeXeId": "@Model.Id",
+                "ParentId": "@Model.ParentId",
+                "NgayDi": "@Model.NgayDiTick"
+            },
+            url: "@(Url.Action("GiuCho", "VeXeKhach"))",
+            success: function (data) {
+                if (data == "OK") {
+                    CloseDialog(1);
+                }
+                else {
+                    alert('Không có ghế nào được chọn');
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                CloseDialog(0);
+            }
+        });
+    }
+
+    function ChonGhe(kyhieu, tang) {
+        $.ajax({
+            cache: false,
+            type: "GET",
+            url: "@(Url.Action("KiemTraChoNgoi", "VeXeKhach"))",
+            dataType: 'json',
+            data: {
+                "NguonVeXeId": "@Model.Id",
+                "ParentId": "@Model.ParentId",
+                "NgayDi": "@Model.NgayDiTick",
+                "KyHieuGhe": kyhieu,
+                "Tang": tang
+            },
+            success: function (data) {
+                LoadSoDoGhe(tang);
+                $("#ketquachonghe").append(kyhieu + " ");
+                $.each(data, function (i, field) {
+                    $("#tongtien").text(function () {
+                        i++;
+                        return i * field.TongTien + " VNĐ";
+                    });
+                });
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert('Failed to retrieve states.');
+            }
+        });
+
+    }
+
+    function HuyGheDatCho(PhoiVeId) {
+        var tang = parseInt($("#selected-tab-index").val());
+        $.ajax({
+            cache: false,
+            type: "POST",
+            data: {
+                "PhoiVeId": PhoiVeId
+            },
+            url: "@(Url.Action("HuyGheDatCho", "VeXeKhach"))",
+            success: function (data) {
+                if (data != "OK") {
+                    alert("@T("ChonVe.Nhaxes.QuanLyPhoive.KhongSoHuu")");
+                }
+                LoadSoDoGhe(tang);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                return alert('Error huy ghe');
+            }
+        });
+    }
+</script>

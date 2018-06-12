@@ -1,0 +1,57 @@
+﻿@{
+    string currentUrl = HttpContext.Current.Request.Url.PathAndQuery.ToLower();
+    int menuid = -1;
+    if(currentUrl=="/" || string.IsNullOrWhiteSpace(currentUrl))
+    {
+        menuid = 0;
+    }
+    if (currentUrl.IndexOf("about") > 0)
+    {
+        menuid = 1;
+    }
+    else if (currentUrl.IndexOf("tuyen") > 0)
+    {
+        menuid = 2;
+    }
+    else if (currentUrl.IndexOf("contactus") > 0)
+    {
+        menuid = 3;
+    }   
+}
+<div class="row">
+    <div class="col-md-4">
+        <div class="logo">
+            <h1><a href="@Url.RouteUrl("HomePage")"><img alt="" src="~/Themes/ChonVeV1/Content/images/logo.png" /></a></h1>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="sub-menu-mobile"><a href="@Url.RouteUrl("HomePage")">Trang chủ</a><span><em></em><em></em><em></em><em></em></span></div>
+        <div class="menu">
+            <ul id="menu_banner">
+                <li><a href="@Url.RouteUrl("HomePage")">Trang chủ</a></li>
+                <li><a href="/about-us">Giới thiệu</a></li>
+                <li><a href="/tuyen-dung">Tuyển dụng</a></li>
+                <li><a href="/contactus-2">Liên hệ</a></li>
+            </ul>
+        </div>
+    </div>
+</div> 
+<script>
+    function SetActiveForMenu(intid)
+    {
+        $("#menu_banner li").each(function (index) {
+            $(this).removeClass("active");
+        });
+        $("#menu_banner li").each(function (index) {
+            if (index == intid)
+                $(this).addClass("active");
+        });
+    }
+    $(document).ready(function () {
+        SetActiveForMenu(@(menuid));
+    });
+</script>
+
+
+
+

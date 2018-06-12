@@ -1,0 +1,314 @@
+﻿@model PhieuVanChuyenModel
+@using Nop.Web.Models.ChuyenPhatNhanh
+@{
+
+}
+@if (Model.Id == 0)
+{
+    <div style="text-align:center;padding-top:50px">
+        <h3>Nhấn vào nút "Tạo mới phiếu vận chuyển" để thực hiện thêm phiếu phát nhanh vào phiếu vận chuyển</h3>
+    </div>
+
+}
+else
+{
+    <table style="width:100%">
+        <tr>
+            <td style="text-align:left;border-bottom:2px dashed #531010">
+                <table style="width:100%">
+                    <tr>
+                        <td>
+                            <h3>Thông tin phiếu vận chuyển - @Model.SoLenh (Số tiền đi kèm: <span style="color:#8b1414">@Model.TongCuocDiKem.ToString("###,###,##0") đ</span>)</h3>
+                        </td>
+                        <td style="width:120px;text-align:right"></td>
+                    </tr>
+                </table>
+
+            </td>
+        </tr>
+        <tr>
+            <td style="text-align:left">
+                @if (Model.nhatkyvanchuyens.Count > 0)
+                {
+                    <h3>Nhật ký vận chuyển</h3>
+                    <table style="width:100%">
+                        <tr style="text-align:center;font-weight:bold;background-color:#e2efc1">
+                            <td>Số xe</td>
+                            <td>Giờ chạy</td>
+                            <td>Người giao</td>
+                            <td>VP gửi</td>
+                            <td>Người nhận</td>
+                            <td>VP nhận</td>
+                        </tr>
+                        @foreach (var nk in Model.nhatkyvanchuyens)
+                        {
+                            <tr style="text-align:center;">
+                                <td>@nk.BienSo</td>
+                                <td>@nk.NgayDi.ToString("HH:mm")</td>
+                                <td>@nk.NguoiGiaoText</td>
+                                <td>@nk.vanphongguiText</td>
+                                <td>@nk.NguoiNhanText</td>
+                                <td>@nk.vanphongnhanText</td>
+                            </tr>
+                        }
+
+                    </table>
+                }
+
+                <table style="width:100%" cellpadding="5" cellspacing="5">
+                    <tr>
+                        <td>
+                            <h3>Thiết lập thông tin vận chuyển</h3>
+                        </td>
+                        <td style="text-align:right">
+                            <input type="button" id="btnCapNhat_PVCSETTING" class="k-button" value="Cập nhật" /> &nbsp;&nbsp;
+                            @if (Model.NhatKyVanChuyenHienTai.Id > 0)
+                            {
+                                <input type="button" id="btnHuy_PVCSETTING" class="k-button" value="Hủy thiết lập" />
+                            }
+                        </td>
+                    </tr>
+                    @if (Model.LoaiPhieuVanChuyen == Nop.Core.Domain.NhaXes.ENLoaiPhieuVanChuyen.VuotTuyen)
+                    {
+                        <text>
+                            <tr>
+                                <td colspan="2">
+                                    Văn phòng nhận hàng: @Html.DropDownListFor(m => m.NhatKyVanChuyenHienTai.VanPhongNhanId, Model.vanphongnhans) 
+                                </td>
+                            </tr>
+                        </text>
+                    }
+                    <tr>
+                        <td colspan="2" style="text-align:left">
+                            <a href="javascript:ShowWaitingTimKiem();">Làm mới</a> &nbsp;|&nbsp; <a href="/NhaXes/BangDieuChuyen">Tạo chuyến đi mới</a> &nbsp;<span style="color:red;font-weight:bold" id="spWaitingSearch"></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            Chuyến đi: @Html.DropDownListFor(m => m.NhatKyVanChuyenHienTai.ChuyenDiId, Model.chuyendis) 
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width:50%">
+                            Người giao: <input id="cbbSearchNguoiGiao" value="@Model.NhatKyVanChuyenHienTai.NguoiGiaoText" style="width:250px" />
+                            @Html.HiddenFor(model => model.NhatKyVanChuyenHienTai.NguoiGiaoId)
+                            <script>
+                                $(document).ready(function () {
+                                    function dataSearchNguoiGiao() {
+                                        var _hovaten = $('#cbbSearchNguoiGiao').data("kendoComboBox").text();
+                                        return {
+                                            hoten: _hovaten
+                                        };
+                                    }
+                                    $('#cbbSearchNguoiGiao').kendoComboBox({
+                                        placeholder: "Tên người giao hàng",
+                                        dataTextField: "HoTen",
+                                        dataValueField: "Id",
+                                        filter: "contains",
+                                        autoBind: false,
+                                        minLength: 2,
+                                        dataSource: {
+                                            type: "json",
+                                            serverFiltering: true,
+                                            transport: {
+                                                read: {
+                                                    url: "@Html.Raw(Url.Action("CBBNhanVienNhaXe", "HangHoa"))",
+                                                    data: dataSearchNguoiGiao
+                                                }
+                                            }
+                                        },
+                                        change: onChangeGiao
+                                    });
+                                    function onChangeGiao(e) {
+                                        var DataItem = this.dataItem();
+                                        $("#@Html.FieldIdFor(model => model.NhatKyVanChuyenHienTai.NguoiGiaoId)").val(DataItem.Id);
+                                    }
+                                });
+                            </script>
+                        </td>
+                        <td>
+                            Người nhận : <input id="cbbSearchNguoiNhan" value="@Model.NhatKyVanChuyenHienTai.NguoiNhanText" style="width:250px" />
+                            @Html.HiddenFor(model => model.NhatKyVanChuyenHienTai.NguoiNhanId)
+                            <script>
+                                $(document).ready(function () {
+                                    function dataSearchNguoiNhan() {
+                                        var _hovaten = $('#cbbSearchNguoiNhan').data("kendoComboBox").text();
+                                        return {
+                                            hoten: _hovaten
+                                        };
+                                    }
+                                    $('#cbbSearchNguoiNhan').kendoComboBox({
+                                        placeholder: "Tên người nhận hàng",
+                                        dataTextField: "HoTen",
+                                        dataValueField: "Id",
+                                        filter: "contains",
+                                        autoBind: false,
+                                        minLength: 2,
+                                        dataSource: {
+                                            type: "json",
+                                            serverFiltering: true,
+                                            transport: {
+                                                read: {
+                                                    url: "@Html.Raw(Url.Action("CBBNhanVienNhaXe", "HangHoa"))",
+                                                    data: dataSearchNguoiNhan
+                                                }
+                                            }
+                                        },
+                                        change: onChangeNhan
+                                    });
+                                    function onChangeNhan(e) {
+                                        var DataItem = this.dataItem();
+                                        $("#@Html.FieldIdFor(model => model.NhatKyVanChuyenHienTai.NguoiNhanId)").val(DataItem.Id);
+                                    }
+                                });
+                            </script>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+    
+    <script>
+
+    function ShowWaitingTimKiem() {
+        $("#spWaitingSearch").html("Đang tìm kiếm chuyến đi tới văn phòng nhận...");
+        var selectedItem = $("#@Html.FieldIdFor(model => model.NhatKyVanChuyenHienTai.VanPhongNhanId)").val();
+        if (selectedItem == null)
+            selectedItem = 0;
+        var ddlchuyendi = $("#@Html.FieldIdFor(model => model.NhatKyVanChuyenHienTai.ChuyenDiId)");
+        var adddata = {
+            "PhieuVanChuyenId": "@Model.Id",
+            "VanPhongGuiId": "@Model.NhatKyVanChuyenHienTai.VanPhongGuiId",
+            "VanPhongNhanId": selectedItem,
+        }
+        $.ajax({
+            cache: false,
+            type: "GET",
+            url: "@(Url.Action("getChuyenDiByPhieuVanChuyen", "HangHoa"))",
+            data: adddata,
+            success: function (data) {
+                ddlchuyendi.html('');
+                $.each(data, function (id, option) {
+                    ddlchuyendi.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+                var socd = data.length - 1;
+                $("#spWaitingSearch").html("Tìm thấy " + socd + " chuyến đi");
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert('Failed to retrieve states.');
+            }
+        });
+    }
+    $(document).ready(function () {
+        $("#TrangThaiVanChuyenId").val('@Model.TrangThaiId');
+        $("#@Html.FieldIdFor(model => model.NhatKyVanChuyenHienTai.VanPhongNhanId)").change(function () {
+            ShowWaitingTimKiem();
+
+        });
+        $("#@Html.FieldIdFor(model => model.NhatKyVanChuyenHienTai.ChuyenDiId)").change(function () {
+            var _chuyendiid = $("#@Html.FieldIdFor(m => m.NhatKyVanChuyenHienTai.ChuyenDiId)").val();
+            if (_chuyendiid == 0)
+                return;
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: "@(Url.Action("getPhuXeChuyenDi", "HangHoa"))",
+                data: { "ChuyenDiId": _chuyendiid },
+                success: function (data) {                    
+                    $('#cbbSearchNguoiNhan').data("kendoComboBox").input.val(data.HoVaTen);
+                $("#@Html.FieldIdFor(model => model.NhatKyVanChuyenHienTai.NguoiNhanId)").val(data.NhanVienId);
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert('Failed to retrieve states.');
+            }
+        });
+            });
+            $('#btnCapNhat_PVCSETTING').click(function () {
+                //kiem tra thong tin du lieu
+                var _chuyendiid = $("#@Html.FieldIdFor(m => m.NhatKyVanChuyenHienTai.ChuyenDiId)").val();
+            var _vanphongnhanid = $("#@Html.FieldIdFor(m => m.NhatKyVanChuyenHienTai.VanPhongNhanId)").val();
+            var _nguoigiaoid = $("#@Html.FieldIdFor(m => m.NhatKyVanChuyenHienTai.NguoiGiaoId)").val();
+            var _nguoinhanid = $("#@Html.FieldIdFor(m => m.NhatKyVanChuyenHienTai.NguoiNhanId)").val();
+            if (_chuyendiid == 0) {
+                alert("Bạn chưa chọn chuyến đi!");
+                $("#@Html.FieldIdFor(m => m.NhatKyVanChuyenHienTai.ChuyenDiId)").focus();
+                return;
+            }
+            if (_vanphongnhanid == 0) {
+                alert("Bạn chưa chọn văn phòng cần chuyển đến!");
+                $("#@Html.FieldIdFor(m => m.NhatKyVanChuyenHienTai.ChuyenDiId)").focus();
+                return;
+            }
+            if (_nguoigiaoid == 0) {
+                alert("Bạn chưa chọn người giao!");
+                $("#@Html.FieldIdFor(m => m.NhatKyVanChuyenHienTai.ChuyenDiId)").focus();
+                return;
+            }
+            if (_nguoinhanid == 0) {
+                alert("Bạn chưa chọn người nhận!");
+                $("#@Html.FieldIdFor(m => m.NhatKyVanChuyenHienTai.ChuyenDiId)").focus();
+                return;
+            }
+            var _data = {
+                "Id": '@Model.Id',
+                "NhatKyVanChuyenHienTai.Id": '@Model.NhatKyVanChuyenHienTai.Id',
+                "NhatKyVanChuyenHienTai.ChuyenDiId": _chuyendiid,
+                "NhatKyVanChuyenHienTai.VanPhongGuiId": '@Model.NhatKyVanChuyenHienTai.VanPhongGuiId',
+                "NhatKyVanChuyenHienTai.VanPhongNhanId": _vanphongnhanid,
+                "NhatKyVanChuyenHienTai.NguoiGiaoId": _nguoigiaoid,
+                "NhatKyVanChuyenHienTai.NguoiNhanId": _nguoinhanid
+            };
+
+            $('#btnCapNhat_PVCSETTING').prop('disabled', true);
+            $.ajax({
+                cache: false,
+                type: "POST",
+                data: _data,
+                dataType: 'json',
+                url: "@(Url.Action("_PhieuVanChuyenChinhSuaChuyenDi", "HangHoa"))",
+                success: function (data) {
+                    if (data == "OK") {                        
+                        LoadLenhVanChuyenChuyenDiTab();
+                    }
+                    else {
+                        alert(data);
+                    }
+                    $('#btnCapNhat_PVCSETTING').prop('disabled', false);
+
+                },
+            });
+
+        });
+        $('#btnHuy_PVCSETTING').click(function () {
+            if (!confirm("Bạn có chăc chắn hủy thông tin chuyến đi hiện tại không ?"))
+                return;
+            $('#btnHuy_PVCSETTING').prop('disabled', true);
+            var _data = {
+                "PhieuVanChuyenLogId": '@Model.NhatKyVanChuyenHienTai.Id',
+            }
+            $.ajax({
+                cache: false,
+                type: "POST",
+                data: _data,
+                dataType: 'json',
+                url: "@(Url.Action("_PhieuVanChuyenHuyChuyenDi", "HangHoa"))",
+                success: function (data) {
+                    if (data == "OK") {                        
+                        LoadLenhVanChuyenChuyenDiTab();
+                    }
+                    else {
+                        alert(data);
+                    }
+                    $('#btnHuy_PVCSETTING').prop('disabled', false);
+
+                },
+            });
+        });
+    });
+
+    </script>
+}
+
+
+

@@ -1,0 +1,131 @@
+﻿@model NguoiVanChuyenModel
+@using Nop.Web.Models.ChuyenPhatNhanh
+@Html.ValidationSummary(false)
+@{
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+
+    //page title
+    ViewBag.Title = "Quản lý thông tin nhân viên vận chuyển";
+}
+
+<div class="section-header">
+    <div class="title">
+        <img src="@Url.Content("~/Content/chonve/nxmenu/phoive.png")" alt="" />
+        @ViewBag.Title
+    </div>
+</div>
+
+
+<table style="width:100%">
+    <tr>
+        <td style="text-align:right">
+            Tổ vẩn chuyển: @Html.DropDownListFor(m => m.ToVanChuyenId, Model.tovanchuyens)
+        </td>
+    </tr>
+    <tr>
+        <td style="vertical-align:top">
+            <div id="grid-items"></div>
+
+            <script>
+                var indexrow = 0;
+                function getToVanChuyenId() {
+                    var tvcid = $("#@Html.FieldIdFor(model => model.ToVanChuyenId)").val();
+                    var data = { "ToVanChuyenId": tvcid };
+                    return data;
+                }
+                function LoadDataGrid() {
+                    $("#grid-items").kendoGrid({
+                        dataSource: {
+                            transport: {
+                                read: {
+                                    url: "/HangHoa/ListNguoiVanChuyen",
+                                    dataType: "jsonp",
+                                },
+                                update: {
+                                    url: "/HangHoa/EditNguoiVanChuyen",
+                                    dataType: "jsonp"
+                                },
+                                destroy: {
+                                    url: "/HangHoa/DeleteNguoiVanChuyen",
+                                    dataType: "jsonp"
+                                },
+                                create: {
+                                    url: "/HangHoa/CreateNguoiVanChuyen",
+                                    dataType: "jsonp",
+                                },
+                                parameterMap: function (options, operation) {
+                                    indexrow = 0;
+                                    if (operation !== "read" && options.models) {
+                                        if (operation == "create") {
+                                            return {
+                                                models: kendo.stringify(options.models),
+                                                ToVanChuyenId: $("#@Html.FieldIdFor(model => model.ToVanChuyenId)").val()
+                                            };
+                                        }
+                                        else 
+                                        return {
+                                            models: kendo.stringify(options.models)
+                                        };
+                                    }
+                                    else {
+                                        if (operation == "read") {
+                                            var values = {};
+                                            values["ToVanChuyenId"] = $("#@Html.FieldIdFor(model => model.ToVanChuyenId)").val();
+                                            return values;
+                                        }
+                                    }
+                                }
+                            },
+                            batch: true,
+                            schema: {
+                                model: {
+                                    id: "Id",
+                                    fields: {
+                                        Id: { type: "number", editable: false, nullable: false },
+                                        HoVaTen: { type: "string", validation: { required: true }, editable: true },
+                                        DienThoai: { type: "string", validation: { required: true }, editable: true },
+                                        CMT: { type: "string", validation: { required: true }, editable: true },
+                                    }
+                                }
+                            },
+                            requestEnd: function (e) {
+                                indexrow = 0;
+                                if (e.type == "create" || e.type == "update" || e.type == "destroy") {
+                                    this.read();
+                                }
+                            },
+                        },
+                        pageable: false,
+                        toolbar: [{ name: "create", text: "Thêm mới" }],
+                        columns: [
+                             {
+                                 title: "STT",
+                                 template: "#= ++indexrow #",
+                                 width: 50,
+                                 attributes: { style: "text-align:center" },
+                             },
+                            { field: "HoVaTen", title: "Họ và tên" },
+                            { field: "DienThoai", title: "Điện thoại" },
+                            { field: "CMT", title: "CMT" },
+                            {
+                                command: [{ name: "edit", text: "Sửa" },
+                                      { name: "destroy", text: "Xóa" }, ], title: "&nbsp;"
+                            }],
+                        editable: "inline"
+                    });
+                }
+                $(document).ready(function () {
+                    $("#@Html.FieldIdFor(m=>m.ToVanChuyenId)").change(function (event) {
+                        LoadDataGrid();
+                    });
+                    LoadDataGrid();
+
+
+                });
+            </script>
+
+        </td>
+
+    </tr>
+
+</table>

@@ -1,0 +1,124 @@
+﻿@model XeInfoModel
+@using Nop.Web.Models.NhaXes
+@using Nop.Core.Infrastructure
+@using Nop.Web.Framework.Events
+@using Nop.Services.Events
+@Html.ValidationSummary(false)
+@Html.HiddenFor(model => model.Id)
+<div id="modeldetail-edit">
+    <ul>
+        <li @Html.RenderSelectedTabIndex(0, GetSelectedTabIndex())>
+            @T("ChonVe.NhaXe.TabThongTin")
+        </li>
+    </ul>
+    <div>
+        @TabInfo()
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#modeldetail-edit").kendoTabStrip({
+            animation: {
+                open: {
+                    effects: "fadeIn"
+                }
+            },
+            select: tabstrip_on_tab_select
+        });        
+    });
+</script>
+@{
+    //custom tabs
+    var eventMessage = new AdminTabStripCreated(this.Html, "modeldetail-edit");
+    EngineContext.Current.Resolve<IEventPublisher>().Publish(eventMessage);
+    foreach (var eventBlock in eventMessage.BlocksToRender)
+    {
+        @eventBlock
+    }
+}
+
+@*save selected tab index*@
+<input type="hidden" id="selected-tab-index" name="selected-tab-index" value="@(GetSelectedTabIndex())">
+@helper TabInfo()
+{
+    <table class="adminContent">
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.TenXe):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.TenXe)
+                @Html.ValidationMessageFor(model => model.TenXe)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.LoaiXeId):
+            </td>
+            <td class="adminData">
+                @Html.DropDownListFor(model => model.LoaiXeId, Model.LoaiXes)
+                @Html.ValidationMessageFor(model => model.LoaiXeId)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.BienSo):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.BienSo)
+                @Html.ValidationMessageFor(model => model.BienSo)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.DienThoai):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.DienThoai)
+                @Html.ValidationMessageFor(model => model.DienThoai)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                Ngày đăng kiểm:
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.NgayDangKiem)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                Phù hiệu xe:
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.PhuHieuXe)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                Ngày đăng ký xe:
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.NgayDangKy)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                Bảo hiểm xe:
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.BaoHiem)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.TrangThaiXeId):
+            </td>
+            <td class="adminData">
+                @Html.DropDownListFor(model => model.TrangThaiXeId, Model.TrangThaiXes)
+                @Html.ValidationMessageFor(model => model.TrangThaiXeId)
+            </td>
+        </tr>
+
+    </table>
+}

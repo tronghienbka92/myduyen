@@ -1,0 +1,353 @@
+﻿@model ListPhieuModel
+@using Nop.Web.Models.ChuyenPhatNhanh
+@{
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+
+    //page title
+    ViewBag.Title = "Danh sách phiếu vận chuyển";
+}
+@Html.HiddenFor(m => m.PhieuVanChuyenId)
+@Html.HiddenFor(m => m.TrangThaiVanChuyenId, new { @id = "TrangThaiVanChuyenId" })
+<table style="width:100%">
+    <tr>
+        <td style="text-align:right;border-right:2px solid #808080;border-bottom:2px solid #808080; ">
+            <table style="width:100%">
+                <tr>
+                    <td style="text-align:left;">
+                        <span style="font-weight:bold;font-size:15px">Quản lý phiếu vận chuyển</span> [<span style="color:red;font-style:italic">Bạn đang thao tác tại văn phòng: <strong>@Model.TenVanPhongHienTai</strong></span>]
+                    </td>
+                    <td style="text-align:right;width:160px"></td>
+                </tr>
+            </table>
+        </td>
+        <td>
+            <table style="width:100%">
+                <tr>
+                    <td style="text-align:left;"><input type="button" id="btnTaoMoi_QLXP" class="k-button" value="Tạo mới phiếu vận chuyển" /></td>
+                    <td style="text-align:left">
+                        <div id="tabEditPhieuVanChuyenChinh" style="display:none"></div>
+                        
+                        <script>
+                            function OpenEditPhieuVanChuyen(Id) {
+                                var WindowTaoMoi = $("#tabEditPhieuVanChuyenChinh");
+                                WindowTaoMoi.html("");
+                                if (WindowTaoMoi.data("kendoWindow"))
+                                    WindowTaoMoi.data("kendoWindow").destroy()
+                                WindowTaoMoi.kendoWindow({
+                                    modal: true,
+                                    width: "500px",
+                                    height:"250px",
+                                    title: "Phiếu vận chuyển",
+                                    content: "@(Url.Action("_PhieuVanChuyenChinhSua", "HangHoa"))" + "?Id=" + Id,
+                                    actions: ["Close"]
+                                });
+
+                                WindowTaoMoi.data('kendoWindow').center().open();
+                            }
+                            function CloseEditPhieuVanChuyen(Id)
+                            {
+                                $("#tabEditPhieuVanChuyenChinh").data("kendoWindow").close();
+                                LoadLenhVanChuyenChuyenDi(Id);
+                            }
+                            $(document).ready(function () {
+                                $('#btnTaoMoi_QLXP').click(function () {
+                                    OpenEditPhieuVanChuyen(0);
+                                });
+                            });
+                        </script>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+    <tr>
+        <td style="width:55%;vertical-align:top;border-right:2px solid #808080">
+            <table style="width:100%">
+                <tr>
+                    <td colspan="2">
+                        <table style="width:100%">
+                            <tr>
+                                <td style="text-align:right;width:80px;">
+                                    Ngày ký gửi:
+                                </td>
+                                <td style="width:80px;">
+                                    @Html.EditorFor(m => m.NgayTao)
+                                </td>
+                                <td>
+                                    @Html.TextBoxFor(model => model.HangHoaInfo, new { placeholder = "Thông tin người gửi, nhận, tên hàng...", @style = "width:95%" })
+                                </td>
+                                <td style="width:80px;">
+                                    <input type="button" id="btnTimKiem" class="k-button" value="Lọc" style="width:100%" />
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>              
+                <tr>
+                    <td colspan="2">
+                        <h3>Danh sách phiếu biên nhận</h3>
+                        <div style="overflow:scroll;height:220px;">
+                            <div id="phieuchuyenphat-grid"></div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <div id="tabPhieuVanChuyenChuyenDi">
+                            <div style="text-align:center;padding-top:50px">
+                                <strong>Nhấn vào nút "Tạo mới phiếu vận chuyển" hoặc chọn phiếu vận chuyển để thực hiện thêm phiếu phát nhanh vào phiếu vận chuyển</strong>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td style="vertical-align:top">
+            <h3>Danh sách phiếu vận chuyển</h3>
+            <div id="phieuvanchuyen-grid"></div>
+        </td>
+    </tr>
+</table>
+<script>
+    function LoadLenhVanChuyenChuyenDi(Id) {
+        $("#@Html.FieldIdFor(m=>m.PhieuVanChuyenId)").val(Id);
+        $('#tabPhieuVanChuyenChuyenDi').html($("#divLoadingContent").html());
+        $.ajax({
+            cache: false,
+            type: "GET",
+            url: "@(Url.Action("_PhieuVanChuyenChinhSuaChuyenDi", "HangHoa"))?Id=" + Id,
+            success: function (data) {
+                $('#tabPhieuVanChuyenChuyenDi').html(data);
+
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                $('#tabPhieuVanChuyenChuyenDi').html("Có lỗi trong quá trình load dữ liệu");
+            }
+        });
+        LoadDanhSachPhieuChuyenPhat();
+    }
+    function LoadDSLenhVanChuyen() {
+        var _ngaytao = ConvertDateTimeSystem($('#@Html.FieldIdFor(model => model.NgayTao)').val());
+        var dataadd = {
+            NgayTao: _ngaytao,
+            TrangThaiVanChuyenIds: '@((int)Nop.Core.Domain.NhaXes.ENTrangThaiPhieuVanChuyen.Moi),@((int)Nop.Core.Domain.NhaXes.ENTrangThaiPhieuVanChuyen.DangVanChuyen),@((int)Nop.Core.Domain.NhaXes.ENTrangThaiPhieuVanChuyen.DenVanPhongNhan)',
+            VanPhongGuiId:'@Model.VanPhongGuiId'
+        };
+        $("#phieuvanchuyen-grid").kendoGrid({
+            dataSource: {
+                type: "json",
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("_PhieuVanChuyenList", "HangHoa"))",
+                        type: "POST",
+                        dataType: "json",
+                        data: dataadd
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors"
+                },
+                error: function (e) {
+                    display_kendoui_grid_error(e);
+                    // Cancel the changes
+                    this.cancelChanges();
+                },
+            },
+            scrollable: true,
+            columns: [{
+                field: "SoLenh",
+                title: "Số lệnh",
+                template: '<a href="javascript:LoadLenhVanChuyenChuyenDi(#=Id#)">#=SoLenh#</a>'
+            }, {
+                field: "LoaiPhieuVanChuyenText",
+                title: "Loại",
+            }, {
+                field: "TenChang",
+                title: "Chặng"
+            }, {
+                field: "TongCuocDiKem",
+                title: "Tổng cước",
+                type: "number",
+                format: "{0:n0} đ"
+            }, {
+                field: "Id",
+                title: "&nbsp;",
+                width: 70,
+                template: '#= TrangThaiId==@((int)Nop.Core.Domain.NhaXes.ENTrangThaiPhieuVanChuyen.Moi) ? "<a href=\'javascript:OpenEditPhieuVanChuyen("+Id+")\' class=\'k-button\'>Sửa</a>" : ""#'
+            }]
+        });
+    }
+    function LoadDanhSachPhieuChuyenPhat() {
+        var _ngaytao = ConvertDateTimeSystem($('#@Html.FieldIdFor(model => model.NgayTao)').val());
+        var dataadd = {
+            HangHoaInfo: $('#@Html.FieldIdFor(model => model.HangHoaInfo)').val(),
+            NgayTao: _ngaytao,
+            TrangThaiId: '@((int)Nop.Core.Domain.NhaXes.ENTrangThaiChuyenPhat.Moi)',
+            VanPhongGuiId: '@(Model.VanPhongGuiId)',
+            OutPhieuVanChuyenId: $('#@Html.FieldIdFor(model => model.PhieuVanChuyenId)').val(),
+        };
+
+        $("#phieuchuyenphat-grid").kendoGrid({
+            dataSource: {
+                type: "json",
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("_PhieuChuyenPhatList", "HangHoa"))",
+                        type: "POST",
+                        dataType: "json",
+                        data: dataadd
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors"
+                },
+                error: function (e) {
+                    display_kendoui_grid_error(e);
+                    // Cancel the changes
+                    this.cancelChanges();
+                },
+            },
+            scrollable: true,
+            columns: [{
+                field: "MaPhieu",
+                title: "Mã phiếu",
+                template: '<a href="javascript:ViewPBN(#=Id#)">#=MaPhieu#</a>'
+            }, {
+                field: "VanPhongNhanText",
+                title: "Tên văn phòng nhận"
+            }, {
+                field: "NguoiGui.HoTen",
+                title: "Tên người gửi",
+                template: "#=NguoiGui.HoTen#(#=NguoiGui.SoDienThoai#)"
+            }, {
+                field: "TenHang",
+                title: "Thông tin"
+            }, {
+                field: "TongTienCuoc",
+                title: "Tổng cước",
+                type: "number",
+                format: "{0:n0} đ"
+            }, {
+                field: "NgayTao",
+                title: "Ngày tạo",
+                type: "date",
+                format: "{0:HH:mm}"
+
+            }, {
+                field: "Id",
+                title: "&nbsp;",
+                width: 50,
+                template: '<a href="javascript:XepPhieu(#=Id#);"><img src="/Content/chonve/nhaxe/add_action.png" /></a>'
+            }]
+        });
+
+    }
+
+    $(document).ready(function () {
+        LoadDanhSachPhieuChuyenPhat();
+        LoadDSLenhVanChuyen();
+        $('#btnTimKiem').click(function () {
+            LoadDanhSachPhieuChuyenPhat();
+        });
+        $("#@Html.FieldIdFor(m=>m.HangHoaInfo)").keydown(function (event) {
+            if (event.keyCode == 13) {
+                LoadDanhSachPhieuChuyenPhat();
+            }
+        });
+        $("#@Html.FieldIdFor(m=>m.NgayTao)").change(function (event) {
+            LoadDanhSachPhieuChuyenPhat();
+            LoadDSLenhVanChuyen();
+        });
+        $("#phieuchuyenphat-grid").kendoTooltip({
+            filter: "td", //this filter selects the second column's cells
+            position: "right",
+            content: function (e) {
+                var dataItem = $("#phieuchuyenphat-grid").data("kendoGrid").dataItem(e.target.closest("tr"));
+                var content = "<div style='text-align:left'><strong>Thông tin:</strong> " + dataItem.MaPhieu + " - " + dataItem.TenHang + " (" + kendo.toString(dataItem.NgayTao, "dd/MM HH:mm") + ")<br />";
+                content = content + "<strong>Văn phòng nhận:</strong> " + dataItem.VanPhongNhanText + "<br />";
+                content = content + "<strong>Người gửi:</strong> " + dataItem.NguoiGuiText + " - " + "<strong>Người nhận:</strong> " + dataItem.NguoiNhanText + "<br />";
+                content = content + "<strong>Người tạo:</strong> " + dataItem.TenNhanvienGiaoDich + "<br />";
+                content = content + "<strong>Tổng cước:</strong> " + kendo.toString(dataItem.TongTienCuoc, "n0") + " đ" + " - " + "<strong>Đã TT:</strong> " + kendo.toString(dataItem.TongCuocDaThanhToan, "n0") + " đ";
+                content = content + "</div>";
+                return content;
+            }
+        }).data("kendoTooltip");
+    });
+    ///////////////////////////////////////////////cac ham thao tac nghiep vu
+    function HuyXepPhieu(Id) {
+        //kiem tra cho phep phieu van chuyen co dc thay doi ko
+        var _trangthaivanchuyenid = $("#TrangThaiVanChuyenId").val();
+        if (_trangthaivanchuyenid == '@((int)Nop.Core.Domain.NhaXes.ENTrangThaiPhieuVanChuyen.DenVanPhongNhan)') {
+            alert("Bạn không thể hủy phiếu biên nhận ra phiêu vận chuyển vượt tuyến");
+            return;
+        }
+        if (!confirm("Bạn có chắc chắn hủy phiếu chuyển phát ra khỏi phiếu vận chuyển này không ?"))
+            return;
+        var _phieuvanchuyenid = $('#@Html.FieldIdFor(model => model.PhieuVanChuyenId)').val();
+        if (_phieuvanchuyenid == 0) {
+            return alert("Phiếu vận chuyển không xác định");
+        }
+
+
+        $.ajax({
+            cache: false,
+            type: "POST",
+            data: {
+                "PhieuVanChuyenId": _phieuvanchuyenid,
+                "PhieuChuyenPhatId": Id,
+            },
+            dataType: 'json',
+            url: "@(Url.Action("HuyXepPhieu", "HangHoa"))",
+            success: function (data) {
+                if (data == "OK") {
+                    LoadPVCItem();
+                    LoadDanhSachPhieuChuyenPhat();
+                }
+                else {
+                    alert(data);
+                }
+
+            },
+        });
+    }
+    function XepPhieu(Id) {
+        var _trangthaivanchuyenid = $("#TrangThaiVanChuyenId").val();
+        if (_trangthaivanchuyenid == '@((int)Nop.Core.Domain.NhaXes.ENTrangThaiPhieuVanChuyen.DenVanPhongNhan)') {
+            alert("Bạn không thể thêm phiếu biên nhận vào phiêu vận chuyển vượt tuyến");
+            return;
+        }
+        var _phieuvanchuyenid = $('#@Html.FieldIdFor(model => model.PhieuVanChuyenId)').val();
+        if (_phieuvanchuyenid == 0) {
+            return alert("Bạn phải chọn phiếu vận chuyển trước khi thêm phiếu phát nhanh");
+        }
+        $.ajax({
+            cache: false,
+            type: "POST",
+            data: {
+                "PhieuVanChuyenId": _phieuvanchuyenid,
+                "PhieuChuyenPhatId": Id,
+            },
+            dataType: 'json',
+            url: "@(Url.Action("XepPhieu", "HangHoa"))",
+            success: function (data) {
+                if (data == "OK") {
+                    LoadPVCItem();
+                    LoadDanhSachPhieuChuyenPhat();
+                }
+                else {
+                    alert(data);
+                }
+
+            },
+        });
+    }
+</script>
+<style>
+    .k-grid table tr:hover td {
+        background: rgba(220, 239, 173, 0.38) !important;
+    }
+</style>

@@ -1,0 +1,293 @@
+﻿<style>
+    .map-marker-label {
+        position: absolute;
+        color: blue;
+        font-size: 14px;
+        font-weight: bold;
+    }
+</style>
+<div id="MapDetail" style="height:100%;"></div>
+<script>
+    var mapXeVanChuyen;
+    var makerXeVanChuyen;
+    var makerXeVanChuyenOld;
+    var markerCircle;
+    function initMap() {
+        var markerSize = {
+            x: 22,
+            y: 40
+        };
+        google.maps.Marker.prototype.setLabel = function(label) {
+            this.label = new MarkerLabel({
+                map: this.map,
+                marker: this,
+                text: label
+            });
+            this.label.bindTo('position', this, 'position');
+        };
+
+        var MarkerLabel = function(options) {
+            this.setValues(options);
+            this.span = document.createElement('span');
+            this.span.className = 'map-marker-label';
+        };
+
+        MarkerLabel.prototype = $.extend(new google.maps.OverlayView(), {
+            onAdd: function() {
+                this.getPanes().overlayImage.appendChild(this.span);
+                var self = this;
+                this.listeners = [
+                  google.maps.event.addListener(this, 'position_changed', function() {
+                      self.draw();
+                  })
+                ];
+            },
+            draw: function() {
+                var text = String(this.get('text'));
+                var position = this.getProjection().fromLatLngToDivPixel(this.get('position'));
+                this.span.innerHTML = text;
+                this.span.style.left = (position.x - (markerSize.x / 2)) - (text.length * 3) + 10 + 'px';
+                this.span.style.top = (position.y - markerSize.y + 40) + 'px';
+            }
+        });
+        var _tabMap = document.getElementById("MapDetail");
+
+        mapXeVanChuyen = new google.maps.Map(_tabMap, {
+            center: { lat: _latoffice, lng: _lngoffice },
+            zoom: 14
+        });
+        var posoffice = {
+            lat: _latoffice,
+            lng: _lngoffice
+        };
+        //set su kien click tren ban do de thuc hien thao tac dat ve
+        google.maps.event.addListener(mapXeVanChuyen, 'click', function(event) {
+            placeMarker(event.latLng,true);
+        });
+
+        var markerOffice = new google.maps.Marker({
+            map: mapXeVanChuyen,
+            position: posoffice,
+            icon: "/Content/chonve/icon/markeroffice.png",
+            label:"@(Html.Raw(HttpUtility.JavaScriptStringEncode(Model.ThongTinOffice)))",
+        });
+        //markerOffice.setMap(mapXeVanChuyen);
+        @if(Model.DatVeHienTai==null)
+        {
+            <text>
+        mapXeVanChuyen.setCenter(posoffice);
+        </text>
+        }
+        else
+        {
+            var _iconfile = "/Content/chonve/icon/customermarker.png";
+            if(Model.DatVeHienTai.SoLuong>1)
+            {
+                _iconfile = "/Content/chonve/icon/customersmarker.png";
+            }
+            <text>
+
+        var _latdatve=@Model.DatVeHienTai.Latitude ;
+        var _lngdatve=@Model.DatVeHienTai.Longitude;
+        var posdatve = {
+            lat: _latdatve,
+            lng: _lngdatve
+        };
+        var makerXeVanChuyen_@Model.DatVeHienTai.Id = new google.maps.Marker({
+            map: mapXeVanChuyen,
+            position: posdatve,
+            icon: "@_iconfile",
+            label:"@(Html.Raw(HttpUtility.JavaScriptStringEncode(Model.DatVeHienTai.SoLuong == 1 ? Model.DatVeHienTai.TenKhachHang : string.Format("{0}({1} vé)", Model.DatVeHienTai.TenKhachHang, Model.DatVeHienTai.SoLuong))))",
+        });
+        
+        mapXeVanChuyen.setCenter(posdatve);
+        makerXeVanChuyenOld=makerXeVanChuyen_@(Model.DatVeHienTai.Id);
+        placeCircle(posdatve);
+        google.maps.event.addListener(makerXeVanChuyen_@Model.DatVeHienTai.Id, 'click', function() {
+            LoadDatVe(@Model.DatVeHienTai.Id);
+            makerXeVanChuyenOld=this;            
+            placeCircle(this.position);
+        });
+        </text>
+        }
+
+
+        //hien thi tat ca khach dat ve
+        @foreach(var dv in Model.datves)
+        {
+            var _iconfile = "/Content/chonve/icon/customermarker.png";
+            if (dv.SoLuong > 1)
+            {
+                _iconfile = "/Content/chonve/icon/customersmarker.png";
+            }
+            <text>
+        var makerXeVanChuyen_@dv.Id = new google.maps.Marker({
+            map: mapXeVanChuyen,
+            position: {
+                lat: @dv.Latitude,
+                lng: @dv.Longitude,
+            },
+            icon: "@_iconfile",
+            label:"@(Html.Raw(HttpUtility.JavaScriptStringEncode(dv.SoLuong == 1 ? dv.TenKhachHang : string.Format("{0}({1} vé)", dv.TenKhachHang, dv.SoLuong))))",
+        });
+        
+        google.maps.event.addListener(makerXeVanChuyen_@(dv.Id), 'click', function() {
+            LoadDatVe(@dv.Id);
+            makerXeVanChuyenOld=this;
+            placeCircle(this.position);
+        });
+        </text>
+        }
+
+    }
+    function GetArrayXeInfo() {
+        var _thongtin = $('#@Html.FieldIdFor(m=>m.ThongTinChuyen)').val();
+        _thongtin = encodeURI(_thongtin);
+        $.ajax({
+            cache: false,
+            type: "GET",
+            url: "@(Url.Action("GetListXeInfo", "NhaXeDinhVi"))?ThongTin=" + _thongtin,
+            dataType: 'json',
+        success: function (data) {
+            MapGoogleInitialize(data);
+        },
+        error: function (xhr, ajaxOptions, thrownError) {
+
+        }
+    });
+    }
+    function MapGoogleInitialize(data) {       
+        map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 5,
+            center: new google.maps.LatLng(16, 107),
+
+        });
+       
+        $.each(data, function (id, option) {
+           
+            var image = '/Content/chonve/icon/ico_bus24.png';
+            var latLng = new google.maps.LatLng( option.Latitude,
+                option.Longitude);        
+           
+            var marker;
+            var bienso = option.BienSo  ;
+            marker = new google.maps.Marker({
+                position: latLng,
+                title: option.NgayGPS,
+                icon: image,
+                map: map
+            });           
+            var item =new XeInfo(option.Id, marker)           
+            
+            arrmarker.push(item);
+           
+            var window_license_plate = new google.maps.InfoWindow({
+                content: bienso
+            });
+
+            window_license_plate.open(map, marker);
+            var infowindow_notrip = new google.maps.InfoWindow({
+                content: "Không có thông tin chuyến"
+            });
+            google.maps.event.addListener(marker, 'click', function () {
+                if (option.NguonVeXeId == 0) {                    
+                    infowindow_notrip.open(map, marker);
+                }
+                else
+                {
+                    map.setCenter(marker.position);
+                    map.setZoom(14);
+                    GetThongTinXe(option.NguonVeXeId, option.NgayDi);
+                }
+               
+                
+            });
+        });      
+       
+    }
+    function placeCircle(location)
+    {
+        if(markerCircle)
+        {
+            markerCircle.setMap(null);
+        }
+        markerCircle = new google.maps.Circle({
+            center: location,
+            radius: 500,
+            map: mapXeVanChuyen,
+            fillColor: 'blue',
+            fillOpacity: 0.2,
+            strokeColor: 'green',
+            strokeOpacity: 0.35,
+            strokeWeight:1,
+        });
+        mapXeVanChuyen.setCenter(location);
+    }
+    function placeMarker(location,isClick) {
+        if(makerXeVanChuyen)
+        {
+            makerXeVanChuyen.setMap(null);
+        }
+        makerXeVanChuyen = new google.maps.Marker({
+            position: location,
+            map: mapXeVanChuyen,
+        });
+        SetGPSDatVe(location.lat(),location.lng());
+        if(isClick)
+        {
+            geocodeLatLng(mapXeVanChuyen,location);
+        }
+        mapXeVanChuyen.setCenter(location);
+        placeCircle(location);
+
+    }
+    function geocodeLatLng(map, curpos) {
+        var geocoder = new google.maps.Geocoder;
+        geocoder.geocode({'location': curpos}, function(results, status) {
+            if (status === 'OK') {
+                //lay thong tin dia chi
+                var _diachi="";
+                if(results[0])
+                    _diachi=results[0].formatted_address;
+                else
+                    if(results[1])
+                        _diachi=results[1].formatted_address;
+                var _address=_diachi.split(',');
+                var _diachinew="";
+                for(var i=0;i<_address.length-2;i++)
+                {
+                    if(_diachinew=="")
+                        _diachinew=$.trim(_address[i]);
+                    else
+                        _diachinew=_diachinew+", "+$.trim(_address[i]);
+                }
+                //lay ten tinh
+                if(_address.length>=2)
+                {
+                    $("#@Html.FieldIdFor(m=>m.TenTinh)").val(_address[_address.length-2]);
+                }
+                if(_diachinew=="")
+                    _diachinew=_diachi;
+                SetTenDiemDon(_diachinew);
+            } else {
+                //co loi
+            }
+        });
+    }
+    function geocodeAddress(address) {
+        address=address+", "+$("#@Html.FieldIdFor(m=>m.TenTinh)").val()+", Việt Nam";
+        var geocoder = new google.maps.Geocoder;
+        geocoder.geocode({'address': address}, function(results, status) {
+            if (status === 'OK') {
+                mapXeVanChuyen.setCenter(results[0].geometry.location);
+                placeMarker(results[0].geometry.location,false);
+            } else {
+                //alert('Geocode was not successful for the following reason: ' + status);
+            }
+        });
+    }
+    $(document).ready(function()
+    {
+        initMap() ;
+    });
+</script>

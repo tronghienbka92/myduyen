@@ -1,0 +1,323 @@
+﻿@model GiaoDichKeVeListModel
+@Html.ValidationSummary(false)
+@{
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+    ViewBag.Title = "Danh sách giao dịch kê Vé";
+}
+
+<div class="section-header">
+    <div class="title">
+        <img src="@Url.Content("~/Content/chonve/nxmenu/phoive.png")" alt="" />
+        @ViewBag.Title
+    </div>
+    <div class="options">
+        <a href="@Url.Action("TaoKeVe","GiaoDichKeVe")" class="k-button">Tạo giao dịch kê vé</a>&nbsp;&nbsp;
+        <a href="@Url.Action("TraVe","GiaoDichKeVe")" class="k-button">Tạo giao trả vé</a>
+    </div>
+</div>
+<table style="width:100%;margin-bottom:15px">
+    <tr>
+        <td style="width:10%">
+            @Html.DropDownListFor(model => model.PhanLoaiId, Model.phanloais)
+        </td>
+        <td style="width:15%">
+            <table class="adminContent">
+                <tr>
+                    <td class="adminTitle" style="text-align:right">
+                        Mã giao dịch:
+                    </td>
+                    <td class="adminContent">
+                        @Html.EditorFor(model => model.MaGiaoDich)
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td style="width:15%">
+            <input id="cbbSearchNguoiGiao" style="width:280px" />
+            @Html.HiddenFor(model => model.NguoiGiaoId)
+            <script>
+                $(document).ready(function () {
+                    function dataSearchNguoiGiao() {
+                        var _hovaten = $('#cbbSearchNguoiGiao').data("kendoComboBox").text();
+                        return {
+                            SearchKhachhang: _hovaten
+                        };
+                    }
+                    $('#cbbSearchNguoiGiao').kendoComboBox({
+                        placeholder: "Tên người giao",
+                        dataTextField: "HoTen",
+                        dataValueField: "Id",
+                        filter: "contains",
+                        autoBind: false,
+                        minLength: 2,
+                        dataSource: {
+                            type: "json",
+                            serverFiltering: true,
+                            transport: {
+                                read: {
+                                    url: "@Html.Raw(Url.Action("CBBNhanVienNhanVe", "GiaoDichKeVe"))",
+                                    data: dataSearchNguoiGiao
+                                }
+                            }
+                        },
+                        change: onChangeGiao
+                    });
+                    function onChangeGiao(e) {
+                        //alert(e.index);
+                        var DataItem = this.dataItem();
+                        $("#@Html.FieldIdFor(model => model.NguoiGiaoId)").val(DataItem.Id);
+
+                    }
+                });
+            </script>
+
+        </td>
+        <td style="width:15%">
+            <input id="cbbSearchNguoiNhan" style="width:280px" />
+            @Html.HiddenFor(model => model.NguoiNhanId)
+            <script>
+                $(document).ready(function () {
+                    function dataSearchNguoiNhan() {
+                        var _hovaten = $('#cbbSearchNguoiNhan').data("kendoComboBox").text();
+                        return {
+                            SearchKhachhang: _hovaten
+                        };
+                    }
+                    $('#cbbSearchNguoiNhan').kendoComboBox({
+                        placeholder: "Tên người nhận",
+                        dataTextField: "HoTen",
+                        dataValueField: "Id",
+                        filter: "contains",
+                        autoBind: false,
+                        minLength: 2,
+                        dataSource: {
+                            type: "json",
+                            serverFiltering: true,
+                            transport: {
+                                read: {
+                                    url: "@Html.Raw(Url.Action("CBBNhanVienNhanVe", "GiaoDichKeVe"))",
+                                    data: dataSearchNguoiNhan
+                                }
+                            }
+                        },
+                        change: onChangeNhan
+                    });
+                    function onChangeNhan(e) {
+                        //alert(e.index);
+                        var DataItem = this.dataItem();                        
+                        $("#@Html.FieldIdFor(model => model.NguoiNhanId)").val(DataItem.Id);
+
+                    }
+                });
+            </script>
+
+        </td>
+
+        <td style="width:15%">
+            <table class="adminContent">
+                <tr>
+                    <td class="adminTitle" style="text-align:right">
+                        Giao dịch từ ngày:
+                    </td>
+                    <td class="adminContent">
+                        @Html.EditorFor(model => model.TuNgay)
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td style="width:15%">
+            <table class="adminContent">
+                <tr>
+                    <td class="adminTitle" style="text-align:right">
+                        đến :
+                    </td>
+                    <td class="adminContent">
+                        @Html.EditorFor(model => model.DenNgay)
+                    </td>
+                </tr>
+            </table>
+        </td>
+
+    </tr>
+    <tr>
+        <td>
+            <input type="button" id="btnSearch" class="k-button" value="@T("Admin.Common.Search")" />
+        </td>
+    </tr>
+</table>
+
+<table class="adminContent">
+    <tr>
+        <td>
+            <div id="gridlist"></div>
+
+            <script>
+                $(document).ready(function () {
+                    $('#btnSearch').click(function () {
+                        var grid = $('#gridlist').data('kendoGrid');
+                        grid.dataSource.read();
+                        return false;
+                    });
+                    $("#gridlist").kendoGrid({
+                        dataSource: {
+                            type: "json",
+                            transport: {
+                                read: {
+                                    url: "/GiaoDichKeVe/ListGiaoDichKeVe",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: additionalData
+                                }
+                            },
+                            schema: {
+                                data: "Data",
+                                total: "Total",
+                                errors: "Errors"
+                            },
+                            error: function (e) {
+                                display_kendoui_grid_error(e);
+                                // Cancel the changes
+                                this.cancelChanges();
+                            },
+                            serverPaging: false,
+                            serverFiltering: false,
+                            serverSorting: false
+                        },
+
+                        scrollable: false,
+                        columns: [
+                                  {
+                                      field: "Ma", title: "Mã", width: "120px",
+                                      attributes: {
+                                          style: "text-align: center;"
+                                      },
+                                      headerAttributes: { style: "text-align: center;" }
+                                  },
+                                   {
+                                       field: "PhanLoaiText", title: "Phân loại", width: "120px",
+                                       attributes: {
+                                           style: "text-align: center;"
+                                       },
+                                       headerAttributes: { style: "text-align: center;" }
+                                   },
+                                   {
+                                       field: "LoaiVeText", title: "Loại vé", width: "120px",
+                                       attributes: {
+                                           style: "text-align: center;"
+                                       },
+                                       headerAttributes: { style: "text-align: center;" }
+                                   },
+                                  {
+                                      field: "NgayTao",
+                                      title: "Ngày tạo",
+                                      type: "date",
+                                      attributes: { style: "text-align:center" },
+                                      headerAttributes: { style: "text-align: center;" },
+                                      format: "{0:dd/MM/yyyy HH:mm}"
+
+                                  },
+                                  {
+                                      field: "tennguoigiao", title: "Người giao",
+                                      headerAttributes: { style: "text-align: center;" },
+                                      attributes: { style: "text-align:center" }
+
+                                  },
+                                  {
+                                      field: "tennguoinhan", title: "Người nhận",
+                                      headerAttributes: { style: "text-align: center;" },
+                                      attributes: { style: "text-align:center" }
+                                  },
+                                  {
+                                      field: "VanPhongText", title: "Quầy bán vé",
+                                      headerAttributes: { style: "text-align: center;" },
+                                      attributes: { style: "text-align:center" }
+                                  },
+                                   {
+                                       field: "NgayKe",
+                                       title: "Ngày giao dịch",
+                                       type: "date",
+                                       headerAttributes: { style: "text-align: center;" },
+                                       attributes: { style: "text-align:center" },
+                                       format: "{0:dd/MM/yyyy}",
+                                   },
+                                   {
+                                       field: "TrangThaiText", title: "Trạng thái",
+                                       attributes: {
+                                           style: "text-align: center;"
+                                       },
+                                       headerAttributes: { style: "text-align: center;" }
+                                   },
+                                   {
+                                       field: "Id", title: "Xem", width: "120px",
+                                       headerAttributes: { style: "text-align: center;" },
+                                       attributes: {
+                                           style: "text-align: center;"
+                                       },
+                                       template: '<a href="javascript:ChiTietGiaoDich(#=Id#);" class="k-button">Chi tiết</a>',
+                                   },
+                                       {
+                                           field: "Id",
+                                           title: "In phiếu",
+                                           width: 100,
+                                           headerAttributes: { style: "text-align: center;" },
+                                           attributes: { style: "text-align:center" },
+                                           template: '#=Id==0?"Chưa có phiếu in":"<a href=\'/GiaoDichKeVe/InPhieuKeVe?Id="+Id+"\' class=\'k-button\'  target=\'_blank\' >In phiếu</a>"#'
+                                       }
+                                       ,
+                                       {
+                                           field: "Id",
+                                           title: "Sửa",
+                                           width: 100,
+                                           headerAttributes: { style: "text-align: center;" },
+                                           attributes: { style: "text-align:center" },
+
+                                           template: '#= isEdit ? PhanLoaiId==0? "<a href=\'/GiaoDichKeVe/TaoKeVe?Id="+Id+"\' class=\'k-button\' >@T("Admin.Common.Edit")</a>":"<a href=\'/GiaoDichKeVe/TraVe?Id="+Id+"\' class=\'k-button\' >@T("Admin.Common.Edit")</a>" :""#'
+
+                                       }
+                        ]
+                    });
+
+
+                });
+                function ChiTietGiaoDich(id) {
+                    var formchitiet = $("#ChiTietGiaoDich");
+                    formchitiet.kendoWindow({
+                        width: "860px",
+                        height: "590px",
+                        title: "Chi tiết giao dịch kê vé",
+                        content: "@(Url.Action("ChiTietGiaoDich", "GiaoDichKeVe"))?Id=" + id,
+                        actions: [
+                            "Close"
+                        ],
+                    }).data("kendoWindow").center();
+                    formchitiet.data('kendoWindow').open();
+                }
+
+                function additionalData() {
+                    var nhuoinhancbb = $('#cbbSearchNguoiNhan').data("kendoComboBox");
+                    var nhuoigiaocbb = $('#cbbSearchNguoiGiao').data("kendoComboBox");
+                    var NguoiGiaoId = 0;                   
+                    if (nhuoigiaocbb.select()>=0)
+                        NguoiGiaoId = $('#@Html.FieldIdFor(model => model.NguoiGiaoId)').val();
+                    var NguoiNhanId = 0;
+                    if (nhuoinhancbb.select() >= 0)
+                        NguoiNhanId = $('#@Html.FieldIdFor(model => model.NguoiNhanId)').val();
+                    
+                    var data =
+                    {
+                        PhanLoaiId: $('#@Html.FieldIdFor(model => model.PhanLoaiId)').val(),
+                        MaGiaoDich: $('#@Html.FieldIdFor(model => model.MaGiaoDich)').val(),
+                        NguoiGiaoId: NguoiGiaoId,
+                        NguoiNhanId: NguoiNhanId,
+                        TuNgay: $('#@Html.FieldIdFor(model => model.TuNgay)').val(),
+                        DenNgay: $('#@Html.FieldIdFor(model => model.DenNgay)').val()
+                    };
+                    //addAntiForgeryToken(data);
+                    return data;
+                }
+            </script>
+        </td>
+    </tr>
+</table>
+<div id="ChiTietGiaoDich" style="display:none">
+</div>

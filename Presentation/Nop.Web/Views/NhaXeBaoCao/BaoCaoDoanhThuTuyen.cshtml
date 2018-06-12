@@ -1,0 +1,322 @@
+﻿@model BaoCaoNhaXeModel
+@using Nop.Web.Models.NhaXes
+@using Nop.Core.Domain.NhaXes
+@using Nop.Core.Infrastructure
+@{
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+    var defaultGridPageSize = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().DefaultGridPageSize;
+    var gridPageSizes = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().GridPageSizes;
+}
+<div class="section-header">
+    <div class="title">
+        <img src="@Url.Content("~/Content/chonve/nxmenu/baocaodoanhthu.png")" alt="" />
+        @T("ChonVe.NhaXe.DoanhThuTheoXeTheoNgay.Title")
+    </div>
+</div>
+
+<table style="width:100%">
+    <tr>
+        <td align="center" width="15%">
+            <table class="adminContent">
+                <tr>
+                    <td class="adminTitle" style="text-align:right">
+                        @Html.LabelFor(model => model.TuNgay):
+                    </td>
+                    <td class="adminData">
+                        @Html.EditorFor(model => model.TuNgay)
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td align="center" width="15%" id="tabThang">
+            <table class="adminContent">
+                <tr>
+                    <td class="adminTitle" style="text-align:right">
+                        @Html.LabelFor(model => model.DenNgay):
+                    </td>
+                    <td class="adminData">
+                        @Html.EditorFor(model => model.DenNgay)
+
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td align="center" width="15%">
+            <table class="adminContent">
+                <tr>
+                    <td class="adminTitle" style="text-align:right">
+                        @T("chonve.menu.nhaxe.hanhtrinh"):
+                    </td>
+                    <td class="adminData">
+                        @Html.DropDownListFor(model => model.Loai2Id, Model.ListLoai2)
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td style="text-align:right">
+            <input type="button" id="btnSearch" class="k-button" value="@T("Admin.Common.Search")" />
+        </td>
+    </tr>
+</table>
+<script>
+    $(document).ready(function () {
+        $('#btnSearch').click(function () {
+            //search
+            var grid = $('#DoanhThuXeTheoNgay_grid').data('kendoGrid');
+            grid.dataSource.page(1);
+            return false;
+        });
+    });
+</script>
+
+<table class="adminContent">
+    <tr>
+        <td>
+            <div id="DoanhThuXeTheoNgay_grid">
+
+            </div>
+            <script>
+                $(document).ready(function () {
+                    $("#DoanhThuXeTheoNgay_grid").kendoGrid({
+                        dataSource: {
+                            type: "json",
+                            transport: {
+                                read: {
+                                    url: "@Html.Raw(Url.Action("BaoCaoDoanhThuTuyen", "NhaXeBaoCao"))",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: additionalData
+                                }
+                            },
+                            schema: {
+                                data: "Data",
+                                total: "Total",
+                                errors: "Errors"
+                            },
+                            aggregate: [
+                                         { field: "TongDoanhThu", aggregate: "sum" },
+                                         { field: "SoLuong", aggregate: "sum" },
+                            ],
+
+                            error: function(e) {
+                                display_kendoui_grid_error(e);
+                                // Cancel the changes
+                                this.cancelChanges();
+                            },
+                            pageSize: @(defaultGridPageSize),
+                            serverPaging: true,
+                            serverFiltering: true,
+                            serverSorting: true
+                        },
+                        pageable: {
+                            refresh: true,
+                            pageSizes: [@(gridPageSizes)],
+                            messages: {
+                                display: "@T("Nop.Common.KendoGrid.display")", //{0} is the index of the first record on the page, {1} - index of the last record on the page, {2} is the total amount of records
+                                empty: "@T("Nop.Common.KendoGrid.Empty")",
+                                page: "@T("Nop.Common.KendoGrid.Page")",
+                                of: "@T("Nop.Common.KendoGrid.Of")", //{0} is total amount of pages
+                                itemsPerPage: "@T("Nop.Common.KendoGrid.itemsPerPage")",
+                                first: "@T("Nop.Common.KendoGrid.first")",
+                                previous: "@T("Nop.Common.KendoGrid.previous")",
+                                next: "@T("Nop.Common.KendoGrid.next")",
+                                last: "@T("Nop.Common.KendoGrid.last")",
+                                refresh: "@T("Nop.Common.KendoGrid.refresh")"
+                            }
+                        },
+                        detailInit: detailInit,
+                        editable: {
+                            confirmation: false,
+                            mode: "inline"
+                        },
+                        scrollable: false,
+
+                        columns: [
+                            {
+                                field: "NgayBan",
+                                title: "Ngày Đi",
+                                type: "date",
+                                format: "{0:dd/MM/yyyy}"
+                            },
+                            {
+                                field: "SoLuong",
+                                title: "Số lượng",
+                                headerAttributes: {
+                                    style: "text-align: right;"
+                                },
+                                attributes: {
+                                    style: "text-align: right;"
+                                },
+                                aggregates: ["sum"],
+                                groupFooterTemplate: "<div style='text-align:right'><b>Tổng :</b> #=sum#</div>",
+                                footerTemplate: "<div class='footerTemplateBaoCao'><b>Tổng toàn bộ :</b> #=sum#</div>"
+
+                            },
+                            {
+                                field: "TongDoanhThu",
+                                title: " doanh thu",
+                                headerAttributes: {
+                                    style: "text-align: right;"
+                                },
+                                attributes: {
+                                    style: "text-align: right;"
+                                },
+                                format: "{0:N0} đ",
+                                aggregates: ["sum"],
+                                groupFooterTemplate: "<div style='text-align:right'>#=kendo.toString(sum, 'N0')# đ</div>",
+                                footerTemplate: "<div class='footerTemplateBaoCao'>#=kendo.toString(sum, 'N0')# đ</div>"
+                            },
+                           
+
+                        ]
+                    });
+                });
+
+
+                function convert(ngayban) {
+
+                    var date = new Date(ngayban);
+                    mnth = ("0" + (date.getMonth() + 1)).slice(-2);
+                    day = ("0" + date.getDate()).slice(-2);
+                    return [date.getFullYear(), mnth, day].join("-");
+                }
+                function additionalData() {
+                    return {
+                        HanhTrinhId: $("#@Html.FieldIdFor(model => model.Loai2Id)").val(),
+                        tuNgay: $("#@Html.FieldIdFor(model => model.TuNgay)").val(),
+                        denNgay: $("#@Html.FieldIdFor(model => model.DenNgay)").val(),
+                    };
+                }
+                function detailInit(e) {
+                    var vanphongid = $("#@Html.FieldIdFor(model => model.VanPhongId)").val();
+                    var ngayban = e.data.ItemDataDate
+                    var adddata = {
+                        VanPhongId: vanphongid,
+                        NgayBan: convert(ngayban)
+                    };
+                    $("<div/>").appendTo(e.detailCell).kendoGrid({
+                        dataSource: {
+                            type: "json",
+                            transport: {
+                                read: {
+                                    url: "@Html.Raw(Url.Action("DoanhThuTheoChang", "NhaXeBaoCao"))",
+                                type: "POST",
+                                dataType: "json",
+                                data: adddata
+                            },
+                        },
+                        schema: {
+                            data: "Data",
+                            total: "Total",
+                            errors: "Errors",
+
+                        },
+                           
+                        requestEnd: function (e) {
+                            if (e.type == "create" || e.type == "update") {
+                                this.read();
+                            }
+                        },
+                        error: function (e) {
+                            display_kendoui_grid_error(e);
+                            // Cancel the changes
+                            this.cancelChanges();
+                        },
+                        serverPaging: true,
+                        serverFiltering: true,
+                        serverSorting: true
+                    },
+                        pageable: {
+                        refresh: true,
+                        numeric: false,
+                        previousNext: false,
+                        info: false,
+                        messages: {
+                                display: "@T("Nop.Common.KendoGrid.display")", //{0} is the index of the first record on the page, {1} - index of the last record on the page, {2} is the total amount of records
+                                empty: "@T("Nop.Common.KendoGrid.Empty")",
+                                page: "@T("Nop.Common.KendoGrid.Page")",
+                                of: "@T("Nop.Common.KendoGrid.Of")", //{0} is total amount of pages
+                                itemsPerPage: "@T("Nop.Common.KendoGrid.itemsPerPage")",
+                                first: "@T("Nop.Common.KendoGrid.first")",
+                                previous: "@T("Nop.Common.KendoGrid.previous")",
+                                next: "@T("Nop.Common.KendoGrid.next")",
+                                last: "@T("Nop.Common.KendoGrid.last")",
+                                refresh: "@T("Nop.Common.KendoGrid.refresh")"
+                        }
+                        },
+                       
+                    dataBound: function () {
+                        this.expandRow(this.tbody.find("tr.k-master-row").first());
+                    },
+                    columns: [{
+                        field: "NguonVeId",
+                        hidden: true,
+
+                    }, {
+                        field: "TenChang",
+                        title: "Tên chặng",
+                    }, {
+                        field: "NgayBan",
+                        title: "Ngày bán",
+                        type: "date",
+                        format: "{0:dd/MM/yyyy}"
+                    }, {
+                        field: "SoLuong",
+                        title: "Số lượng",
+                        headerAttributes: {
+                            style: "text-align: right;"
+                        },
+                        attributes: {
+                            style: "text-align: right;"
+                        },                         
+                           
+
+                    }, {
+                        field: "TongDoanhThu",
+                        title: " Doanh thu",
+                        headerAttributes: {
+                            style: "text-align: right;"
+                        },
+                        attributes: {
+                            style: "text-align: right;"
+                        },
+                        format: "{0:N0} đ",
+                           
+                    },
+                    
+                ],
+                });
+
+                }
+            </script>
+
+        </td>
+    </tr>
+</table>
+<style>
+    .footerTemplateBaoCao {
+        text-align: right;
+        font-size: 16px;
+        color: #1a3410;
+    }
+</style>
+<div id="detailDoanhThuXeTheoNgay_div" style="display:none;">
+
+</div>
+<script>
+    function viewdetailDoanhThuXe(ngayban) {
+        var _ngayban=convert(ngayban);      
+        var XeId= $("#@Html.FieldIdFor(model => model.XeId)").val();
+        var windowDoanhThuXe = $("#detailDoanhThuXeTheoNgay_div");
+        if (windowDoanhThuXe.data("kendoWindow"))
+            windowDoanhThuXe.data("kendoWindow").destroy();
+        windowDoanhThuXe.kendoWindow({
+            modal: true,
+            width: "700px",
+            title: " Doanh thu theo xe",
+            content: "@(Url.Action("_ChiTietDoanhThuTheoXe", "NhaXeBaoCao"))" + "?XeId=" + XeId  + "&NgayBan=" + _ngayban,
+            actions: ["Close"]
+        });
+        windowDoanhThuXe.data('kendoWindow').center().open();
+    }
+</script>

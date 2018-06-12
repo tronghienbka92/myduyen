@@ -1,0 +1,102 @@
+﻿@model ToVanChuyenModel
+@using Nop.Web.Models.ChuyenPhatNhanh
+<table style="width:100%">
+    <tr>
+        <td style="text-align:left;border-bottom:2px dashed #531010">
+            <table style="width:100%">
+                <tr>
+                    <td>
+                        <h3>Thông tin nhận hàng tận nơi</h3>
+                    </td>                    
+                </tr>
+            </table>
+            
+        </td>
+    </tr>    
+    <tr>
+        <td>
+            <table style="width:100%" cellpadding="2" cellspacing="2">
+                <tr>
+                    <td style="text-align:left;">
+                        Tổ vẩn chuyển:
+                    </td>
+                    <td>
+                        @Html.DropDownListFor(m => m.ToVanChuyenIdSelect, Model.tovanchuyens)
+                    </td>
+                </tr>
+                <tr>
+                    <td style="width:120px;text-align:left">
+                        Người vận chuyển:
+                    </td>
+                    <td>
+                        @Html.DropDownListFor(m => m.NguoiVanChuyenId, Model.nguoivanchuyens)
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+
+                    </td>
+                    <td style="text-align:left">
+                        <input type="button" id="btnCapNhat_TVCEDIT" class="k-button" value="Đồng ý" />
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>    
+</table>
+<script>
+    function LoadNguoiVanChuyens() {
+        var ddltemp = $("#@Html.FieldIdFor(model => model.NguoiVanChuyenId)");
+        var _tovcid = $("#@Html.FieldIdFor(model => model.ToVanChuyenIdSelect)").val();
+        var adddata = {
+            "ToVanChuyenId": _tovcid
+        }
+        $.ajax({
+            cache: false,
+            type: "GET",
+            url: "@(Url.Action("GetNguoiVanChuyens", "HangHoa"))",
+            data: adddata,
+            success: function (data) {
+                ddltemp.html('');
+                $.each(data, function (id, option) {
+                    ddltemp.append($('<option></option>').val(option.Value).html(option.Text));
+                });
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert('Failed to retrieve states.');
+            }
+        });
+    }
+    $(document).ready(function () {
+        setTimeout(function () {
+            $("#@Html.FieldIdFor(model => model.ToVanChuyenIdSelect)").focus();
+        }, 500);
+        $("#@Html.FieldIdFor(model => model.ToVanChuyenIdSelect)").change(function () {
+            LoadNguoiVanChuyens();
+        });
+        $("#@Html.FieldIdFor(m => m.ToVanChuyenIdSelect)").keydown(function (event) {
+            if (event.keyCode == 13) {
+                $('#@Html.FieldIdFor(model => model.NguoiVanChuyenId)').focus();
+                return false;
+            }
+        });
+        $("#@Html.FieldIdFor(m => m.NguoiVanChuyenId)").keydown(function (event) {
+            if (event.keyCode == 13) {
+                $('#btnCapNhat_TVCEDIT').focus();
+                return false;
+            }
+        });
+        $('#btnCapNhat_TVCEDIT').click(function () {
+            //kiem tra thong tin du lieu
+            var _nvcid = $("#@Html.FieldIdFor(m => m.NguoiVanChuyenId)").val();
+            if (_nvcid == null) {
+                alert("Bạn chưa chọn thông tin người vận chuyển");
+                return;
+            }
+            CloseEditToVanChuyen($("#@Html.FieldIdFor(m => m.ToVanChuyenIdSelect)").val(), $("#@Html.FieldIdFor(m => m.NguoiVanChuyenId)").val());
+        });
+
+
+    });
+
+</script>

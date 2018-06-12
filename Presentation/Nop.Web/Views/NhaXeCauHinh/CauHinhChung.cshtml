@@ -1,0 +1,117 @@
+﻿@model List<NhaXeCauHinhModel>
+@using Nop.Web.Models.NhaXes
+@{
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+    //page title
+    ViewBag.Title = "Cấu hình các giá trị";
+}
+@using (Html.BeginForm(null, null, FormMethod.Post))
+{   
+    <div class="section-header">
+        <div class="title">
+            <img src="@Url.Content("~/Content/chonve/nxmenu/nhaxeinfomauve.png")" alt="" />
+            @ViewBag.Title
+        </div>
+        <div class="options">
+        </div>
+    </div>
+    <table style="width:100%" cellpadding="5px" cellspacing="5px">
+        @foreach(var m in Model)
+        {
+            <tr>
+                <td colspan="3">
+                    <strong>@m.Ten:</strong>
+                </td>
+            </tr>
+            <tr>               
+                <td style="width:150px;text-align:right;">
+                    Giá trị: &nbsp;
+@switch (m.kieudulieu)
+{
+    case Nop.Core.Domain.NhaXes.ENKieuDuLieu.SO:
+        {
+            <text>
+                (Kiểu số)
+            </text>
+            break;
+        }
+    case Nop.Core.Domain.NhaXes.ENKieuDuLieu.PHAN_TRAM:
+        {
+            <text>
+                (%)
+            </text>
+            break;
+        }
+    case Nop.Core.Domain.NhaXes.ENKieuDuLieu.NGAY_THANG:
+        {
+            <text>
+                (Kiểu ngày tháng)
+            </text>
+            break;
+        }
+    case Nop.Core.Domain.NhaXes.ENKieuDuLieu.KY_TU:
+        {
+            <text>
+                (Kiểu ký tự)
+            </text>
+            break;
+        }
+
+
+}
+                </td>
+                <td style="text-align:left;width:180px;">
+                    @if (m.kieudulieu == Nop.Core.Domain.NhaXes.ENKieuDuLieu.KY_TU)
+                    {
+                        <textarea rows="4" cols="50" id="txtCauHinh_@m.MaId">
+                            @m.GiaTri
+                        </textarea>                        
+                    }
+                    else
+                    {
+                        <input type="text" id="txtCauHinh_@m.MaId" value="@m.GiaTri" style="width:100%" />
+                    }
+                    
+</td>
+                <td style="text-align:left;">
+                    <button id="btnCauHinh_@m.MaId" onclick="UpdateCauHinh('@m.Ten',@m.MaId,@m.KieuDuLieuId);" class="k-button">Cập nhật</button>
+                </td>
+        </tr>
+    <tr>
+        
+    </tr>
+
+        }
+    </table>
+    <script>
+        function UpdateCauHinh(_Ten,_MaId,_KieuDuLieuId)
+        {
+            var _giatri=$('#txtCauHinh_'+_MaId).val();
+            var paradata = {
+                Ten:_Ten,
+                MaId:_MaId,
+                KieuDuLieuId:_KieuDuLieuId,
+                GiaTri:_giatri
+            };
+            $('#btnCauHinh_'+_MaId).attr('disabled', true);
+            $.ajax({
+                cache: false,
+                type: "POST",
+                data: paradata,
+                dataType: 'json',
+                url: "@(Url.Action("UpdateCauHinhChung", "NhaXeCauHinh"))",
+                success: function (data) {
+                    alert("Cập nhật thành công!");
+                    $('#btnCauHinh_'+_MaId).attr('disabled', false);
+                        
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                return alert('Có lỗi trong quá trình cập nhật dữ liệu');
+                $('#btnCauHinh_'+_MaId).attr('disabled', false);
+            }
+
+        });
+            return false;
+        }
+    </script>
+  }

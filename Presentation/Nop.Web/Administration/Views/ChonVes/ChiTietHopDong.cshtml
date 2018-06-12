@@ -1,0 +1,332 @@
+﻿@model XuLyHopDongModel
+@using Nop.Admin.Models.ChonVes
+@using Nop.Core.Domain.Chonves;
+@Html.ValidationSummary(false)
+@Html.HiddenFor(model => model.Id)
+@Html.HiddenFor(model => model.TrangThaiID)
+<div id="ThongBao" class="messageBox messageBoxSuccess" style="display:none"></div>
+<div class="section-header">
+    <div class="title">
+        <img src="@Url.Content("~/Administration/Content/images/ico-dashboard.png")" alt="" />
+        @T("Admin.ChonVe.HopDong.ChiTietHopDong") @Html.ActionLink("(" + T("Admin.ChonVe.HopDong.QuayVe") + ")", "ListHopDong")
+    </div>
+    <div class="options">
+        @if (Model.TrangThai == ENTrangThaiHopDong.Moi)
+        {
+            if (Model.NguoiTaoID == Model.IdCurrent)
+            {
+                <input type="submit" id="btnGuiDuyet" class="k-button" value="@T("Admin.ChonVe.HopDong.GuiDuyet")" />             
+            @Html.ActionLink( @T("Admin.ChonVe.HopDong.Sua").Text , "SuaHopDong", new { id = Model.Id }, new {@class="k-button"})
+             <input type="submit" id="btnHuyHopDong" class="k-button" value="@T("Admin.ChonVe.HopDong.Huy")" />
+              
+            }
+        }
+        @if (Model.TrangThai == ENTrangThaiHopDong.DaDuyet)
+        {
+            if (Model.isManager)
+            {
+                <input type="button" id="btnGiaHan" class="k-button" value="@T("Admin.ChonVe.HopDong.GiaHan")" />
+            <input type="button" id="btnKetThucHopDong" class="k-button" value="@T("Admin.ChonVe.HopDong.btnKetThucHopDong")" />
+            }
+        }
+        @if (Model.TrangThai == ENTrangThaiHopDong.DangChoDuyet)
+        {
+            if (Model.isManager)
+            {
+
+
+                <input type="submit" id="btnDuyet" class="k-button" value="@T("Admin.ChonVe.HopDong.DongYDuyet")" />
+
+
+                <input type="submit" id="btnKhongDuyet" class="k-button" value="@T("Admin.ChonVe.HopDong.KhongDuyet")" />
+
+            }
+            else
+            {
+                <input type="submit" id="btnKiemTraLai" class="k-button" value="@T("Admin.ChonVe.HopDong.KiemTraLai")" />
+            }
+        }
+
+    </div>
+</div>
+
+<table class="adminContent">
+    @if (Model.TrangThai == ENTrangThaiHopDong.DaDuyet)
+    {
+        if (Model.isManager)
+        {
+            <tr>
+                <td class="adminTitle">
+                    @Html.NopLabelFor(model => model.GiaHanID);
+                </td>
+                <td class="adminData">
+                    @Html.DropDownListFor(model => model.GiaHanID, Model.ListGiaHan)
+                </td>
+            </tr>
+        }
+    }
+    <tr>
+        <td class="adminTitle">
+            @Html.NopLabelFor(model => model.MaHopDong):
+        </td>
+        <td class="adminData">
+            @Html.DisplayFor(model => model.MaHopDong)
+        </td>
+    </tr>
+    <tr>
+        <td class="adminTitle">
+            @Html.NopLabelFor(model => model.TenHopDong):
+        </td>
+        <td class="adminData">
+            @Html.DisplayFor(model => model.TenHopDong)
+        </td>
+    </tr>
+    <tr>
+        <td class="adminTitle">
+            @Html.NopLabelFor(model => model.TrangThaiText):
+        </td>
+        <td class="adminData">
+            @Html.DisplayFor(model => model.TrangThaiText)
+        </td>
+    </tr>
+    <tr>
+        <td class="adminTitle">
+            @Html.NopLabelFor(model => model.LoaiHopDongText):
+        </td>
+        <td class="adminData">
+            @Html.DisplayFor(model => model.LoaiHopDongText)
+        </td>
+    </tr>
+    <tr>
+        <td class="adminTitle">
+            @Html.NopLabelFor(model => model.NhaXeText):
+        </td>
+        <td class="adminData">
+            @Html.DisplayFor(model => model.NhaXeText)
+        </td>
+    </tr>
+    <tr>
+        <td class="adminTitle">
+            @Html.NopLabelFor(model => model.ThongTin):
+        </td>
+        <td class="adminData">
+            @Html.Raw(Model.ThongTin)
+        </td>
+    </tr>
+
+</table>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $('#btnKiemTraLai').click(function () {
+            if (!confirm("@T("Common.areyousure")")) {
+                return;
+            }
+            var Id =@(Model.Id)
+
+            $('#btnKiemTraLai').attr('disabled', true);
+            $.ajax({
+                cache: false,
+                type: "POST",
+                data: { "Id": Id },
+                dataType: 'json',
+                url: "@(Url.Action("KiemTraLaiHopDong", "ChonVes"))",
+                success: function (data) {
+                    $("#ThongBao").show();
+                    $("#ThongBao").html("@T("Admin.ChonVe.HopDong.KetThuc")");
+                    document.location.href = "/Admin/ChonVes/ChiTietHopDong/" + Id;
+                  
+                    
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert('@T("Admin.ChonVe.HopDong.Loi")');
+                    $('#btnKiemTraLai').attr('disabled', false);
+                }
+
+            });
+        });
+        $('#btnHuyHopDong').click(function () {
+            if (!confirm("@T("Common.areyousure")")) {
+                return;
+            }
+            var Id =@(Model.Id)
+
+            $('#btnHuyHopDong').attr('disabled', true);
+            $.ajax({
+                cache: false,
+                type: "POST",
+                data: { "Id": Id },
+                dataType: 'json',
+                url: "@(Url.Action("HuyHopDong", "ChonVes"))",
+                success: function (data) {
+                    $("#ThongBao").show();
+                    $("#ThongBao").html("@T("Admin.ChonVe.HopDong.HuyThanhCong")");                   
+                    document.location.href = "/Admin/ChonVes/ChiTietHopDong/" + Id;
+
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert('@T("Admin.ChonVe.HopDong.LoiHuy")');
+                    $('#btnHuyHopDong').attr('disabled', false);
+                }
+
+            });
+        });
+        $('#btnKetThucHopDong').click(function () {
+            if (!confirm("@T("Common.areyousure")")) {
+                return;
+            }
+            var Id =@(Model.Id)
+
+            $('#btnKetThucHopDong').attr('disabled', true);
+            $.ajax({
+                cache: false,
+                type: "POST",
+                data: { "Id": Id },
+                dataType: 'json',
+                url: "@(Url.Action("KetThucHopDong", "ChonVes"))",
+                success: function (data) {                  
+                   
+                    $("#ThongBao").show();
+                    $("#ThongBao").html("@T("Admin.ChonVe.HopDong.KetThuc")");
+                    document.location.href = "/Admin/ChonVes/ChiTietHopDong/" + Id;
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert('@T("Admin.ChonVe.HopDong.LoiKetThuc")');
+                    $('#btnKetThucHopDong').attr('disabled', false);
+                }
+
+            });
+        });
+    });
+
+</script>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $('#btnDuyet').click(function () {
+            if (!confirm("@T("Common.areyousure")")) {
+           return;
+        }
+            var Id =@(Model.Id)
+
+            $('#btnDuyet').attr('disabled', true);
+            $.ajax({
+                cache: false,
+                type: "POST",
+                data: { "Id": Id },
+                dataType: 'json',
+                url: "@(Url.Action("DongYDuyetHopDong", "ChonVes"))",
+                success: function (data) {
+                    $("#ThongBao").show();
+                    $("#ThongBao").html("@T("Admin.ChonVe.HopDong.duyetthanhcong")");                   
+                    document.location.href = "/Admin/ChonVes/ListHopDong";
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert('@T("Admin.ChonVe.HopDong.Loi")');
+                    $('#btnDuyet').attr('disabled', false);
+                }
+
+            });
+        });
+
+    });
+</script>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $('#btnKhongDuyet').click(function () {
+            if (!confirm("@T("Common.areyousure")")) {
+           return;
+        }
+            var Id =@(Model.Id)
+
+            $('#btnKhongDuyet').attr('disabled', true);
+            $.ajax({
+                cache: false,
+                type: "POST",
+                data: { "Id": Id },
+                dataType: 'json',
+                url: "@(Url.Action("KhongDuyetHopDong", "ChonVes"))",
+                success: function (data) {
+                    $("#ThongBao").show();
+                    $("#ThongBao").html("@T("Admin.ChonVe.HopDong.khongduyetthanhcong")");                     
+                    document.location.href = "/Admin/ChonVes/ListHopDong";
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert('@T("Admin.ChonVe.HopDong.Loi")');
+                    $('#btnKhongDuyet').attr('disabled', false);
+                }
+
+            });
+        });
+
+    });
+</script>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $('#btnGuiDuyet').click(function () {
+            if (!confirm("@T("Common.areyousure")")) {
+           return;
+        }
+            var Id =@(Model.Id)
+
+            $('#btnGuiDuyet').attr('disabled', true);
+            $.ajax({
+                cache: false,
+                type: "POST",
+                data: { "Id": Id },
+                dataType: 'json',
+                url: "@(Url.Action("GuiDuyetHopDong", "ChonVes"))",
+                success: function (data) {
+                    $("#ThongBao").show();
+                    $("#ThongBao").html("@T("Admin.ChonVe.HopDong.daguiduyethopdong")");                      
+                    document.location.href = "/Admin/ChonVes/ListHopDong";
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert('@T("Admin.ChonVe.HopDong.Loi")');
+                    $('#btnGuiDuyet').attr('disabled', false);
+                }
+
+            });
+        });
+
+    });
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#btnGiaHan').click(function () {
+            if (!confirm("@T("Common.areyousure")")) {
+           return;
+        }
+            var Id =@(Model.Id)
+
+            $('#btnGiaHan').attr('disabled', true);
+            $.ajax({
+                cache: false,
+                type: "POST",
+                data: { "Id": Id, "GiaHanID": $('#@Html.FieldIdFor(model => model.GiaHanID)').val() },
+                dataType: 'json',
+                url: "@(Url.Action("GiaHanHopDong", "ChonVes"))",
+                success: function (data) {
+                    $("#ThongBao").show();
+                    $("#ThongBao").html("@T("Admin.ChonVe.HopDong.Giahanthanhcong")");                      
+                    document.location.href = "/Admin/ChonVes/ListHopDong";
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert('@T("Admin.ChonVe.HopDong.Loi")');
+                    $('#btnGiaHan').attr('disabled', false);
+                }
+
+            });
+        });
+
+    });
+    function additionalData() {
+        return {
+            GiaHanID: $('#@Html.FieldIdFor(model => model.GiaHanID)').val(),
+        };
+    }
+</script>
+

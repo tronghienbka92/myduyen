@@ -1,0 +1,191 @@
+﻿@model WindowsChatModel
+@using Nop.Web.Models.Chat
+@Html.HiddenFor(model => model.MessengerLastId)
+@{
+    Layout = null;
+
+    <link href="~/Content/Chat/widget.i365.css" rel="stylesheet" />
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+
+    <script src="~/Scripts/jquery-1.10.2.js"></script>
+}
+<style>
+    .themebackground {
+        background-color: #0B8043;
+    }
+
+    .themeborder {
+        border-color: #0B8043;
+    }
+
+    .themearrow:after {
+        border-left-color: #0B8043;
+    }
+
+    .themebackground2,
+    .department-wrapper input[type="radio"]:checked + .department-content {
+        background-color: rgba(11, 128, 67, 0.8);
+    }
+
+    .themeborder2 {
+        border-color: rgba(11, 128, 67, 0.8);
+    }
+
+    .themearrow2:after {
+        border-right-color: rgba(11, 128, 67, 0.8);
+    }
+
+    .themebackgroundhover:hover {
+        background-color: rgba(11, 128, 67, 0.8);
+    }
+</style>
+<body class="br-t">
+    <div class="wrapper br-t" style="position: fixed; bottom: 0;">
+        <header class="br-t bs themebackground" style="font-weight: normal;">
+            <span>Chat với chúng tôi..</span>
+        </header>
+        <div class="content bs">
+
+            <section class="chat-section">
+                <div id="waitingPanel" class="form-group">
+                    <div class="agent-panel-text">Cảm ơn bạn đã liên lạc với chúng tôi! @*Nhân viên chăm sóc khách hàng sẽ liên lạc với bạn trong thời gian sớm nhất*@</div>
+                    <div class="agent-panel-subtext ap-date"></div>
+                </div>
+                <div id="chatInfo" class="form-group agent-panel" style="display: none;">
+                    <div class="agent-panel-image themeborder">
+                        <img id="ap-image" src="/img/support_male.png" />
+                    </div>
+                    <div class="agent-panel-text">Bạn đang chat với:</div>
+                    <div id="ap-name" class="agent-panel-name"></div>
+                    <div class="agent-panel-info">
+                        <div class="ap-date"></div>
+                    </div>
+                </div>
+                <div class="chat-panel-wrapper">
+                    <div class="no-agent-label" style="display: none;">
+                        Không có nhân viên CSKH online!<br />
+                        Làm ơn để lại tin nhắn, chúng tôi sẽ liên lạc lại sau!
+                    </div>
+
+                    <div class="chat-panel bs" id="conten_chat">
+
+                        <div class="msg a themearrow">
+                            
+                            <div class="msg-box themebackground themeborder2">
+                                <p class="msg-content">Chào mừng bạn đến với website của chúng tôi</p>
+                                <a class="msg-attachment"></a>
+                                <span class="msg-author"></span>
+                            </div>
+                            <span class="msg-time"></span>
+                        </div>
+
+                        <div class="notification"></div>
+                    </div>
+                </div>
+                <div class="form-group input-panel">
+                    <input class="form-control" id="msg-input" placeholder="Nhập tin nhắn">
+                    @*@Html.TextAreaFor(m => m.Messenger, new { @class = "form-control input_msg", @placeholder = "Nhập tin nhắn" })*@
+                    <button class="j-submit themebackground" id="send-button">Gửi</button>
+                    <div id="attachment-button"></div>
+                    <input type="file" id="attachment-input" class="attachment-input" />
+                </div>
+
+                <div class="form-group attachment-panel"></div>
+            </section>
+
+
+        </div>
+        <footer class="bs themebackground"><span></span></footer>
+
+
+    </div>
+</body>
+
+<script>
+    $(document).ready(function () {
+        load();
+        ChatTimeout = setInterval(function () { load() }, 3000);
+        function load() {
+            var _chatcontent = $("#conten_chat")
+            var MessengerLastId = $("#@Html.FieldIdFor(model => model.MessengerLastId)").val();
+
+            var classmessenger = "";
+            $.ajax({
+                cache: false,
+                type: "Post",
+                data: { "MessengerLastId": MessengerLastId },
+                url: "@(Url.Action("GetHistoryConvertation", "Chat"))",
+                dataType: 'json',
+                success: function (data) {
+
+                    if (data == "noconver" || data == "nomsg") {
+
+                    }
+                    else {
+
+                        $.each(data, function (id, option) {
+
+                            if (option.Isagents) {
+                                classmessenger = "msg a"                               
+                                //_chatcontent.append(notifi);
+                                
+                            }
+                            else {
+                                classmessenger = "msg"
+                            }
+                            var messenger = '<div class="' + classmessenger + ' themearrow">' +
+                                                '<div class="msg-box themebackground themeborder">' +
+                                                    '<p class="msg-content">' + option.Text + '</p>' +
+                                                     '<a class="msg-attachment"></a>' +
+                                                       '<span class="msg-author"></span>' +
+                                                   '</div>' +
+                                                   '<span class="msg-time"></span>' +
+                                                 '</div>';
+                            var notifi = '<div class="notification">Chọn vé đã tham gia cuộc trò chuyện!</div>'
+                            _chatcontent.append(messenger);
+                           
+                            $("#@Html.FieldIdFor(model => model.MessengerLastId)").val(option.Id);
+
+                        });
+                        $("#conten_chat").animate({ scrollTop: $(document).height() }, "fast");
+                    }
+                },
+
+              
+            });
+        }
+
+
+
+        $("#send-button").click(function () {
+            var _classmessenger = "";
+            var chatcontent = $("#conten_chat")
+            var messenger = $("#msg-input").val();
+
+            $.ajax({
+                cache: false,
+                type: "POST",
+                data: { "messger": messenger },
+                url: "@(Url.Action("WindowsChat", "Chat"))",
+                dataType: 'json',
+                success: function (data) {
+                    if (data == "ok") {
+
+                        $("#msg-input").val("");
+                        $("#msg-input").focus();
+                    }
+
+                },
+               
+            });
+        });
+        $("#msg-input").keydown(function (event) {
+            if (event.keyCode == 13) {
+                $("#send-button").click();
+                return false;
+            }
+        });
+
+    });
+
+</script>

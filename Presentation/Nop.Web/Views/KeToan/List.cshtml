@@ -1,0 +1,161 @@
+﻿@model QLThuChiModel
+@using Nop.Web.Models.NhaXes
+@using Nop.Core.Infrastructure
+@{
+    ViewBag.Title = "SỔ QUỸ TIỀN MẶT";
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+}
+<div class="section-header">
+    <div class="title">
+        <img src="@Url.Content("~/Content/chonve/nxmenu/baocaodoanhthu.png")" alt="" />
+        @ViewBag.Title
+    </div>
+    <div class="options">
+        <a class="k-button" href="/KeToan/ThuChiTao?isChi=false">Tạo khoản thu</a>
+        <a class="k-button" href="/KeToan/ThuChiTao?isChi=true">Tạo khoản chi</a>
+    </div>
+    <table style="width:100%">
+        <tr>
+            <td align="center" width="25%">
+                <table class="adminContent">
+                    <tr>
+                        <td class="adminTitle" style="text-align:right">
+                            Thông tin:
+                        </td>
+                        <td class="adminData">
+                            @Html.EditorFor(model => model.KeySearch)
+                        </td>
+                    </tr>
+                </table>
+            </td>
+            <td align="center" width="15%">
+                <table class="adminContent">
+                    <tr>
+                        <td class="adminTitle" style="text-align:right">
+                            Từ ngày:
+                        </td>
+                        <td class="adminData">
+                            @Html.EditorFor(model => model.TuNgay)
+                        </td>
+                    </tr>
+                </table>
+            </td>
+            <td align="center" width="15%">
+                <table class="adminContent">
+                    <tr>
+                        <td class="adminTitle" style="text-align:right">
+                            đến ngày:
+                        </td>
+                        <td class="adminData">
+                            @Html.EditorFor(model => model.DenNgay)
+                        </td>
+                    </tr>
+                </table>
+            </td>
+
+            <td align="center" width="15%">
+                <table class="adminContent">
+                    <tr>
+                        <td class="adminTitle" style="text-align:right">
+                            Thu/chi:
+                        </td>
+                        <td class="adminData">
+                            @Html.DropDownListFor(model => model.isChi, Model.ddlThuChi)
+                        </td>
+                    </tr>
+                </table>
+            </td>
+
+            <td style="text-align:left;width:15%">
+                <input type="button" id="btnSearch" class="k-button" value="@T("Admin.Common.Search")" />
+            </td>
+            <td style="text-align:right">
+                <input type="button" id="btnExport" class="k-button" value="Xuất ra file Excel" />
+                @using (Html.BeginForm("_ExportBaoCao", "BaoCao", FormMethod.Post, new { id = "export-xml-selected-form" }))
+                {
+                    <input type="hidden" id="KeySearch" name="KeySearch" value="" />
+                    <input type="hidden" id="TuNgay" name="TuNgay" value="" />
+                    <input type="hidden" id="DenNgay" name="DenNgay" value="" />
+                    <input type="hidden" id="isChi" name="isChi" value="" />
+                    <input type="hidden" id="LoaiBaoCaoId" name="LoaiBaoCaoId" value="@(Convert.ToInt32(BaoCaoNhaXeModel.EN_LOAI_BAO_CAO.SO_QUY_TIEN_MAT))" />
+                }
+            </td>
+        </tr>
+    </table>
+    <div id="tabBaoCao"></div>
+    <div id="chitietthuchi"></div>
+    <script>
+        function ExportBaoCao() {
+            var KeySearch = $("#@Html.FieldIdFor(model => model.KeySearch)").val();
+            var TuNgay = $("#@Html.FieldIdFor(model => model.TuNgay)").val();
+            var DenNgay = $("#@Html.FieldIdFor(model => model.DenNgay)").val();
+            var isChi = $("#@Html.FieldIdFor(model => model.isChi)").val();
+
+            $('#export-xml-selected-form #KeySearch').val(KeySearch);
+            $('#export-xml-selected-form #TuNgay').val(TuNgay);
+            $('#export-xml-selected-form #DenNgay').val(DenNgay);
+            $('#export-xml-selected-form #isChi').val(isChi);
+            $('#export-xml-selected-form').submit();
+        }
+
+        function LoadBaoCao() {
+            $('#tabBaoCao').html("");
+            var datapost = dataSearchBaoCao();
+            $.ajax({
+                cache: false,
+                type: "POST",
+                data: datapost,
+                url: "@(Url.Action("_DanhSachThuChi", "KeToan"))",
+                success: function (data) {
+                    $('#tabBaoCao').html(data);
+
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    $('#tabBaoCao').html("Có lỗi trong quá trình load dữ liệu");
+                }
+            });
+        }
+
+        function dataSearchBaoCao() {
+            var TuNgay = ConvertDateTimeSystem($("#@Html.FieldIdFor(m => m.TuNgay)").val());
+            var DenNgay = ConvertDateTimeSystem($("#@Html.FieldIdFor(m => m.DenNgay)").val());
+            var KeySearch = $("#@Html.FieldIdFor(m => m.KeySearch)").val();
+            var datapost = {
+                TuNgay: TuNgay,
+                DenNgay: DenNgay,
+                KeySearch: KeySearch,
+                isChi: $("#@Html.FieldIdFor(model => model.isChi)").val(),
+            };
+            return datapost;
+        }
+        function ShowChiTiet(Id) {
+            var _formtemp = $("#chitietthuchi");
+            _formtemp.html('');
+            _formtemp.kendoWindow({
+                width: "550px",
+                height: "380px",
+                title: "Chi tiết",
+                content: "@(Url.Action("_ChiTiet", "KeToan"))?Id=" + Id,
+                modal: true,
+                actions: [
+                    "Close"
+                ],
+            }).data("kendoWindow").center();
+            _formtemp.data('kendoWindow').open();
+        }
+        $(document).ready(function () {
+            $('#btnSearch').click(function () {
+                //search
+                LoadBaoCao();
+                return false;
+            });
+            $("#@Html.FieldIdFor(model => model.isChi)").change(function () {
+                $("#btnSearch").click();
+            });
+            $('#btnExport').click(function () {
+                ExportBaoCao();
+                return false;
+            });
+            LoadBaoCao();
+        });
+    </script>

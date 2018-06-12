@@ -1,0 +1,35 @@
+﻿@model KetThucBanVeModel
+@Html.ValidationSummary(false)
+
+@{
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+
+    //page title
+    ViewBag.Title = "Chỉnh sửa bán vé";
+}
+@using (Html.BeginForm("VeVuaNhap", "GiaoDichKeVe", FormMethod.Post, new { id = "FormKeVeMenhGia" }))
+{
+   
+    <div class="section-header">
+        <div class="title">
+            <img src="@Url.Content("~/Content/chonve/nxmenu/phoive.png")" alt="" />
+            @ViewBag.Title
+        </div>
+        <div class="options">
+            <input type="submit" id="HoanTat" name="save" class="k-button" value="Cập nhật" />&nbsp;
+
+        </div>
+    </div>
+    <table >
+        @foreach(var item in Model.ListVe)
+        {
+            <tr>
+                <td>@item.SoSeri</td>
+                <td>@item.TenChang</td>
+            </tr>
+        }
+
+    </table>
+}
+
+

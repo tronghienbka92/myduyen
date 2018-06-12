@@ -1,0 +1,1073 @@
+﻿@model QLPhoiVeModel
+@using Nop.Core.Infrastructure
+@using Nop.Core.Domain.NhaXes;
+@using Nop.Core.Domain.Chonves;
+@using Nop.Web.Models.NhaXes
+@using Nop.Web.Models.QLPhoiVe
+@using Nop.Services.NhaXes
+@Html.HiddenFor(m => m.HanhTrinhId)
+@{
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+}
+<style>
+    .tabkhuvucitemcss {
+        text-align: center;
+        padding: 5px;
+        min-width:95px;
+        display: inline-block;
+        border: 1px solid #c1bebe;
+        cursor: pointer;
+    }
+
+    .tabkhuvucitemcssactive {
+        text-align: center;
+        padding: 5px;
+        min-width:95px;
+        display: inline-block;
+        border: 2px solid #099faf;
+        font-weight: bold;
+        background-color: rgb(19, 142, 154);
+    }
+</style>
+
+
+<table style="width:100%">
+    <tr>
+        <td colspan="3">
+            <table style="width:100%" cellpadding="2" cellspacing="2">
+                <tr>
+                    @foreach (var item in Model.ListHanhTrinh)
+                    {
+                        var _class = "tabkhuvucitemcss";
+                        if (item.Value == Model.HanhTrinhId.ToString())
+                        {
+                            _class = "tabkhuvucitemcssactive";
+                        }
+                        <td class="@_class KhuVuc" id="khuvuc_@item.Value" khuvuc_id="@item.Value">
+                            @item.Text
+                        </td>
+                    }
+                </tr>
+            </table>
+            <script>
+                function LoadVung(KhuVucId) {
+                    var _Khuvucid = $('#@Html.FieldIdFor(m=>m.HanhTrinhId)').val();
+                    $('#khuvuc_' + _Khuvucid).removeClass("tabkhuvucitemcssactive").addClass("tabkhuvucitemcss");
+                    $('#khuvuc_' + KhuVucId).removeClass("tabkhuvucitemcss").addClass("tabkhuvucitemcssactive");
+                    $('#@Html.FieldIdFor(m => m.HanhTrinhId)').val(KhuVucId);
+                   
+                    LoadThongTinMenuVeCon();
+                    LoadChuyenDi();
+                }
+                $(document).ready(function () {
+
+                    $(".KhuVuc").each(function (e) {
+                        $(this).click(function () {
+                            var KhuVucId = $(this).attr('khuvuc_id');
+                            LoadVung(KhuVucId);
+                        });
+                    });
+                });
+            </script>
+        </td>
+    </tr>
+    <tr>       
+       
+        <td>
+            @Html.TextBoxFor(m => m.ThongTinKhachHang, new { @style = "width:40%;", placeholder = "Tên hoặc số điện thoại khách hàng, biển số xe, tên lái phụ xe..." })
+        </td>
+        <td align="center" width="20%">
+            <table class="adminContent">
+                <tr>
+                    <td class="adminTitle" style="text-align:right">
+                        Ngày đi:
+                    </td>
+                    <td class="adminData">
+                        @Html.EditorFor(model => model.NgayDi)
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td align="center" width="20%">
+            <table class="adminContent">
+                <tr>
+                    <td class="adminTitle" style="text-align:right">
+                        Loại xe:
+                    </td>
+                    <td class="adminData">
+                        @Html.DropDownListFor(model => model.LoaiXeId, Model.ListLoaiXes)
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td align="center" width="20%">
+            <table class="adminContent">
+                <tr>
+                    <td class="adminTitle" style="text-align:right">
+                        Khung giờ:
+                    </td>
+                    <td class="adminData">
+                        @Html.DropDownListFor(model => model.KhungGioId, Model.khunggios)
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+<div id="tabChuyenDi" style="width:100%;"></div>
+
+<script>
+
+    
+    function LoadChuyenDi() {
+        var _hanhtrinhid = $("#@Html.FieldIdFor(m=>m.HanhTrinhId)").val();
+        var _loaixeid = $("#@Html.FieldIdFor(m=>m.LoaiXeId)").val();
+        var _ngaydi = ConvertDateTimeSystem($("#@Html.FieldIdFor(m=>m.NgayDi)").val());
+        var _khunggioid = $("#@Html.FieldIdFor(m=>m.KhungGioId)").val();
+        var _thongtinkh = $("#@Html.FieldIdFor(m=>m.ThongTinKhachHang)").val();
+        _thongtinkh = encodeURI(_thongtinkh);
+        $('#tabChuyenDi').html("");
+        $('#current_sodoghexe_quytac').html("");
+        $.ajax({
+            cache: false,
+            type: "GET",
+            url: "@(Url.Action("_TabChuyenDi", "QLPhoiVe"))?HanhTrinhId=" + _hanhtrinhid + "&KhungGioId=" + _khunggioid + "&NgayDi=" + _ngaydi + "&ThongTinKhachHang=" + _thongtinkh + "&LoaiXeId=" + _loaixeid,
+            success: function (data) {
+                $('#tabChuyenDi').html(data);
+
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                $('#tabChuyenDi').html("Có lỗi trong quá trình load dữ liệu chuyến đi");
+            }
+        });
+    }
+    function LoadChiPhiChuyenDi()
+    {
+        var chuyendiid=$("#@Html.FieldIdFor(m=>m.ChuyenDiId)").val();
+        $('#tabChiPhiChuyenDi').html("");
+        $.ajax({
+            cache: false,
+            type: "GET",
+            url: "@(Url.Action("_TabChiPhiChuyenDi", "QLPhoiVe"))?ChuyenDiId=" + chuyendiid,
+            success: function (data) {
+                $('#tabChiPhiChuyenDi').html(data);
+
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                $('#tabChuyenDi').html("Có lỗi trong quá trình load dữ liệu");
+            }
+        });
+    }
+    $(document).ready(function () {
+
+        LoadChuyenDi();
+        $("#@Html.FieldIdFor(model => model.ThongTinKhachHang)").keydown(function (event) {
+            if (event.keyCode == 13) {
+                LoadChuyenDi();
+            }
+        });
+        $('#@Html.FieldIdFor(model => model.KhungGioId)').change(function () {
+            LoadChuyenDi();
+        });
+        $("#@Html.FieldIdFor(model => model.NgayDi)").change(function () {
+            LoadChuyenDi();
+        });
+        $('#@Html.FieldIdFor(model => model.LoaiXeId)').change(function () {
+            LoadChuyenDi();
+            LoadThongTinMenuVeCon();
+        });
+    });
+    function SetSoLuongKhachDatVe(chuyendiid, sl, soghe) {
+        if ($("#SoKhach_" + chuyendiid))
+            $("#SoKhach_" + chuyendiid).html(sl);
+        if ($("#SoKhach_Progress_" + chuyendiid)) {
+            var _ctltemp = $("#SoKhach_Progress_" + chuyendiid);
+            _ctltemp.css('width', parseFloat(sl * 100 / soghe) + "%");
+            var bg = _ctltemp.css('background-color');
+            var a = bg.slice(4).split(',');
+            var _alpha = parseFloat(sl) / soghe;
+            var newBg = 'rgba' + a[0] + ',' + a[1] + ',' + a[2] + ',' + _alpha + ')';
+            _ctltemp.css('background-color', newBg);
+
+        }
+
+
+    }
+</script>
+<script>
+    
+    function LoadThongTinMenuVeCon() {
+
+        //load thong tin nguon ve con
+        var selectedItem = $("#@Html.FieldIdFor(model => model.HanhTrinhId)").val();
+        var LoaiXeId = $("#@Html.FieldIdFor(model => model.LoaiXeId)").val();
+        var menunguonvecon = $("#menucontextphoive_datmuavenhanh");
+        $.ajax({
+            cache: false,
+            type: "GET",
+            url: "@(Url.Action("GetNguonVeXeCon", "NhaXes"))",
+            data: { "HanhTrinhId": selectedItem,"LoaiXeId": LoaiXeId },
+            success: function (data) {
+                menunguonvecon.html('');
+                $.each(data, function (id, option) {
+                    menunguonvecon.append('<li  actionid="6" data_changid="' + option.Id + '" class="k-item k-state-default" role="menuitem" style="z-index: auto;"><span class="k-link">' + option.ThongTin + '</span></li>');
+                });
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert('Failed to retrieve nguonve.');
+            }
+        });
+    }
+</script>
+<div id="current_sodoghexe_quytac">
+</div>
+
+<div id="tabChiPhiChuyenDi" style="width:100%;display:block;">
+
+</div>
+<div id="windowthietdatchuyendi" style="display:none">    
+    <table style="width:100%">
+        <tr>
+            <td>
+                <input id="cbbBienSoInput" style="width:100%" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input id="cbbLaiXeInput" style="width:100%" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input id="cbbNTVInput" style="width:100%" />
+            </td>
+        </tr>
+        <tr>
+            <td style="text-align:center">
+                <input type="button" value="Đồng ý" class="k-button" onclick="ThietDatChuyenDi_Luu();" />&nbsp;&nbsp;
+                <input type="button" value="Hủy thiết đặt" class="k-button" onclick="ThietDatChuyenDi_Huy();"/>
+            </td>
+        </tr>
+    </table>
+</div>
+<div id="FormWindowTaoChuyenDi" style="display:none">
+</div>
+<div id="FormWindowChuyenSoDoGhe" style="display:none">
+</div>
+<div id="GanSeriVeForm" style="display:none">
+
+</div>
+<div id="FormWindowDatMuaVe" style="display:none">
+</div>
+<div id="FormWindowChuyenVe" style="display:none">
+</div>
+<div id="FormWindowPhoiVeBoSung" style="display:none">
+</div>
+<ul id="menucontextphoive_datmua">
+    <li class="k-separator"></li>
+    <li actionid="1">
+        Đặt mua
+    </li>
+    <li data_changid="0">
+        Đặt vé nhanh
+        <ul id="menucontextphoive_datmuavenhanh"></ul>
+    </li>
+    <li class="k-separator"></li>
+</ul>
+<ul id="menucontextphoive_nghiepvu">
+    <li actionid="2">
+        Sửa thông tin
+    </li>
+    <li actionid="9">
+        Sửa từng vé
+    </li>
+    <li actionid="3">
+        @T("chonve.nhaxes.qualyphoive.menu_chuyen").Text
+    </li>
+    <li actionid="5">
+        In vé
+    </li>
+    <li class="k-separator"></li>
+    <li actionid="4">
+
+
+        @T("chonve.nhaxes.qualyphoive.menu_huy").Text
+
+    </li>
+    <li actionid="8">
+
+
+        Gán seri
+
+    </li>
+</ul>
+<ul id="menucontextphoive_nghiepvu_YeuCauHuy">
+    <li actionid="2">
+        @T("chonve.nhaxes.qualyphoive.menu_thanhtoan").Text
+    </li>
+    <li actionid="3">
+        @T("chonve.nhaxes.qualyphoive.menu_chuyen").Text
+    </li>
+    <li actionid="5">
+        In vé
+    </li>
+    <li class="k-separator"></li>
+    <li actionid="7">
+
+
+        @T("Yêu cầu hủy").Text
+
+    </li>
+    <li actionid="8">
+
+
+        Gán seri
+
+    </li>
+</ul>
+<script type="text/javascript">
+    $(document).ready(function () {
+        ThongTinBienSo();
+        ThongTinLaiPhuXe();
+        $("#menucontextphoive_datmua").kendoContextMenu({
+            orientation: "vertical",
+            target: "#current_sodoghexe_quytac",
+            filter: ".phoive_menucontext_datve",
+            animation: {
+                open: { effects: "fadeIn" },
+                duration: 300
+            },
+            select: function (e) {
+                // Do something on select
+                ProcessActionPhoiVe(e);
+            }
+        });
+        $("#menucontextphoive_nghiepvu_YeuCauHuy").kendoContextMenu({
+            orientation: "vertical",
+            target: "#current_sodoghexe_quytac",
+            filter: ".phoive_nghiepvu_YeuCauHuy",
+            animation: {
+                open: { effects: "fadeIn" },
+                duration: 300
+            },
+            select: function (e) {
+                // Do something on select
+                ProcessActionPhoiVe(e);
+            }
+        });
+        LoadThongTinMenuVeCon();
+        $("#menucontextphoive_nghiepvu").kendoContextMenu({
+            orientation: "vertical",
+            target: "#current_sodoghexe_quytac",
+            filter: ".phoive_menucontext_nghiepvu",
+            animation: {
+                open: { effects: "fadeIn" },
+                duration: 300
+            },
+            select: function (e) {
+                // Do something on select
+                ProcessActionPhoiVe(e);
+            }
+        });
+    });
+    function ProcessActionPhoiVe(e) {
+        var actionid = $(e.item).attr('actionid');
+        var data_phoiveid = $(e.target).attr('data_phoiveid');
+        var data_kyhieu = $(e.target).attr('data_kyhieu');
+        var data_tang = $(e.target).attr('data_tang');
+        var data_trangthai = $(e.target).attr('data_trangthai');
+        var data_changid = $(e.item).attr('data_changid');
+
+        switch (parseInt(actionid)) {
+            case 0: //chon ghe
+                {
+
+                    break;
+                }
+            case 1: //dat ghe
+                {
+                    //neu ghe con trong thi tao trang thai dat ghe
+                    if (data_trangthai == '@((int)ENTrangThaiPhoiVe.ConTrong)') {
+                        ChonGheDatCho(data_kyhieu, data_tang, 1, data_changid);
+                    }
+                    else if (data_trangthai == '@((int)ENTrangThaiPhoiVe.DatCho)')
+                        DatVe();
+                    break;
+                }
+            case 2: //thanh toan
+                {
+                    ThanhToanGiaoVe(data_phoiveid,false);
+                    @*if (data_trangthai == '@((int)ENTrangThaiPhoiVe.ChoXuLy)' || data_trangthai == '@((int)ENTrangThaiPhoiVe.GiuCho)') {
+                        ThanhToanGiaoVe(data_phoiveid);
+                    }
+                    else {
+                        alert('@T("chonve.nhaxe.quanlyphoive.dathanhtoan")');
+                    }*@
+                    break;
+                }
+            case 9: //thanh toan
+                {
+                    ThanhToanGiaoVe(data_phoiveid,true);
+                    @*if (data_trangthai == '@((int)ENTrangThaiPhoiVe.ChoXuLy)' || data_trangthai == '@((int)ENTrangThaiPhoiVe.GiuCho)') {
+                        ThanhToanGiaoVe(data_phoiveid);
+                    }
+                else {
+                        alert('@T("chonve.nhaxe.quanlyphoive.dathanhtoan")');
+                }*@
+                break;
+        }
+            case 3: //chuyen ghe
+                {
+
+                    ChuyenVe(data_phoiveid);
+
+                    break;
+                }
+            case 4: //huy ve
+                {
+                    HuyVe(data_phoiveid, true);
+                    break;
+                }
+            case 7: // yc huy ve
+                {
+
+                    HuyVe(data_phoiveid, false);
+                    break;
+                }
+            case 5: //in ve
+                {
+                    window.open("/NhaXeCauHinh/InPhieu?MaId=@((int)Nop.Core.Domain.NhaXes.ENNhaXeCauHinh.VE_MAU_IN_CUONG_VE)&Id=" + data_phoiveid, "_blank");
+                    break;
+                }
+            case 6: //đặt vé nhanh
+                {
+
+                    if (data_trangthai == '@((int)ENTrangThaiPhoiVe.ConTrong)') {
+                        ChonGheDatCho(data_kyhieu, data_tang, 2, data_changid);
+                    }
+                    else if (data_trangthai == '@((int)ENTrangThaiPhoiVe.DatCho)') {
+                        DatVeNhanh(data_changid);
+                    }
+
+                    break;
+
+                }
+            case 8: // gan so seri
+                {
+
+                    NhapSeriVe(data_phoiveid);
+                    break;
+                }
+        }
+    }
+
+   
+    
+    ///////////////////////thiet dat thong tin lai phu xe, bien so xe
+    function ThietDatChuyenDi_Open(XeVanChuyenId, LaiXeId, NTVId) {
+        var windowdieuchuyen = $("#windowthietdatchuyendi");
+        windowdieuchuyen.kendoWindow({
+            modal: true,
+            width: "300px",
+            height: "200px",
+            title: "Thiết đặt xe và lái xe cho chuyến đi",
+            actions: ["Close"],
+        });
+        windowdieuchuyen.data('kendoWindow').center().open();
+        if (LaiXeId > 0)
+            $("#cbbLaiXeInput").data("kendoComboBox").value(LaiXeId);
+        else
+            $("#cbbLaiXeInput").data("kendoComboBox").select(-1);
+        if (NTVId > 0)
+            $("#cbbNTVInput").data("kendoComboBox").value(NTVId);
+        else
+            $("#cbbNTVInput").data("kendoComboBox").select(-1);
+        if (XeVanChuyenId > 0)
+            $("#cbbBienSoInput").data("kendoComboBox").value(XeVanChuyenId);
+        else
+            $("#cbbBienSoInput").data("kendoComboBox").select(-1);
+    }
+    function ThietDatChuyenDi_Close() {
+        $("#windowthietdatchuyendi").data('kendoWindow').close();
+
+    }
+    function ThietDatChuyenDi_Luu() {
+        var _laixeid = $('#cbbLaiXeInput').data("kendoComboBox").value();
+        var _phuxexeid = $('#cbbNTVInput').data("kendoComboBox").value();
+        var _biensoxeid = $('#cbbBienSoInput').data("kendoComboBox").value();
+        if (_biensoxeid == "") {
+            alert("Bạn chưa chọn biển số xe");
+            $("#cbbLaiXeInput").data("kendoComboBox").input.focus();
+            return;
+        }
+        if (_laixeid == "") {
+            alert("Bạn chưa chọn lái xe");
+            $("#cbbBienSoInput").data("kendoComboBox").input.focus();
+            return;
+        }
+
+
+        var ChuyenDiId = $("#@Html.FieldIdFor(model => model.ChuyenDiId)").val();
+        var laiphuxeids = _laixeid;
+        if (_phuxexeid != "")
+            laiphuxeids = laiphuxeids + "," + _phuxexeid;
+
+        var _data={ "laiphuxeids": laiphuxeids, "XeVanChuyenId": _biensoxeid, ChuyenDiId:ChuyenDiId };
+        $.ajax({
+            cache: false,
+            type: "POST",
+            data: _data,
+            dataType: 'json',
+            url: "@(Url.Action("ThietDatChuyenDi_Luu", "QLPhoiVe"))",
+            success: function (data) {
+                if (data) {
+                    //hien thi ket qua
+                    $('#spChuyenDi_BienSo').html(data.BienSo);
+                    $('#spChuyenDi_LaiXe').html(data.ThongTinLaiPhuXe.replace(';','<br/>'));
+                    $('#lnkThietDatChuyenDi').attr('href','javascript:ThietDatChuyenDi_Open('+data.XeVanChuyenId+','+data.LaiXeId+','+data.PhuXeId+');');
+                    ThietDatChuyenDi_Close();
+                }
+                else {
+                    alert("Có lỗi");
+                }
+
+            },
+        });
+    }
+
+    function ThietDatChuyenDi_Huy() {
+        if (!confirm("Bạn có chắc chắn hủy thiết lập chuyến đi này không ?"))
+            return;
+        var ChuyenDiId = $("#@Html.FieldIdFor(model => model.ChuyenDiId)").val();
+        $.ajax({
+            cache: false,
+            type: "POST",
+            data: { ChuyenDiId: ChuyenDiId },
+            dataType: 'json',
+            url: "@(Url.Action("ThietDatChuyenDi_Huy", "QLPhoiVe"))",
+            success: function (data) {
+                if (data == "OK") {
+                    $('#spChuyenDi_BienSo').html("------");
+                    $('#spChuyenDi_LaiXe').html("------");
+                    $('#lnkThietDatChuyenDi').attr('href','javascript:ThietDatChuyenDi_Open(0,0,0);');
+                    ThietDatChuyenDi_Close();
+                }
+                else if(data=="NO")
+                {
+                    alert("Không thể hủy chuyến đi này vì có vé hoặc chi phí gán theo xe");
+                }
+                else {
+                    alert("Không có xe xuất bến");
+                }
+
+            },
+        });
+
+    }
+    var laiphuxedatasoures = [
+                       @for (int i = 0; i < Model.AllLaiXePhuXes.Count; i++)
+    {
+        var _item = Model.AllLaiXePhuXes[i];
+        <text>
+    {
+        Id: @(_item.Id),
+        TenLaiXe: "@(Html.Raw(HttpUtility.JavaScriptStringEncode(_item.ThongTin)))"
+    }
+    </text>
+        if (i != Model.AllLaiXePhuXes.Count - 1)
+        {
+            <text>,</text>
+        }
+    }
+    ];
+    //tao thong tin xe
+    var xevanchuyendatasoures = [
+           @for (int i = 0; i < Model.AllXeInfo.Count; i++)
+    {
+        var _item = Model.AllXeInfo[i];
+        <text>
+    {
+        Id: @(_item.Id),
+        BienSo: "@(Html.Raw(HttpUtility.JavaScriptStringEncode(_item.BienSo)))"
+    }
+    </text>
+        if (i != Model.AllXeInfo.Count - 1)
+        {
+            <text>,</text>
+        }
+    }
+    ];
+    function ThongTinLaiPhuXe() {
+
+        $("#cbbLaiXeInput").kendoComboBox({
+            placeholder: "Chọn lái xe",
+            dataTextField: "TenLaiXe",
+            dataValueField: "Id",
+            filter: "contains",
+            autoBind: false,
+            minLength: 1,
+            dataSource: {
+                data: laiphuxedatasoures
+            },
+            change: function (e) {
+            }
+        });
+        $("#cbbNTVInput").kendoComboBox({
+            placeholder: "Chọn tiếp viên",
+            dataTextField: "TenLaiXe",
+            dataValueField: "Id",
+            filter: "contains",
+            autoBind: false,
+            minLength: 1,
+            dataSource: {
+                data: laiphuxedatasoures
+            },
+            change: function (e) {
+            }
+        });
+
+
+    }
+    function ThongTinBienSo() {
+        $("#cbbBienSoInput").kendoComboBox({
+            placeholder: "Chọn biển số",
+            dataTextField: "BienSo",
+            dataValueField: "Id",
+            filter: "contains",
+            autoBind: false,
+            minLength: 1,
+            dataSource: {
+                data: xevanchuyendatasoures
+            },
+            change: function (e) {
+            }
+        });
+    }
+    ///////////////////////////////////////////////////////chuyen so do ghe
+    function ChuyenSoDoGhe() {
+        var _fomchuyensodo = $("#FormWindowChuyenSoDoGhe");
+        var ChuyenDiId = $('#@Html.FieldIdFor(m => m.ChuyenDiId)').val();
+        _fomchuyensodo.html('');
+        _fomchuyensodo.kendoWindow({
+            width: "350px",
+            height: "180px",
+            title: "Chuyển sơ đồ",
+            content: "@(Url.Action("_ChuyenSoDo", "QLPhoiVe"))?ChuyenId=" + ChuyenDiId,
+            modal: true,
+        actions: [
+            "Close"
+        ],
+        }).data("kendoWindow").center();
+    _fomchuyensodo.data('kendoWindow').open();
+    }
+    function CloseWindowChuyenSoDoGhe() {
+        $("#FormWindowChuyenSoDoGhe").data('kendoWindow').close();
+        LoadChuyenDi();
+
+    }
+    ////////////////////////////////////////////thong tin chuyen di
+    function ThemMoiChuyenDi() {
+        var _formtemp = $("#FormWindowTaoChuyenDi");
+        var _hanhtrinhid = $("#@Html.FieldIdFor(m=>m.HanhTrinhId)").val();
+        var _loaixeid = $('#@Html.FieldIdFor(m => m.LoaiXeId)').val();
+        var _ngaydi = ConvertDateTimeSystem($("#@Html.FieldIdFor(m=>m.NgayDi)").val());
+         
+        
+        _formtemp.html('');
+        _formtemp.kendoWindow({
+            width: "350px",
+            height: "180px",
+            title: "Tạo chuyến đi",
+            content: "@(Url.Action("_TaoChuyenDi", "QLPhoiVe"))?HanhTrinhId=" + _hanhtrinhid+"&LoaiXeId=" + _loaixeid+"&NgayDi="+_ngaydi,
+            modal: true,
+        actions: [
+            "Close"
+        ],
+        }).data("kendoWindow").center();
+    _formtemp.data('kendoWindow').open();
+    }
+    function CloseWindowThemMoiChuyenDi() {
+        $("#FormWindowTaoChuyenDi").data('kendoWindow').close();
+        LoadChuyenDi();
+
+    }
+    function HuyChuyenDi()
+    {
+        if (!confirm("Bạn có chắc chắn hủy chuyến đi này không ?"))
+            return;
+        var _chuyendiid = $("#@Html.FieldIdFor(m=>m.ChuyenDiId)").val();
+        var dataadd = { ChuyenDiId: _chuyendiid};
+        $.ajax({
+            cache: false,
+            type: "POST",
+            data: dataadd,
+            url: "@(Url.Action("HuyChuyenDi", "QLPhoiVe"))",
+            success: function (data) {
+                if (data == "OK")
+                    LoadChuyenDi();
+                else
+                    alert("Không thể hủy chuyến đi, chuyến đi đang có người đặt hoặc ở trạng thái không thể hủy");
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                return alert('Có lỗi trong quá trình hủy chuyến đi');
+            }
+        });
+    }
+    //////////////////////////////gan seri ve
+    function NhapSeriVe(PhoiVeId) {
+        var GanSeriVeWindow = $("#GanSeriVeForm");
+        GanSeriVeWindow.html('');
+        GanSeriVeWindow.kendoWindow({
+            width: "480px",
+            title: "Nhập Seri vé",
+            modal: true,
+            content: "@(Url.Action("_GanSoSeri", "QLPhoiVe"))?Id=" + PhoiVeId,
+            actions: [
+                "Close"
+            ]
+        }).data('kendoWindow').center();
+        GanSeriVeWindow.data('kendoWindow').open();
+    }
+    function CloseWindowNhapSeriVe() {
+        $("#GanSeriVeForm").data('kendoWindow').close();
+        LoadThongTinGhe();
+    }
+    ////////////////////////////////////////////////////////////////////////////////FORM WINDOW NGHIEP VU
+    function OpenWindowDatMuaVe(PhoiVeId,isSuaTungVe) {
+        var formdatmuave = $("#FormWindowDatMuaVe");
+        formdatmuave.html('');
+        var ChuyenDiId = $('#@Html.FieldIdFor(m=>m.ChuyenDiId)').val();
+        formdatmuave.kendoWindow({
+            width: "650px",
+            height: "400px",
+            title: "@T("ChonVe.NhaXe.QuanLyPhoiVe.DatVe")",
+            content: "@(Url.Action("KhachHangDatMuaVe", "QLPhoiVe"))?&ChuyenDiId=" + ChuyenDiId+"&PhoiVeId="+PhoiVeId+"&IsSuaTungVe="+isSuaTungVe,
+            modal: true,
+            actions: [
+                "Close"
+            ],
+        }).data("kendoWindow").center();
+        formdatmuave.data('kendoWindow').open();
+    }
+
+    function CloseWindowDatMuaVe(isReload) {
+        $("#FormWindowDatMuaVe").data('kendoWindow').close();
+        if (isReload)
+            LoadThongTinGhe();
+    }
+
+    /////XU LY THONG TIN GHE////////////////////////////////////////////////////////////////////////
+    function ChonGhe(DatVeId) {
+        var _datveidselected = "," + $("#datveidselected").val() + ",";
+        var n = _datveidselected.indexOf("," + DatVeId + ",");
+        _datveidselected = $("#datveidselected").val();
+        //ko co
+        if (n == -1) {
+            if (_datveidselected == "") {
+                _datveidselected = DatVeId;
+            }
+            else
+                _datveidselected = _datveidselected + "," + DatVeId;
+            $("#box_ghe_dat_ve_chon_" + DatVeId).show();
+        }
+        else {
+            //da ton tai thi bo chon
+            var arrdatveid = _datveidselected.split(',');
+            _datveidselected = "";
+            for (var i = 0; i < arrdatveid.length; i++) {
+                if (arrdatveid[i] != DatVeId) {
+                    if (_datveidselected == "") {
+                        _datveidselected = arrdatveid[i];
+                    }
+                    else
+                        _datveidselected = _datveidselected + "," + arrdatveid[i];
+                }
+            }
+            $("#box_ghe_dat_ve_chon_" + DatVeId).hide();
+        }
+        $("#datveidselected").val(_datveidselected);
+    }
+    function HuyGheDatChoTimeout(e) {
+        var DatVeId = $(this).attr("data-datveid");
+        $.ajax({
+            cache: false,
+            type: "POST",
+            data: {
+                "PhoiVeId": DatVeId
+            },
+            url: "@(Url.Action("HuyGheDatCho", "QLPhoiVe"))",
+            success: function (data) {
+                LoadThongTinGhe();
+            },
+        error: function (xhr, ajaxOptions, thrownError) {
+            return alert('Error huy ghe');
+        }
+    });
+    }
+    //clear timer
+    function ClearTimerDatVe() {
+        $("[name='timerdatve']").each(function () {
+            $(this).countdown('destroy');
+        });
+    }
+    function LoadThongTinGhe() {
+        ClearTimerDatVe();
+        var ChuyenDiId = $('#@Html.FieldIdFor(m=>m.ChuyenDiId)').val();
+        var TangIndex = $('#selected-tab-index').val();
+        $.ajax({
+            cache: false,
+            type: "GET",
+            dataType: "html",
+            contentType: 'application/html;charset=utf-8',
+            data: { "ChuyenDiId": ChuyenDiId, "TangIndex": TangIndex },
+            url: "@(Url.Action("_TabSoDoXe", "QLPhoiVe"))",
+            success: function (data) {
+                $("#current_sodoghexe_quytac").html(data);
+                LoadChiPhiChuyenDi();
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert('Error bind data of seat');
+            }
+        });
+    }
+    function ChonGheDatCho(kyhieu, tang, showDatVe, data_changid) {
+
+        var ChuyenDiId = $('#@Html.FieldIdFor(m => m.ChuyenDiId)').val();
+        $.ajax({
+            cache: false,
+            type: "POST",
+            data: {
+                "ChuyenDiId": ChuyenDiId,
+                "KiHieuGhe": kyhieu,
+                "Tang": tang
+            },
+            url: "@(Url.Action("ChonGheDatCho", "QLPhoiVe"))",
+            success: function (data) {
+                if (data != "OK") {
+                    alert("Vị trí đã có người đặt mua vé!");
+
+                }
+                else if (showDatVe == 1) {
+
+                    DatVe();
+                }
+                else if (showDatVe == 2) {
+                    return DatVeNhanh(data_changid);
+                }
+                LoadThongTinGhe();
+
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                return alert('Error chon ghe');
+            }
+        });
+    }
+    function HuyGheDatCho(PhoiVeId) {
+        $.ajax({
+            cache: false,
+            type: "POST",
+            data: {
+                "PhoiVeId": PhoiVeId
+            },
+            url: "@(Url.Action("HuyGheDatCho", "QLPhoiVe"))",
+            success: function (data) {
+                if (data != "OK") {
+                    alert("Không thể hủy vị trí đặt vé này, vé này đã thuộc về người khác!");
+                }
+                LoadThongTinGhe();
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                return alert('Error huy ghe');
+            }
+        });
+    }
+    function DatVe() {
+        OpenWindowDatMuaVe(0);
+    }
+    function HuyVe(PhoiVeId, isshowalert) {
+
+        if (isshowalert) {
+            if (confirm("@T("Common.areyousure")")) {
+                var _datveidselected = "," + $("#datveidselected").val() + ",";
+                var n = _datveidselected.indexOf("," + PhoiVeId + ",");
+                _datveidselected = $("#datveidselected").val();
+                if (n == -1) {
+                    if (_datveidselected == "") {
+                        _datveidselected = PhoiVeId;
+                    }
+                    else
+                        _datveidselected = _datveidselected + "," + PhoiVeId;
+                }
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    data: {
+                        "PhoiVeIds": _datveidselected
+                    },
+                    url: "@(Url.Action("HuyVe", "QLPhoiVe"))",
+                    success: function (data) {
+                        if (data != "OK") {
+                            //  alert(data);
+                        }
+                        LoadThongTinGhe();
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        return alert('Error huy ghe');
+                    }
+                });
+            }
+        }
+        else {
+            LyDoHuyVe(PhoiVeId);
+        }
+
+
+    }
+    function DatVeNhanh(changid) {
+        var ChuyenDiId = $('#@Html.FieldIdFor(model => model.ChuyenDiId)').val();
+        $.ajax({
+            cache: false,
+            type: "POST",
+            data: {
+                "ChuyenDiId": ChuyenDiId,
+                "changid": changid,
+
+            },
+            dataType: 'json',
+            url: "@(Url.Action("DatVeNhanh", "QLPhoiVe"))",
+            success: function (data) {
+
+                LoadThongTinGhe();
+            },
+
+        });
+
+    }
+    function ThanhToanGiaoVe(PhoiVeId,isSuaTungVe) {
+        //chuyen thanh cho phep sua thong tin dat ve
+        OpenWindowDatMuaVe(PhoiVeId,isSuaTungVe);
+        @*if (!confirm("@T("Common.areyousure")")) {
+            return;
+        }
+        $.ajax({
+            cache: false,
+            type: "POST",
+            data: {
+                "PhoiVeId": PhoiVeId
+            },
+            url: "@(Url.Action("ThanhToanGiaoVe", "QLPhoiVe"))",
+            success: function (data) {
+                if (data != "OK") {
+                    alert(data);
+                }
+                LoadThongTinGhe();
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                return alert('Error ThanhToanGiaoVe');
+            }
+        });*@
+    }
+    function LyDoHuyVe(PhoiVeId) {
+        var contentlydo = '<table style="width:100%">' +
+        '<tr>' +
+            '<td style="text-align:left">' +
+                '<input type="text" class="LDH_inputtext" Id="TxtLyDoHuy" value="Khách hàng yêu cầu hủy" />' +
+            '</td>' +
+        '</tr>' +
+         '<tr>' +
+            '<td style="text-align:right">' +
+                '<input type="button" Id="LDH_BtnDongY" value="Đồng ý">' +
+            '</td>' +
+        '</tr>'
+        '</table>'
+        var LyDoHuyWindow = $("#LyDoHuyVe");
+        LyDoHuyWindow.kendoWindow({
+            width: "480px",
+            title: "Lý do hủy vé",
+            content: LyDoHuyWindow.html(contentlydo),
+            modal: true,
+            actions: [
+                "Close"
+            ]
+        }).data('kendoWindow').center();
+        LyDoHuyWindow.data('kendoWindow').open();
+       
+        $('#LDH_BtnDongY').click(function () {
+
+            $.ajax({
+                cache: false,
+                type: "POST",
+                data: { "PhoiVeId": PhoiVeId, "LyDoHuy": $('#TxtLyDoHuy').val() },
+                dataType: 'json',
+                url: "@(Url.Action("YeuCauHuyVe", "QLPhoiVe"))",
+                success: function (data) {
+                    if (data == "OK") {
+                        LyDoHuyWindow.data('kendoWindow').close();
+
+                    }
+                    else {
+                        alert("Chưa thành công");
+                    }
+
+                    LoadThongTinGhe();
+                },
+
+
+            });
+        });
+    }
+    function ChuyenVe(PhoiVeId) {
+        var HanhTrinhId = $('#@Html.FieldIdFor(m=>m.HanhTrinhId)').val();
+        var formopen = $("#FormWindowChuyenVe");
+        formopen.html('');
+        formopen.kendoWindow({
+            width: "1024px",
+            title: "@T("ChonVe.NhaXe.QuanLyPhoiVe.ChuyenVe")",
+            content: "@(Url.Action("KhachHangChuyenVe", "QLPhoiVe"))?PhoiVeId=" + PhoiVeId + "&HanhTrinhId=" + HanhTrinhId,
+            modal: true,
+            actions: [
+                "Close"
+            ]
+        }).data('kendoWindow').center();
+        formopen.data('kendoWindow').open();
+    }
+    function CloseWindowChuyenVe() {
+        $("#FormWindowChuyenVe").data('kendoWindow').close();
+        LoadThongTinGhe();
+    }
+    function SetCenterWindowChuyenVe() {
+        $("#FormWindowChuyenVe").data('kendoWindow').center();
+    }
+
+</script>
+
+<div id="LyDoHuyVe" style="display:none">
+
+
+</div>
+
+<style>
+    .LDH_inputtext {
+        width: 400px;
+        height: 25px;
+        padding: 6px 12px;
+        font-size: 14px;
+        line-height: 1.42857143;
+        color: #555;
+        background-color: #fff;
+        background-image: none;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    #LDH_BtnDongY {
+        background: #169a1d;
+        color: #fff;
+        height: 30px;
+        width: 65px;
+        font-size: 14px;
+        margin-top: 5px;
+        border-radius: 7px;
+    }
+</style>
+

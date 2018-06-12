@@ -1,0 +1,147 @@
+﻿@model PhoiVeBoSungModel
+@{
+    Layout = null;
+}
+<table style="width:100%">
+    <tr>
+        <td class="adminTitle">Tuyến:</td>
+        <td class="adminData">
+            @Html.DropDownListFor(m => m.ChangId, Model.changs)
+        </td>
+    </tr>
+    <tr>
+        <td class="adminTitle">Mẫu và ký hiệu:</td>
+        <td class="adminData">
+            @Html.DropDownListFor(m => m.MauVeId, Model.maukyhieus)
+        </td>
+    </tr>
+    <tr>
+        <td class="adminTitle">Vé của nhân viên:</td>
+        <td class="adminData">
+            @Html.DropDownListFor(m => m.NhanVienId, Model.nhanviens)
+        </td>
+    </tr>
+    <tr>
+        <td class="adminTitle">
+            Số lượng:
+        </td>
+        <td class="adminData">
+            @Html.EditorFor(model => model.SoLuong)
+        </td>
+    </tr>
+    <tr>
+        <td class="adminTitle">            
+        </td>
+        <td class="adminData">
+            <input type="button" id="btnPhoiVeBoSung_SoSeri" value="Lấy số seri" class="k-button">
+        </td>
+    </tr>
+    <tr>
+        <td class="adminTitle">
+            Số Seri từ:
+        </td>
+        <td class="adminData">
+            @Html.TextBoxFor(model => model.SeriFrom)
+        </td>
+    </tr>
+    <tr>
+        <td class="adminTitle">
+            Số Seri đến:
+        </td>
+        <td class="adminData">
+            @Html.TextBoxFor(model => model.SeriTo)
+        </td>
+    </tr>
+    <tr>
+        <td class="adminTitle">
+            Số Seri giảm giá (trẻ em):
+        </td>
+        <td class="adminData">
+            Các số seri ngăn cách bằng dấu ",": <br />
+            @Html.TextAreaFor(model => model.SeriGiamGia, new { @style="width:100%"})
+        </td>
+    </tr>
+    <tr>
+        <td></td>
+        <td style="text-align:left">
+            @Html.HiddenFor(m=>m.SoQuyen)
+            <input type="button" id="btnPhoiVeBoSung_Them_OK" value="Đồng ý" class="k-button" >
+        </td>
+    </tr>
+</table>
+<script>
+    $(document).ready(function () {
+        setTimeout(function () {
+            $('#@Html.FieldIdFor(model => model.SoLuong)').focus();
+        }, 500);
+        $('#btnPhoiVeBoSung_Them_OK').hide();
+        $('#btnPhoiVeBoSung_Them_OK').click(function () {
+            var _changid = $('#@Html.FieldIdFor(m => m.ChangId)').val();
+            var _mauid = $('#@Html.FieldIdFor(m => m.MauVeId)').val();
+            var _nhanvienid = $('#@Html.FieldIdFor(m => m.NhanVienId)').val();
+            var _soluong = $('#@Html.FieldIdFor(m => m.SoLuong)').val();
+            var _serifrom = $('#@Html.FieldIdFor(m => m.SeriFrom)').val();
+            var _serito = $('#@Html.FieldIdFor(m => m.SeriTo)').val();
+            var _soquyen = $('#@Html.FieldIdFor(m => m.SoQuyen)').val();
+            var _serigiamgia = $('#@Html.FieldIdFor(m => m.SeriGiamGia)').val();
+            if (_nhanvienid == "")
+            {
+                alert("Không có thông tin nhân viên bán vé");
+                return;
+            }
+            if (_soluong == 0) {
+                alert("Số lượng vé phải >0");
+                return;
+            }
+            $.ajax({
+                cache: false,
+                type: "POST",
+                data: { "ChuyenDiId": '@Model.ChuyenDiId', "HanhTrinhId": '@Model.HanhTrinhId', "ChangId": _changid, "MauVeId": _mauid, "NhanVienId": _nhanvienid, "SoLuong": _soluong, "SeriFrom": _serifrom, "SeriTo": _serito, "SoQuyen": _soquyen, "SeriGiamGia": _serigiamgia },
+                dataType: 'json',
+                url: "@(Url.Action("PhoiVeBoSung_ThemMoi", "QLPhoiVe"))",
+                success: function (data) {
+                    if (data == "OK") {
+                        CloseWindowPhoiVeBoSung();
+                    }
+                    else {
+                        alert("Vé đã được sử dụng, bạn hãy kiểm tra lại thông tin vé");
+                    }
+
+                },
+
+
+            });
+        });
+        $('#btnPhoiVeBoSung_SoSeri').click(function () {
+            var _changid = $('#@Html.FieldIdFor(m => m.ChangId)').val();
+            var _mauid = $('#@Html.FieldIdFor(m => m.MauVeId)').val();
+            var _nhanvienid = $('#@Html.FieldIdFor(m => m.NhanVienId)').val();
+            var _soluong = $('#@Html.FieldIdFor(m => m.SoLuong)').val();
+            var _serifrom = $('#@Html.FieldIdFor(m => m.SeriFrom)').val();
+            var _serito = $('#@Html.FieldIdFor(m => m.SeriTo)').val();
+            var _soquyen = $('#@Html.FieldIdFor(m => m.SoQuyen)').val();
+            $.ajax({
+                cache: false,
+                type: "POST",
+                data: { "ChuyenDiId": '@Model.ChuyenDiId', "HanhTrinhId": '@Model.HanhTrinhId', "ChangId": _changid, "MauVeId": _mauid, "NhanVienId": _nhanvienid, "SoLuong": _soluong, "SeriFrom": _serifrom, "SeriTo": _serito, "SoQuyen": _soquyen },
+                dataType: 'json',
+                url: "@(Url.Action("PhoiVeBoSung_ThongTinSeri", "QLPhoiVe"))",
+                success: function (data) {
+                    $('#@Html.FieldIdFor(m => m.SeriFrom)').val(data.SeriFrom);
+                    $('#@Html.FieldIdFor(m => m.SeriTo)').val(data.SeriTo);
+                    $('#@Html.FieldIdFor(m => m.SoLuong)').val(data.SoLuong);
+                    $('#@Html.FieldIdFor(m => m.SoQuyen)').val(data.SoQuyen);
+                    if(data.SoLuong>0)
+                    {
+                        $('#btnPhoiVeBoSung_Them_OK').show();
+                    }
+                    else 
+                        $('#btnPhoiVeBoSung_Them_OK').hide();
+                },
+
+
+                });
+    });
+    });
+
+</script>

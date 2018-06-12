@@ -1,0 +1,85 @@
+﻿@model ThuChiModel
+@using Nop.Web.Models.NhaXes
+<table class="adminContent">
+    <tr style="border-bottom:1px dotted #808080">
+        <td class="adminTitle">
+            Ngày tạo:
+        </td>
+        <td class="adminData">
+            @Model.NgayTao.ToString("dd/MM/yyyy HH:mm")
+        </td>
+    </tr>
+    <tr style="border-bottom:1px dotted #808080">
+        <td class="adminTitle">
+            Ngày thực hiện:
+        </td>
+        <td class="adminData">
+            @Model.NgayGiaoDich.ToString("dd/MM/yyyy")
+        </td>
+    </tr>
+    <tr style="border-bottom:1px dotted #808080">
+        <td class="adminTitle">
+            Thông tin xe :
+        </td>
+        <td class="adminData">
+            @Model.thongtinchuyendi
+        </td>
+    </tr>
+    <tr style="border-bottom:1px dotted #808080">
+        <td class="adminTitle">
+            Mục :
+        </td>
+        <td class="adminData">
+            @Model.tenloaithuchi
+        </td>
+    </tr>
+    <tr style="border-bottom:1px dotted #808080">
+        <td class="adminTitle">
+            Diễn giải :
+        </td>
+        <td class="adminData">
+            @Model.DienGiai
+        </td>
+    </tr>
+    <tr style="border-bottom:1px dotted #808080">
+        <td class="adminTitle">
+            Số tiền (VNĐ):
+        </td>
+        <td class="adminData">
+            @Model.GiaTri.ToString("###,###,##0")
+            &nbsp; (<span style="font-weight:bold;color:red" id="lbSoTienBangChu"></span>)
+            <script>
+                function ShowSoTienBangChu(sotien) {
+                    $("#lbSoTienBangChu").html(DocTienBangChu(sotien));
+                }
+                $(document).ready(function () {
+                    ShowSoTienBangChu('@Model.GiaTri');
+                });
+            </script>
+        </td>
+    </tr>
+    <tr style="border-bottom:1px dotted #808080">
+        <td class="adminTitle" style="vertical-align:top">
+            Người tạo:
+        </td>
+        <td class="adminData">
+            @Model.tennguoitao
+        </td>
+    </tr>
+    <tr style="border-bottom:1px dotted #808080">
+        <td class="adminTitle" style="vertical-align:top">
+            Người nộp:
+        </td>
+        <td class="adminData">
+            @Model.tennguoinop
+        </td>
+    </tr>
+    <tr style="border-bottom:1px dotted #808080">
+        <td class="adminTitle" style="vertical-align:top">
+            Người thu:
+        </td>
+        <td class="adminData">
+            @Model.tennguoithu
+        </td>
+    </tr>
+</table>

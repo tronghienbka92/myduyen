@@ -1,0 +1,54 @@
+﻿@model DinhViXeModel
+@using Nop.Core.Infrastructure
+@using Nop.Core.Domain.Chonves
+@using Nop.Web.Models.NhaXes
+@{
+    Layout = null;
+
+
+}
+<table width="100%">
+    <tr>
+        <td width="30%">Hành trình : @Model.TuyenXeChay</td>
+        <td width="20%">Thời gian đi : @Model.GioDiText</td>
+        <td width="30%">Lái xe : @Model.TenLaiXe1</td>
+        <td width="20%">Ngày đi :@Model.NgayDi.ToString("dd-MM-yyyy")</td>
+    </tr>
+    <tr>
+        <td width="30%">Biển số xe : @Model.BienSo</td>
+        <td width="20%">Dự kiến đến lúc :@Model.GioDenText</td>
+        <td width="30%">Phụ xe 1: @Model.TenLaiXe2</td>
+        <td width="20%">Phụ xe 2: @Model.TenLaiXe3</td>
+    </tr>
+    <tr>
+        <td width="30%">Số người : @Model.SoNguoi Người</td>
+        <td colspan="2">Doanh thu hiện tại :@Model.Revenue (vnđ)</td>
+       
+        <td width="20%"></td>
+    </tr>
+   
+</table>
+<div id="current_sodoghexe_quytac" style="width:100%;">
+</div>
+<script>
+    $(document).ready(function () {
+        var TangIndex = $('#selected-tab-index').val();
+        $.ajax({
+            cache: false,
+            type: "GET",
+            dataType: "html",
+            contentType: 'application/html;charset=utf-8',
+            data: { "TangIndex": TangIndex ,"NguonVeXeId":'@Model.NguonVeXeId',"NgayDi":'@Model.NgayDi'},
+            url: "@(Url.Action("GetSoDoGheXeInfo", "NhaXeDinhVi"))",
+            success: function (data) {
+                $("#current_sodoghexe_quytac").html(data);
+               
+            },
+        error: function (xhr, ajaxOptions, thrownError) {
+           
+        }
+    });
+
+    });
+</script>
+

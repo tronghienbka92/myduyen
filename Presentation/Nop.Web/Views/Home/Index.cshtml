@@ -1,0 +1,10 @@
+﻿@{
+    Layout = "~/Views/Shared/_ColumnsTwo.cshtml";
+}
+<div class="page home-page">
+    <div class="page-body">
+        @Html.Widget("home_page_top")        
+        @Html.Action("VeXeHome", "VeXeKhach")
+        @Html.Widget("home_page_bottom")
+    </div>
+</div>

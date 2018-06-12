@@ -1,0 +1,244 @@
+﻿@model BaoCaoNhaXeModel
+@using Nop.Web.Models.NhaXes
+@using Nop.Core.Domain.NhaXes
+@using Nop.Core.Infrastructure
+@{
+    ViewBag.Title = "BaoCaoDoanhThu";
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+    var defaultGridPageSize = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().DefaultGridPageSize;
+    var gridPageSizes = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().GridPageSizes;
+}
+<div class="section-header">
+    <div class="title">
+        <img src="@Url.Content("~/Content/chonve/nxmenu/baocaodoanhthu.png")" alt="" />
+        @T("ChonVe.NhaXe.DoanhThu.Title")
+    </div>
+</div>
+<table style="width:100%">
+    <tr>
+        <td align="center" width="15%">
+            <table class="adminContent">
+                <tr>
+                    <td class="adminTitle" style="text-align:right">
+                        @T("chonve.menu.nhaxe.baocao.ListLoai"):
+                    </td>
+                    <td class="adminData">
+                        @Html.DropDownListFor(model => model.Loai1Id, Model.ListLoai1)
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td align="center" width="15%" id="tabThang">
+            <table class="adminContent">
+                <tr>
+                    <td class="adminTitle" style="text-align:right">
+                        @T("common.month"):
+                    </td>
+                    <td class="adminData">
+                        @Html.DropDownListFor(model => model.ThangId, Model.ListMonth)
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td align="center" width="15%" id="tabNam">
+            <table class="adminContent">
+                <tr>
+                    <td class="adminTitle" style="text-align:right">
+                        @T("common.year"):
+                    </td>
+                    <td class="adminData">
+                        @Html.DropDownListFor(model => model.NamId, Model.ListYear)
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td style="text-align:right">
+            <input type="button" id="btnSearch" class="k-button" value="@T("Admin.Common.Search")" />
+        </td>
+    </tr>
+</table>
+<script>
+    $(document).ready(function () {
+        $('#btnSearch').click(function () {
+            //search
+            var grid = $('#DoanhThu_grid').data('kendoGrid');
+            grid.dataSource.page(1);
+            return false;
+        });
+        $("#@Html.FieldIdFor(model => model.Loai1Id)").change(function () {
+            var grid = $('#DoanhThu_grid').data('kendoGrid');
+            switch ($(this[this.selectedIndex]).val()) {
+                case "@((int)ENBaoCaoChuKyThoiGian.HangNam)":
+                    {
+                        $("#tabThang").hide();
+                        $("#tabNam").hide();
+                        grid.hideColumn("chitiet");
+                        break;
+                    }
+                case "@((int)ENBaoCaoChuKyThoiGian.HangThang)":
+                    {
+                        $("#tabThang").hide();
+                        $("#tabNam").show();
+                        grid.hideColumn("chitiet");
+                        break;
+                    }
+                case "@((int)ENBaoCaoChuKyThoiGian.HangNgay)":
+                    {
+                        $("#tabThang").show();
+                        $("#tabNam").show();
+                        grid.showColumn("chitiet");
+                        break;
+                    }
+            }
+            $("#btnSearch").click();
+        });
+        $("#@Html.FieldIdFor(model => model.NamId)").change(function () {
+            $("#btnSearch").click();
+        });
+        $("#@Html.FieldIdFor(model => model.ThangId)").change(function () {
+            $("#btnSearch").click();
+        });
+    });
+</script>
+
+<table class="adminContent">
+    <tr>
+        <td>
+            <div id="DoanhThu_grid">
+
+            </div>
+
+            <script>
+                $(document).ready(function () {
+                    $("#DoanhThu_grid").kendoGrid({
+                        dataSource: {
+                            type: "json",
+                            transport: {
+                                read: {
+                                    url: "@Html.Raw(Url.Action("BaoCaoDoanhThu", "NhaXeBaoCao"))",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: additionalData
+                                },
+                            },
+                            schema: {
+                                data: "Data",
+                                total: "Total",
+                                errors: "Errors",
+
+                            },
+                            requestEnd: function (e) {
+                                if (e.type == "create" || e.type == "update") {
+                                    this.read();
+                                }
+                            },
+                            error: function (e) {
+                                display_kendoui_grid_error(e);
+                                // Cancel the changes
+                                this.cancelChanges();
+                            },
+                            serverPaging: true,
+                            serverFiltering: true,
+                            serverSorting: true
+                        },
+                        pageable: {
+                            refresh: true,
+                            numeric: false,
+                            previousNext: false,
+                            info: false,
+                            messages: {
+                                display: "@T("Nop.Common.KendoGrid.display")", //{0} is the index of the first record on the page, {1} - index of the last record on the page, {2} is the total amount of records
+                                empty: "@T("Nop.Common.KendoGrid.Empty")",
+                                page: "@T("Nop.Common.KendoGrid.Page")",
+                                of: "@T("Nop.Common.KendoGrid.Of")", //{0} is total amount of pages
+                                itemsPerPage: "@T("Nop.Common.KendoGrid.itemsPerPage")",
+                                first: "@T("Nop.Common.KendoGrid.first")",
+                                previous: "@T("Nop.Common.KendoGrid.previous")",
+                                next: "@T("Nop.Common.KendoGrid.next")",
+                                last: "@T("Nop.Common.KendoGrid.last")",
+                                refresh: "@T("Nop.Common.KendoGrid.refresh")"
+                            }
+                        },
+
+                        scrollable: false,
+                        columns: [{
+                            field: "ThoiGian",
+                            title: "@T("ChonVe.NhaXe.BaoCao.thoigian")",
+                            attributes: {
+                                style: "text-align: center;"
+                            }
+                        }, {
+                            field: "SoLuong",
+                            title: "@T("ChonVe.NhaXe.BaoCao.SoLuong")",
+                            format: "{0:N0}",
+                            attributes: {
+                                style: "text-align: right;"
+                            }
+
+                            
+                        }, {
+                            field: "DoanhThuChonVe",
+                            title: "@T("ChonVe.NhaXe.BaoCao.DoanhThuChonVe")",
+                            format: "{0:N0} đ",
+                            attributes: {
+                                style: "text-align: right;"
+                            }
+                        }, {
+                            field: "DoanhThuNhaXe",
+                            title: "@T("ChonVe.NhaXe.BaoCao.DoanhThuNhaXe")",
+                            format: "{0:N0} đ",
+                            attributes: {
+                                style: "text-align: right;"
+                            }
+                        }, {
+                            field: "TongDoanhThu",
+                            title: "@T("ChonVe.NhaXe.BaoCao.DoanhThu")",
+                            format: "{0:N0} đ",
+                            attributes: {
+                                style: "text-align: right;"
+                            }
+                        }, {
+                            field: "chitiet",
+                            title: "@T("Admin.ChonVe.HopDong.ChiTiet")",
+                            width: 100,
+                            template: '<a href="javascript:viewdetail(\'#=ThoiGian#\')" >@T("Admin.ChonVe.HopDong.ChiTiet")</a>',
+                            hidden: false
+                        },
+                        ],
+
+                    });
+                });
+                function additionalData() {
+                    return {
+                        Loai1Id: $('#@Html.FieldIdFor(model => model.Loai1Id)').val(),
+                        ThangId: $('#@Html.FieldIdFor(model => model.ThangId)').val(),
+                        NamId: $('#@Html.FieldIdFor(model => model.NamId)').val()
+                    };
+                }
+
+            </script>
+        </td>
+    </tr>
+</table>
+<div id="detailDoanhThu_div" style="display:none">
+
+</div>
+<script>
+    function viewdetail(thoigian) {
+        var loai1id = $('#@Html.FieldIdFor(model => model.Loai1Id)').val();
+        if (loai1id != '@((int)ENBaoCaoChuKyThoiGian.HangNgay)')
+            return false;
+        var windowXyLyChuyenVe = $("#detailDoanhThu_div");
+        if (windowXyLyChuyenVe.data("kendoWindow"))
+            windowXyLyChuyenVe.data("kendoWindow").destroy();
+        windowXyLyChuyenVe.kendoWindow({
+            modal: true,
+            width: "700px",
+            title: "@T("DoanhThu.Chitiet.ChiTietDoanhThu"): " + thoigian,
+            content: "@(Url.Action("_ChiTietDoanhThu", "NhaXeBaoCao"))" + "?thoigian=" + thoigian,
+            actions: ["Close"]
+        });
+
+        windowXyLyChuyenVe.data('kendoWindow').center().open();
+    }
+</script>

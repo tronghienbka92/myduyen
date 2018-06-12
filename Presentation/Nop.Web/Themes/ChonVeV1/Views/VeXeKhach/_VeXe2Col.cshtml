@@ -1,0 +1,8 @@
+﻿@model NguonVeXeModel
+@using Nop.Web.Models.VeXeKhach
+<div class="box-tick-map-t">
+    <div class="tick-map-t"><span>@(Model.TenDiemDon)</span><i class="icon-long-arrow-right"></i><strong>@Model.TenDiemDen</strong></div>
+    <div class="price-t">@Model.GiaVeMoiText <span>đ</span>/vé</div>
+    <div class="thoigian-t">@Model.ThoiGianDi.ToString("HH:mm") : @Model.ThoiGianDen.ToString("HH:mm")</div>
+    <div class="order-t"><input type="button" name="datmuavexe-button" itemdata="@Model.Id" value="@T("common.select")" /></div>
+</div>

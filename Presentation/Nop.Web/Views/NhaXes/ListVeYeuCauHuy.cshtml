@@ -1,0 +1,177 @@
+﻿@model PhoiVeModel
+@using Nop.Web.Models.VeXeKhach
+@{
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+
+    ViewBag.Title = "Danh sách vé yêu cầu hủy";
+}
+<div class="section-header">
+    <div class="title">
+        <img src="@Url.Content("~/Content/chonve/nxmenu/nhaxeinfovanphong.png")" alt="" />
+        @T("ChonVe.NhaXe.VanPhong.List.Title")
+    </div>
+</div>
+<table width="100%">
+  
+    <tr>
+        <td colspan="2">
+            <input type="button" id="btnSearch" style="display:none" class="k-button" value="@T("Admin.Common.Search")" />
+        </td>
+    </tr>
+</table>
+<table class="adminContent">
+    <tr>
+        <td>
+            <div id="PhoiVesCanHuy_grid"></div>
+
+            <script>
+                $(document).ready(function () {
+
+                    $("#PhoiVesCanHuy_grid").kendoGrid({
+                        dataSource: {
+                            type: "json",
+                            transport: {
+                                read: {
+                                    url: "@Html.Raw(Url.Action("ListVeYeuCauHuy", "NhaXes"))",
+                                    type: "POST",
+                                    dataType: "json",                                   
+                                },
+                            },
+                            schema: {
+                                data: "Data",
+                                total: "Total",
+                                errors: "Errors",
+
+                            },
+                            requestEnd: function (e) {
+                                if (e.type == "create" || e.type == "update") {
+                                    this.read();
+                                }
+                            },
+                            error: function (e) {
+                                display_kendoui_grid_error(e);
+                                // Cancel the changes
+                                this.cancelChanges();
+                            },
+                            serverPaging: true,
+                            serverFiltering: true,
+                            serverSorting: true
+                        },
+                        pageable: {
+                            refresh: true,
+                            numeric: false,
+                            previousNext: false,
+                            info: false,
+                            messages: {
+                                display: "@T("Nop.Common.KendoGrid.display")", //{0} is the index of the first record on the page, {1} - index of the last record on the page, {2} is the total amount of records
+                                empty: "@T("Nop.Common.KendoGrid.Empty")",
+                                page: "@T("Nop.Common.KendoGrid.Page")",
+                                of: "@T("Nop.Common.KendoGrid.Of")", //{0} is total amount of pages
+                                itemsPerPage: "@T("Nop.Common.KendoGrid.itemsPerPage")",
+                                first: "@T("Nop.Common.KendoGrid.first")",
+                                previous: "@T("Nop.Common.KendoGrid.previous")",
+                                next: "@T("Nop.Common.KendoGrid.next")",
+                                last: "@T("Nop.Common.KendoGrid.last")",
+                                refresh: "@T("Nop.Common.KendoGrid.refresh")"
+                            }
+                        },
+
+                        scrollable: false,
+                        columns: [{
+                            field: "TenHanhTrinh",
+                            title: "@T("Admin.Orders.PhoiVe.HanhTrinh")",
+                           
+                            attributes: {
+                                style: "text-align: center;"
+                            }
+                        }, {
+                            field: "TenLichTrinh",
+                            title: "@T("Admin.Orders.PhoiVe.LichTrinh")",
+                           
+                            attributes: {
+                                style: "text-align: center;"
+                            }
+                        }, {
+                            field: "NgayDi",
+                            title: "@T("Admin.Orders.PhoiVe.NgayDi")",
+                           
+                            type: "date",
+                            format: "{0:G}",
+                            attributes: {
+                                style: "text-align: center;"
+                            }
+                        }, {
+                            field: "KyHieuGhe",
+                            title: "@T("Admin.Orders.PhoiVe.KyHieuGhe")",
+                            
+                            attributes: {
+                                style: "text-align: center;"
+                            }
+                        }, {
+                            field: "GiaVeText",
+                            title: "@T("Admin.Orders.PhoiVe.GiaVeText")",
+                            
+                            attributes: {
+                                style: "text-align: center;"
+                            }
+                        },
+                        {
+                            field: "Id",
+                            title: "Xác nhận hủy",                          
+                            template: '<a href="javascript:XacNhanHuyVe(\'#=Id#\')" class="k-button" >Xác nhận hủy</a>',
+                            hidden: false
+                        },
+                        ],
+                    });
+                });
+               
+            </script>
+
+            <script type="text/javascript">
+                $(document).ready(function () {
+                    //search button
+                    $('#btnSearch').click(function () {
+                        //search
+                        var grid = $('#PhoiVesCanHuy_grid').data('kendoGrid');
+                        grid.dataSource.page(1);
+                        return false;
+                    });
+
+                    $("#@Html.FieldIdFor(model => model.NgayDisearch)").keydown(function (event) {
+                        if (event.keyCode == 13) {
+                            $("#btnSearch").click();
+                            return false;
+                        }
+                    });
+                });
+
+               
+                function XacNhanHuyVe(PhoiVeId) {
+                    if (!confirm("@T("Common.areyousure")")) {
+                        return;
+                    }
+                    $.ajax({
+                        cache: false,
+                        type: "POST",
+                        data: { "PhoiVeId": PhoiVeId},
+                        dataType: 'json',
+                        url: "@(Url.Action("HuyVe", "NhaXes"))",
+                        success: function (data) {
+                            if (data == "OK") {
+                                $('#btnSearch').click();
+                            }
+                            else {
+                                alert(data);
+                            }
+                           
+                          
+                        },
+
+
+                    });
+                }
+
+            </script>
+        </td>
+    </tr>
+</table>

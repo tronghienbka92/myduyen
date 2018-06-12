@@ -1,0 +1,61 @@
+﻿@model WindowChatAgentsModel
+@using Nop.Admin.Models.Chat
+@{
+    Layout = null;
+
+}
+<input type="hidden" id="MessengerLastId_@Model.ConvertationId" value="0" />
+<div id="visitors" style="min-height:338px">
+    <div class="visitor">       
+        <div class="visitor_left">
+            <div class="chat_log" id="conten_chat_@Model.ConvertationId">
+            </div>
+            <div class="chat_input">
+                <textarea autofocus id="chat_input_@Model.ConvertationId" class="bx" placeholder="Nhập tin nhắn"></textarea>
+                <button class="j-submit " id="send-button_@Model.ConvertationId">Gửi</button>
+            </div>
+        </div>
+       
+    </div>
+</div>
+<script>
+
+    $(document).ready(function () {
+        refresh_windowchat(@Model.ConvertationId);
+       TimeChat_@Model.ConvertationId = setInterval(function () { refresh_windowchat(@Model.ConvertationId); }, 5000);
+
+        $("#send-button_@Model.ConvertationId").click(function () {
+            var _classmessenger = "";
+            var ConvertationId='@Model.ConvertationId';
+            var chatcontent = $("#conten_chat_@Model.ConvertationId")
+            var messenger = $("#chat_input_@Model.ConvertationId").val();
+
+            $.ajax({
+                cache: false,
+                type: "POST",
+                data: { "messger": messenger, "ConvertationId":ConvertationId },
+                url: "@(Url.Action("WindowsChatAgents", "Chat"))",
+                dataType: 'json',
+                success: function (data) {
+                    if (data == "ok") {
+                        $("#chat_input_@Model.ConvertationId").val("");
+                        $("#chat_input_@Model.ConvertationId").focus();
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    //alert("Mất kết nối");
+                }
+            });
+        });
+        $("#chat_input_@Model.ConvertationId").keydown(function (event) {
+            if (event.keyCode == 13) {
+                $("#send-button_@Model.ConvertationId").click();
+                return false;
+            }
+        });
+    });
+    function StopTimeoutChat_@(Model.ConvertationId)() {       
+        clearInterval(TimeChat_@Model.ConvertationId);
+       
+    }
+</script>

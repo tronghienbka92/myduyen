@@ -1,0 +1,135 @@
+﻿@model LichTrinhModel
+@using Nop.Web.Models.NhaXes
+@using Nop.Core.Infrastructure
+@Html.ValidationSummary(false)
+@{
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+    var defaultGridPageSize = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().DefaultGridPageSize;
+    var gridPageSizes = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().GridPageSizes;
+
+    //page title
+    ViewBag.Title = T("ChonVe.NhaXe.NguonVe.List.Title").Text;
+}
+<div class="section-header">
+    <div class="title">
+        <img src="@Url.Content("~/Content/chonve/nxmenu/hanhtrinhnguonve.png")" alt="" />
+        @T("ChonVe.NhaXe.NguonVe.List.Title")
+    </div>
+</div>
+<table width="100%">
+    <tr>
+        <td>
+            <table>
+                <tr>
+                    <td class="adminTitle">
+                        @Html.NopLabelFor(model => model.HanhTrinhId):
+                    </td>
+                    <td class="adminData">
+                        @Html.DropDownListFor(model => model.HanhTrinhId, Model.HanhTrinhs)
+                    </td>
+                </tr>
+            </table>
+        </td>
+        <td>
+            <table>
+                <tr>
+                    <td class="adminTitle">
+                        @Html.NopLabelFor(model => model.NgayDi):
+                    </td>
+                    <td class="adminData">
+                       @Html.EditorFor(model=>model.NgayDi)
+                    </td>
+                </tr>
+            </table>
+        </td>       
+    </tr>
+    <tr>
+        <td colspan="2">
+            <input type="button" id="btnSearch" class="k-button" value="@T("Admin.Common.Search")" />
+        </td>
+    </tr>
+</table>
+<form id="formupdategiave">
+    
+    <div id="subdanhsach-grid">
+        <input type="button" id="btnupdategiave" value="Cập nhật" class="SuaGiaVe" />
+        <table class="BangGiaVe">
+            @for (int i = 0; i < Model.SoNguonVe + 1; i++)
+            {
+                <tr>
+                    @for (int j = 0; j < 8; j++)
+                    {
+                        var withcol = 100 / (8);
+                        <td style="width:@withcol%;">
+                            @if (i == 0 && j > 0)
+                            {
+                                <span> @Model.XepXeTheoNgay[0, j].NgayXuatBen</span>
+
+                            }
+                            @if (j == 0 && i > 0)
+                            {
+                                <span> @Model.XepXeTheoNgay[i, 0].GioLichTrinh</span>
+
+                            }
+                            @if (i > 0 && j > 0 )
+                            {
+                                <input type='text' name="nguonveinput" id='vitringuonve_@(Model.XepXeTheoNgay[i, j].NgayXuatBen)_@(Model.XepXeTheoNgay[i, j].NguonVeId)_@(Model.XepXeTheoNgay[i, j].XeVanChuyenId)' value='@(Model.XepXeTheoNgay[i, j].BienSo)' class='text-box single-line' style='width:100px;text-align:center'>
+                            }
+                        </td>
+                    }
+
+                </tr>
+            }
+        </table>
+    </div>
+    <script type="text/javascript">
+                function LuuThongTinNguonVe()
+                {
+
+                    //luu theo cu phap IdDiemDon;IdDiemDen;GiaVe|IdDiemDon;IdDiemDen;GiaVe
+                    var thongtinnv="";
+
+                        $("input[name='nguonveinput']").each(function() {
+                            var input = $(this);
+                            var idinfo=input.attr('id');
+                            idinfo=idinfo.replace("vitringuonve_","");
+                            idinfo=idinfo.replace(/_/g,";");
+                            thongtinnv=thongtinnv+idinfo+";"+input.val() +"|";
+                        });
+
+                    $('#@Html.FieldIdFor(model => model.XeXuatBenResult)').val(thongtinnv);
+
+                }
+
+                $(document).ready(function () {
+
+                    $('#btnupdategiave').click(function () {
+                        if (!confirm("@T("Common.areyousure")")) {
+                            return;
+                        }
+                        LuuThongTinNguonVe();
+                        var data = $("form").serialize();
+
+                        $.ajax({
+                            cache: false,
+                            type: "POST",
+                            data: data,
+                            dataType: 'json',
+                            url: "@(Url.Action("XepLichXeXuatBen", "NhaXes"))",
+                            success: function (data) {
+
+                                var id=$('#@Html.FieldIdFor(model => model.Id)').val();
+                                document.location.href = "//" +id ;
+                            },
+                            error: function (xhr, ajaxOptions, thrownError) {
+
+                            }
+
+                        });
+                    });
+
+                });
+    </script>
+</form>
+
+

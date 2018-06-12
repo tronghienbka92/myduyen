@@ -1,0 +1,177 @@
+﻿@model NhanVienListModel
+@using Nop.Web.Models.NhaXes
+@using Nop.Core.Infrastructure
+@Html.ValidationSummary(false)
+@{
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+    var defaultGridPageSize = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().DefaultGridPageSize;
+    var gridPageSizes = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().GridPageSizes;
+
+    //page title
+    ViewBag.Title = T("ChonVe.NhaXe.NhanVien.List.Title").Text;
+}
+<div class="section-header">
+    <div class="title">
+        <img src="@Url.Content("~/Content/chonve/nxmenu/nhanvientaikhoan.png")" alt="" />
+        @T("ChonVe.NhaXe.NhanVien.List.Title")
+    </div>
+</div>
+<table width="100%">
+    <tr>
+        <td class="adminTitle">
+            @Html.NopLabelFor(model => model.TenNhanVien):
+        </td>
+        <td class="adminData">
+            @Html.EditorFor(model => model.TenNhanVien)
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <input type="button" id="btnSearch" class="k-button" value="@T("Admin.Common.Search")" />
+        </td>
+    </tr>
+</table>
+<table class="adminContent">
+    <tr>
+        <td>
+            <div id="VangPhongTaiKhoan-grid"></div>
+
+            <input type="hidden" id="vanphongidselected" value="0" />
+            <script>
+                $(document).ready(function () {
+                    //search button
+                    $('#btnSearch').click(function () {
+                        //search
+                        var grid = $('#VangPhongTaiKhoan-grid').data('kendoGrid');
+                        //grid.dataSource.page(1); //new search. Set page size to 1
+                        grid.dataSource.read(); //we already loaded the grid above using "page" function
+                        return false;
+                    });
+
+                    $("#@Html.FieldIdFor(model => model.TenNhanVien)").keydown(function (event) {
+                        if (event.keyCode == 13) {
+                            $("#btnSearch").click();
+                            return false;
+                        }
+                    });
+                    $("#VangPhongTaiKhoan-grid").kendoGrid({
+                        dataSource: {
+                            type: "json",
+                            transport: {
+                                read: {
+                                    url: "@Html.Raw(Url.Action("VanPhongListNhanVien", "NhaXes"))",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data:additionalData
+                                }
+                            },
+                            schema: {
+                                data: "Data",
+                                total: "Total",
+                                errors: "Errors"
+                            },
+                            error: function(e) {
+                                display_kendoui_grid_error(e);
+                                // Cancel the changes
+                                this.cancelChanges();
+                            },
+                            serverPaging: false,
+                            serverFiltering: false,
+                            serverSorting: false
+                        },
+                        detailInit: detailInitNhanVien,
+                        dataBound: function() {
+                            this.expandRow(this.tbody.find("tr.k-master-row").first());
+                        },
+                        scrollable: false,
+                        columns: [{
+                            field: "TenVanPhong",
+                            title: "@T("ChonVe.NhaXe.VanPhong.TenVanPhong")",
+                            width: 250
+                        }, {
+                            field: "KieuVanPhongText",
+                            title: "@T("ChonVe.NhaXe.VanPhong.KieuVanPhongID")",
+                            width: 250
+                        },  {
+                            field: "DiaChiText",
+                            title: "Địa chỉ",
+                        }]
+                    });
+                });
+                function additionalData() {
+                    return {
+                        TenNhanVien: $('#@Html.FieldIdFor(model => model.TenNhanVien)').val()
+                    };
+                }
+                function detailInitNhanVien(e) {
+                    $('#vanphongidselected').val(e.data.Id);
+                    var adddata={
+                        VanPhongId:$('#vanphongidselected').val(),
+                        TenNhanVien: $('#@Html.FieldIdFor(model => model.TenNhanVien)').val()
+                    };
+                    //addAntiForgeryToken(adddata);
+                    $("<div/>").appendTo(e.detailCell).kendoGrid({
+                        dataSource: {
+                            type: "json",
+                            transport: {
+                                read: {
+                                    url: "@Html.Raw(Url.Action("TaiKhoanList", "NhaXes"))",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: adddata,
+                                },
+                            }, schema: {
+                                data: "Data",
+                                total: "Total",
+                                errors: "Errors"
+                            },
+
+                            error: function(e) {
+                                display_kendoui_grid_error(e);
+                                // Cancel the changes
+                                this.cancelChanges();
+                            },
+                            serverPaging: false,
+                            serverSorting: false,
+                            serverFiltering: false
+                        },
+                        scrollable: false,
+                        columns: [{
+                            field: "HoVaTen",
+                            title: "@T("ChonVe.NhaXe.NhanVien.HoVaTen")"
+                        }, {
+                            field: "Email",
+                            title: "@T("ChonVe.NhaXe.Email")"
+                        }, {
+                            field: "NgaySinh",
+                            title: "@T("ChonVe.NhaXe.NhanVien.NgaySinh")",
+                            width: 100,
+                            type: "date",
+                            format: "{0:dd/MM/yyyy}"
+                        },  {
+                            field: "KieuNhanVienText",
+                            title: "@T("ChonVe.NhaXe.NhanVien.KieuNhanVienID")"
+                        },  {
+                            field: "CMT_Id",
+                            title: "@T("ChonVe.NhaXe.NhanVien.CMT_Id")"
+                        },  {
+                            field: "TrangThaiText",
+                            title: "@T("ChonVe.NhaXe.NhanVien.TrangThaiID")"
+                        },{
+                            field: "Id",
+                            title: "@T("ChonVe.NhaXe.NhanVien.CustomerID")",
+                            width: 200,
+                            template: '#= Id==@(ViewBag.NhanVienId) ? "<strong>Quản trị hệ thống</strong>" : "<a href=\'TaiKhoanSua?NhanVienId="+Id+"\' class=\'k-button\'>Phân quyền</a>"#'
+
+                        }]
+                    });
+
+                }
+
+            </script>
+
+           
+
+        </td>
+    </tr>
+</table>

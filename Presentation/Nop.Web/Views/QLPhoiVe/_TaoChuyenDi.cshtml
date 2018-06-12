@@ -1,0 +1,72 @@
+﻿@model Nop.Web.Models.NhaXes.XeXuatBenItemModel
+
+<table style="width:100%">
+    <tr>
+        <td class="adminTitle">Hành trình:</td>
+        <td class="adminData">
+            @Model.TuyenXeChay
+        </td>
+    </tr>
+    <tr>
+        <td class="adminTitle">Thời gian đi:</td>
+        <td class="adminData">
+            <input id="txtthoigiandithuc" value="@Model.NgayDi.ToString("HH:mm")" style="width: 70px;" />
+
+        </td>
+    </tr>
+
+    <tr>
+        <td class="adminTitle">Loại xe:</td>
+        <td class="adminData">
+            @Html.DropDownListFor(m => m.LoaiXeId, Model.loaixes, new { @id = "chuyendi_loaixeid" })
+        </td>
+    </tr>
+    <tr>
+        <td></td>
+        <td style="text-align:left">
+            <input type="button" id="btnTaoMoiChuyenDi" value="Đồng ý" class="k-button">
+        </td>
+    </tr>
+</table>
+<script>
+    $(document).ready(function () {
+        $("#txtthoigiandithuc").kendoTimePicker({
+            format: "HH:mm"
+        });
+        @*setTimeout(function () {
+            $('#@Html.FieldIdFor(model => model.NguonVeId)').focus();
+        }, 500);*@
+        $('#btnTaoMoiChuyenDi').click(function () {
+            var _ngaydi = ConvertDateTimeSystem($("#@Html.FieldIdFor(m=>m.NgayDi)").val());
+            var _thoigiandidate = $('#txtthoigiandithuc').data("kendoTimePicker").value();
+            var _thoigiandi = kendo.toString(_thoigiandidate, "yyyy-MM-dd HH:mm:ss")
+            var loaixeid= $('#chuyendi_loaixeid').val();
+            $('#@Html.FieldIdFor(m => m.LoaiXeId)').val(loaixeid);
+            var dataadd = {
+                "HanhTrinhId": @Model.HanhTrinhId,
+                "ThoiGianDi": _thoigiandi,
+                "LoaiXeId":loaixeid,
+                "NgayDi": _ngaydi
+            };
+
+            $.ajax({
+                cache: false,
+                type: "POST",
+                data: dataadd,
+                dataType: 'json',
+                url: "@(Url.Action("TaoMoiChuyenDi", "QLPhoiVe"))",
+                success: function (data) {
+                    if (data == "OK") {
+                        CloseWindowThemMoiChuyenDi();
+                    }
+                    else {
+                        alert(data);
+                    }
+                },
+
+
+            });
+        });
+    });
+
+</script>

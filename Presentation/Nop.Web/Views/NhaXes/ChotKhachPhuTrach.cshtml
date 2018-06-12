@@ -1,0 +1,87 @@
+﻿@Html.ValidationSummary(false)
+@{
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+
+    //page title
+    ViewBag.Title = "Thông tin phụ trách chốt xe tại các điểm chốt";
+}
+<div class="section-header">
+    <div class="title">
+        <img src="@Url.Content("~/Content/chonve/nxmenu/qlchuyen_qlchot_phutrach.png")" alt="" />
+        @ViewBag.Title
+    </div>
+</div>
+<table class="adminContent">
+    <tr>
+        <td>
+            <div id="danhsachdiemchot-grid"></div>
+
+            <script>
+                $(document).ready(function () {
+                    $("#danhsachdiemchot-grid").kendoGrid({
+                        dataSource: {
+                            type: "json",
+                            transport: {
+                                read: {
+                                    url: "@Html.Raw(Url.Action("ChotKhachPhuTrach", "NhaXes"))",
+                                    type: "POST",
+                                    dataType: "json"
+                                }
+                            },
+                            schema: {
+                                data: "Data",
+                                total: "Total",
+                                errors: "Errors"
+                            },
+                            error: function(e) {
+                                display_kendoui_grid_error(e);
+                                // Cancel the changes
+                                this.cancelChanges();
+                            }
+                          
+                        },                       
+
+                        scrollable: false,
+                        columns: [{
+                            field: "TenDiemDon",
+                            title: "Điểm chốt"
+                        }, {
+                            field: "DiaChiText",
+                            title: "Địa chỉ"
+                        }, {                            
+                            title: "Nhân viên phụ trách",
+                            template: "#=ThongTinThanhTra#"
+                        },{
+                            field: "Id",
+                            title: "@T("Admin.Common.Edit")",
+                            width: 100,
+                            template: '<a href="javascript:AddPhuTrachChot(#=Id#)">@T("Admin.Common.Edit")</a>'
+                        }]
+                    });
+                });
+
+            </script>
+        </td>
+    </tr>
+</table>
+<div id="PhuTrachChot_div" style="display:none">
+
+</div>
+<script>
+    function AddPhuTrachChot(Id) {
+
+        var WindowPhuTrachChuyen = $("#PhuTrachChot_div");
+        if (WindowPhuTrachChuyen.data("kendoWindow"))
+            WindowPhuTrachChuyen.data("kendoWindow").destroy();
+        WindowPhuTrachChuyen.kendoWindow({
+            modal: true,
+            width: "800px",
+            height:"550px",
+            title: "Phụ trách điểm chốt" ,
+            content: "@(Url.Action("_ChotKhachPhuTrach", "NhaXes"))?Id=" + Id,
+            actions: ["Close"]
+        });
+
+        WindowPhuTrachChuyen.data('kendoWindow').center().open();
+    }
+</script>

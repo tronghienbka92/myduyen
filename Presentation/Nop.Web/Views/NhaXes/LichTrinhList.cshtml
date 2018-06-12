@@ -1,0 +1,253 @@
+﻿@model LichTrinhListModel
+@using Nop.Web.Models.NhaXes
+@using Nop.Core.Infrastructure
+@Html.ValidationSummary(false)
+@{
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+    var defaultGridPageSize = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().DefaultGridPageSize;
+    var gridPageSizes = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().GridPageSizes;
+
+    //page title
+    ViewBag.Title = T("ChonVe.NhaXe.LichTrinh.List.Title").Text;
+}
+<div class="section-header">
+    <div class="title">
+        <img src="@Url.Content("~/Content/chonve/nxmenu/hanhtrinhlichtrinh.png")" alt="" />
+        @T("ChonVe.NhaXe.LichTrinh.List.Title")
+    </div>
+    <div class="options">
+        <input type="button" id="btnThemMoi" class="k-button" value="@T("Admin.Common.AddNew")" />
+    </div>
+</div>
+<table width="100%">
+    <tr>
+        <td class="adminTitle">
+            @Html.NopLabelFor(model => model.MaLichTrinh):
+        </td>
+        <td class="adminData">
+            @Html.EditorFor(model => model.MaLichTrinh)
+        </td>
+    </tr>
+    <tr>
+        <td class="adminTitle">
+            @Html.NopLabelFor(model => model.HanhTrinhId):
+        </td>
+        <td class="adminData">
+            @Html.DropDownListFor(model => model.HanhTrinhId, Model.HanhTrinhs)
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2">
+            <input type="button" id="btnSearch" class="k-button" value="@T("Admin.Common.Search")" />
+        </td>
+    </tr>
+</table>
+<table class="adminContent">
+    <tr>
+        <td>
+            <div id="danhsach-grid"></div>
+
+            <script>
+                $(document).ready(function () {
+                    $("#btnThemMoi").click(function (e) {
+                        e.preventDefault();
+                        var window = $("#lichtrinhselect-window");
+                        if (!window.data("kendoWindow")) {
+                            window.kendoWindow({
+                                modal: true,
+                                width: "450px",
+                                title: "@T("ChonVe.NhaXe.LichTrinh.TaoMoi")",
+                                actions: ["Close"]
+                            });
+                        }
+                        window.data('kendoWindow').center().open();
+                    });
+
+                    $("#danhsach-grid").kendoGrid({
+                        dataSource: {
+                            type: "json",
+                            transport: {
+                                read: {
+                                    url: "@Html.Raw(Url.Action("LichTrinhList", "NhaXes"))",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: additionalData
+                                }
+                            },
+                            schema: {
+                                data: "Data",
+                                total: "Total",
+                                errors: "Errors"
+                            },
+                            error: function(e) {
+                                display_kendoui_grid_error(e);
+                                // Cancel the changes
+                                this.cancelChanges();
+                            },
+                            pageSize: @(defaultGridPageSize),
+                            serverPaging: true,
+                            serverFiltering: true,
+                            serverSorting: true
+                        },
+                        pageable: {
+                            refresh: true,
+                            pageSizes: [@(gridPageSizes)],
+                            messages: {
+                                display: "@T("Nop.Common.KendoGrid.display")", //{0} is the index of the first record on the page, {1} - index of the last record on the page, {2} is the total amount of records
+                                empty: "@T("Nop.Common.KendoGrid.Empty")",
+                                page: "@T("Nop.Common.KendoGrid.Page")",
+                                of: "@T("Nop.Common.KendoGrid.Of")", //{0} is total amount of pages
+                                itemsPerPage: "@T("Nop.Common.KendoGrid.itemsPerPage")",
+                                first: "@T("Nop.Common.KendoGrid.first")",
+                                previous: "@T("Nop.Common.KendoGrid.previous")",
+                                next: "@T("Nop.Common.KendoGrid.next")",
+                                last: "@T("Nop.Common.KendoGrid.last")",
+                                refresh: "@T("Nop.Common.KendoGrid.refresh")"
+                            }
+                        },
+                        editable: {
+                            confirmation: false,
+                            mode: "inline"
+                        },
+                        scrollable: false,
+                        columns: [{
+                            field: "MaLichTrinh",
+                            title: "@T("ChonVe.NhaXe.LichTrinh.MaLichTrinh")"
+                        }, {
+                            field: "HanhTrinhText",
+                            title: "@T("ChonVe.NhaXe.LichTrinh.HanhTrinhID")"
+                        }, {
+                            field: "TenLoaiXe",
+                            title: "@T("ChonVe.NhaXe.LichTrinh.LoaiXeId")"
+                        }, {
+                            field: "ThoiGianDi",
+                            title: "@T("ChonVe.NhaXe.LichTrinh.ThoiGianDi")",
+                            width: 100,
+                            type: "date",
+                            format: "{0:HH:mm}"
+                        },{
+                            field: "SoGioChay",
+                            title: "@T("ChonVe.NhaXe.LichTrinh.SoGioChay")",
+                            width: 100,
+                            format:""
+
+                        }, {
+                            field: "ThoiGianDen",
+                            title: "@T("ChonVe.NhaXe.LichTrinh.ThoiGianDen")",
+                            width: 100,
+                            type: "date",
+                            format: "{0:HH:mm}"
+                        }, {
+                            field: "GiaVeToanTuyen",
+                            title: "@T("ChonVe.NhaXe.LichTrinh.GiaVeToanTuyen")",
+                            width: 100,
+                            template:"#:GiaVeToanTuyenText#"
+                        },{
+                            field: "Id",
+                            title: "@T("Admin.Common.Edit")",
+                            width: 100,
+                            template: '<a href="LichTrinhSua/#=Id#">@T("Admin.Common.Edit")</a>'
+                        },{
+                            field: "Id",
+                            title: "Khóa lịch trình",                           
+                            template: '#=KhoaLichTrinh==false?"<a href=\'javascript:KhoaMo_LichTrinh("+Id+",true)\' class=\'k-button\'>Khóa lịch trình</a>" : "<a href=\'javascript:KhoaMo_LichTrinh("+Id+",false)\' class=\'k-button\'>Mở lịch trình</a>" #',
+                           
+                        }]
+                    });
+                });
+            </script>
+
+            <script type="text/javascript">
+                $(document).ready(function () {
+                    //search button
+                    $('#btnSearch').click(function () {
+                        //search
+                        var grid = $('#danhsach-grid').data('kendoGrid');
+                        grid.dataSource.page(1); //new search. Set page size to 1
+                        //grid.dataSource.read(); we already loaded the grid above using "page" function
+                        $("#@Html.FieldIdFor(model => model.HanhTrinhId)").attr('size',0);
+                        return false;
+                    });
+
+                    $("#@Html.FieldIdFor(model => model.MaLichTrinh)").keydown(function (event) {
+                        if (event.keyCode == 13) {
+                            $("#btnSearch").click();
+                            return false;
+                        }
+                    });
+                    $("#@Html.FieldIdFor(model => model.HanhTrinhId)").change(function () {
+                        $("#btnSearch").click();
+                    });
+
+
+                });
+
+                function additionalData() {
+                    return {
+                        MaLichTrinh: $('#@Html.FieldIdFor(model => model.MaLichTrinh)').val(),
+                        HanhTrinhId: $('#@Html.FieldIdFor(model => model.HanhTrinhId)').val()
+                    };
+                }
+                function KhoaMo_LichTrinh(LichTrinhId,Khoa) {                  
+                    if (!confirm("@T("Common.areyousure")")) {
+                        return;
+                    }
+                    $.ajax({
+                        cache: false,
+                        type: "POST",
+                        data: { "LichTrinhId": LichTrinhId,"Khoa":Khoa},
+                        dataType: 'json',
+                        url: "@(Url.Action("KhoaLichTrinh", "NhaXes"))",
+                        success: function (data) {
+                            if (data == "OK") {
+                                $('#btnSearch').click();
+                            }
+                            else {
+                                alert(data);
+                            }
+
+
+                        },
+
+
+                    });
+                }
+            </script>
+        </td>
+    </tr>
+</table>
+
+<div id="lichtrinhselect-window" style="display:none;">
+    @using (Html.BeginForm(null, null))
+    {
+        <table style="width:100%">
+            <tr>
+                <td class="adminTitle">
+                    @Html.NopLabelFor(model => model.HanhTrinhId):
+                </td>
+                <td class="adminData">
+                    @Html.DropDownListFor(model => model.HanhTrinhId, Model.HanhTrinhs, new { id = "HanhTrinhIdSelect" })
+                </td>
+            </tr>
+            <tr>
+                <td class="adminTitle"></td>
+                <td class="adminData">
+                    <input type="button" onclick="TaoMoi();return false;" class="k-button" value="@T("common.yes")" />
+                </td>
+            </tr>
+        </table>
+        <script type="text/javascript">
+            function TaoMoi()
+            {
+                var HanhTrinhId= $('#HanhTrinhIdSelect').val();
+                if(HanhTrinhId=="0")
+                {
+                    alert("@T("ChonVe.NhaXe.LichTrinh.ChuaChonHanhTrinh")");
+                    $('#HanhTrinhIdSelect').focus();
+                }
+                else
+                    location.href="@Url.Action("LichTrinhTao")?HanhTrinhId="+HanhTrinhId;
+            }
+        </script>
+    }
+</div>

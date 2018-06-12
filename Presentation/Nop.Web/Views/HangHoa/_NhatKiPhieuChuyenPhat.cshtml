@@ -1,0 +1,65 @@
+﻿@model Nop.Web.Models.ChuyenPhatNhanh.PhieuChuyenPhatModel
+@{
+    Layout = null;   
+}
+<h1>Nhật ký phiếu chuyển phát</h1>
+<style>
+      #BangDanhSach {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        #BangDanhSach thead {
+            font-weight: 700;
+            text-align: center;
+        }
+
+        #BangDanhSach, #BangDanhSach tr, #BangDanhSach tr td {
+            border: 1px solid #cccccc;
+            text-align: center;
+        }
+
+            #BangDanhSach tr {
+                height: 45px;
+            }
+</style>
+<table id="BangDanhSach">
+    <thead style="font-weight:bold;text-align:center">
+        <tr>
+            <td>
+                STT
+            </td>
+            <td>
+                Nhật kí
+            </td>
+            <td>
+                Ngày tạo
+            </td>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.nhatkys != null)
+        {
+            int i = 0;
+            foreach (var item in Model.nhatkys)
+            {
+                i++;
+                <tr>
+                    <td>
+                        @i
+                    </td>
+                    <td>
+                        @item.GhiChu
+                    </td>
+                    <td>
+                        @item.NgayTao
+                    </td>
+                </tr>
+            }
+
+
+
+        }
+    </tbody>
+</table>
+

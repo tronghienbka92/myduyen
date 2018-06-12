@@ -1,0 +1,294 @@
+﻿@model NguonVeListModel
+@using Nop.Web.Models.NhaXes
+@using Nop.Core.Infrastructure
+@Html.ValidationSummary(false)
+@{
+
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+
+    //page title
+    ViewBag.Title = T("ChonVe.NhaXe.NguonVe.List.Title").Text;
+}
+
+<div class="section-header">
+    <div class="title">
+        <img src="@Url.Content("~/Content/chonve/nxmenu/quanlychuyen.png")" alt="" />
+        @T("ChonVe.NhaXe.XeXuatBen.Title")
+    </div>
+</div>
+<table style="width:100%">
+    <tr>
+        <td style="text-align:right">
+            Ngày đi: @Html.EditorFor(model => model.NgayDi) 
+        </td>
+    </tr>
+</table>
+
+<table class="adminContent">
+    <tr>
+        <td>
+            <div id="hanhtrinh-grid"></div>
+
+            <script>
+                $(document).ready(function () {
+                    $("#@Html.FieldIdFor(model => model.NgayDi)").change(function () {
+                        var grid = $('#hanhtrinh-grid').data('kendoGrid');
+                        grid.dataSource.read();
+                        return false;
+                    });
+                    $("#hanhtrinh-grid").kendoGrid({
+                        dataSource: {
+                            type: "json",
+                            transport: {
+                                read: {
+                                    url: "@Html.Raw(Url.Action("HanhTrinhList", "NhaXes"))",
+                                    type: "POST",
+                                    dataType: "json"
+                                }
+                            },
+                            schema: {
+                                data: "Data",
+                                total: "Total",
+                                errors: "Errors"
+                            },
+                            error: function (e) {
+                                display_kendoui_grid_error(e);
+                                // Cancel the changes
+                                this.cancelChanges();
+                            },
+                            serverPaging: false,
+                            serverFiltering: false,
+                            serverSorting: false
+                        },
+                        detailInit: detailInitXeXuatBen,
+                        dataBound: function () {
+                            this.expandRow(this.tbody.find("tr.k-master-row").first());
+                        },
+                        scrollable: false,
+                        columns: [{
+                            field: "MaHanhTrinh",
+                            title: "@T("ChonVe.NhaXe.HanhTrinh.MaHanhTrinh")",
+                            attributes: { "class": "hanhtrinh-row" },
+                        }, {
+                            field: "MoTa",
+                            title: "@T("ChonVe.NhaXe.HanhTrinh.MoTa")",
+                            attributes: { "class": "hanhtrinh-row" },
+                        }, {
+                            field: "TongKhoangCach",
+                            title: "@T("ChonVe.NhaXe.HanhTrinh.TongKhoangCach")",
+                            attributes: { "class": "hanhtrinh-row" },
+                        }]
+                    });
+                });
+
+                function detailInitXeXuatBen(e) {
+                    var hanhtrinhid = e.data.Id;
+                    var ngayxuatben = $('#@Html.FieldIdFor(model => model.NgayDi)').val()
+                    var adddata = {
+                        HanhTrinhId: hanhtrinhid,
+                        NgayDi: ngayxuatben
+                    };
+                    //addAntiForgeryToken(adddata);
+                    $("<div/>").appendTo(e.detailCell).kendoGrid({
+                        dataSource: {
+                            type: "json",
+                            transport: {
+                                read: {
+                                    url: "@Html.Raw(Url.Action("XeXuatBenInfo", "NhaXes"))",
+                                    type: "POST",
+                                    dataType: "json",
+                                    data: adddata,
+                                },
+                            }, schema: {
+                                data: "Data",
+                                total: "Total",
+                                errors: "Errors"
+                            },
+
+                            error: function (e) {
+                                display_kendoui_grid_error(e);
+                                // Cancel the changes
+                                this.cancelChanges();
+                            },
+                            serverPaging: false,
+                            serverSorting: false,
+                            serverFiltering: false
+                        },
+                        scrollable: false,
+                        columns: [{
+                            field: "nguonvexe.TenDiemDon",
+                            title: "@T("ChonVe.NhaXe.VeXeKhach.DiemDonId")",
+                            headerAttributes: {
+                                "class": "xexuatben-header",style:"font-weight:bold"
+                            },
+                        }, {
+                            field: "nguonvexe.TenDiemDen",
+                            title: "@T("ChonVe.NhaXe.VeXeKhach.DiemDenId")",
+                            headerAttributes: {
+                                "class": "xexuatben-header", style: "font-weight:bold"
+                            },
+                        }, {                            
+                            title: "Lái xe (phụ xe)",
+                            headerAttributes: {
+                                "class": "xexuatben-header", style: "font-weight:bold"
+                            },
+                            template: '#=TenLaiXe1==null ? "":"1. [ "+TenLaiXe1+" ]"+(TenLaiXe2==null ? "": "<br />2. [ "+TenLaiXe2+" ]")+(TenLaiXe3==null ? "": "<br />3. [ "+TenLaiXe3+" ]") #'
+
+                        }, {
+                            field: "TenBienSoXe",
+                            title: "@T("ChonVe.NhaXe.VeXeKhach.BienSoXe")",
+                            headerAttributes: {
+                                "class": "xexuatben-header", style: "font-weight:bold"
+                            },
+
+                        }, {
+                            field: "SoNguoi",
+                            title: "@T("ChonVe.NhaXe.VeXeKhach.SoNguoi")",
+                            headerAttributes: {
+                                "class": "xexuatben-header", style: "font-weight:bold"
+                            },
+
+                        }, {
+                            title: "@T("ChonVe.NhaXe.VeXeKhach.ThoiGianDi")",
+                            headerAttributes: {
+                                "class": "xexuatben-header", style: "font-weight:bold"
+                            },
+                            width: 100,
+                            attributes: { style: "text-align:center" },
+                            template: '#=kendo.toString(kendo.parseDate(nguonvexe.ThoiGianDi), "HH:mm")#',
+                            headerAttributes: {
+                                "class": "xexuatben-header",style:"font-weight:bold"
+                            },
+                        }, {
+                            title: "@T("ChonVe.NhaXe.VeXeKhach.ThoiGianDen")",
+                            width: 100,
+                            attributes: { style: "text-align:center" },
+                            template: '#=kendo.toString(kendo.parseDate(nguonvexe.ThoiGianDen), "HH:mm")#',
+                            headerAttributes: {
+                                "class": "xexuatben-header", style: "font-weight:bold"
+                            },
+                        },
+                {
+                    field: "NgayDi",
+                    title: "@T("ChonVe.NhaXe.VeXeKhach.NgayDi")",
+                    width: 100,
+                    type: "date",
+                    attributes: { style: "text-align:center" },
+                    format: "{0:dd/MM/yyyy}",
+                    headerAttributes: {
+                        "class": "xexuatben-header", style: "font-weight:bold"
+                    },
+                }, {
+                    field: "Id",
+                    title: "Gán Lái xe",
+                    width: 100,
+                    template: '<a href="javascript:AddLaiXe(\'#=NguonVeId#\')" class="k-button" >Gán lái xe</a>',
+                    headerAttributes: {
+                        "class": "xexuatben-header", style: "font-weight:bold"
+                    },
+                }, {
+                    field: "Id",
+                    title: "@T("Admin.ChonVe.HopDong.XuatBen")",
+                    width: 100,
+                    template: '<a href="PrinfPhoiVe?Id=#=NguonVeId#&NgayXeXuatBen=' + ngayxuatben + '" class="k-button"  target="_blank" >In phơi vé</a>',
+                    headerAttributes: {
+                        "class": "xexuatben-header", style: "font-weight:bold"
+                    },
+                }, {
+                    field: "Id",
+                    title: "Lệnh đón khách",
+                            width: 100,
+                            template: '#=Id==0?"Chưa xuất bến":"<a href=\'/NhaXeCauHinh/InPhieu?MaId=@((int)Nop.Core.Domain.NhaXes.ENNhaXeCauHinh.VE_MAU_IN_PHOI)&Id="+Id+"\' class=\'k-button\'  target=\'_blank\' >In lệnh</a>"#',
+            headerAttributes: {
+                "class": "xexuatben-header", style: "font-weight:bold"
+            },
+                },
+                {
+                    field: "Id",
+                    title: "Hàng hóa ký gửi",
+                    width: 100,
+                    template: '#=Id==0?"Chưa xuất bến":"<a href=\'/NhaXeCauHinh/InPhieu?MaId=@((int)Nop.Core.Domain.NhaXes.ENNhaXeCauHinh.KY_GUI_MAU_HANG_HOA_XUAT_BEN)&Id="+Id+"\' class=\'k-button\'  target=\'_blank\' >In phiếu</a>"#',
+                    headerAttributes: {
+                        "class": "xexuatben-header", style: "font-weight:bold"
+                    },
+                },
+                {
+                    field: "GhiChu",
+                    title: "Nhật ký",
+                    width: 250,
+                    template: '#=Id==0 ? "Chưa xuất bến": (GhiChu==null ? "[<a href=\'javascript:AddNhatKy("+Id+")\'>Thêm</a>]": GhiChu+" [<a href=\'javascript:AddNhatKy("+Id+")\'>Sửa</a>]") #',
+                    headerAttributes: {
+                        "class": "xexuatben-header", style: "font-weight:bold"
+                    },
+                }
+                        ]
+                    });
+
+                }
+            </script>
+        </td>
+    </tr>
+</table>
+<div id="LaiXe_div" style="display:none">
+</div>
+<div id="GhiChu_div" style="display:none">
+</div>
+
+<script>
+    function AddLaiXe(Id) {
+        var ngaydi = $('#@Html.FieldIdFor(model => model.NgayDi)').val();
+
+        var WindowLaiXe = $("#LaiXe_div");
+        WindowLaiXe.html("");
+        if (WindowLaiXe.data("kendoWindow"))
+            WindowLaiXe.data("kendoWindow").destroy()
+        WindowLaiXe.kendoWindow({
+            modal: true,
+            width: "500px",
+            title: "Gán lái xe và phụ xe ",
+            content: "@(Url.Action("AddLaiXeHoacPhuXe", "NhaXes"))" + "?Id=" + Id + "&NgayDi=" + ngaydi,
+            actions: ["Close"]
+        });
+
+        WindowLaiXe.data('kendoWindow').center().open();
+    }
+    function AddNhatKy(Id) {
+        if (Id == 0) {
+            alert("Bạn phải gán thông tin xe xuất bến trước lúc cập nhật thông tin nhật ký");
+            return;
+        }
+        var formtemp = $("#GhiChu_div");
+        formtemp.html("");
+        if (formtemp.data("kendoWindow"))
+            formtemp.data("kendoWindow").destroy()
+        formtemp.kendoWindow({
+            modal: true,
+            width: "500px",
+            title: "Thông tin nhật ký",
+            content: "@(Url.Action("AddNhatKyXuatBen", "NhaXes"))" + "?Id=" + Id,
+            actions: ["Close"]
+        });
+        formtemp.data('kendoWindow').center().open();
+    }
+    function SetCloseWindowLaiXe() {
+        $("#LaiXe_div").data('kendoWindow').close();
+
+    }
+    function SetCloseWindowNhatKy() {
+        $("#GhiChu_div").data('kendoWindow').close();
+
+    }
+</script>
+<style>
+    .hanhtrinh-row
+    {
+        font-weight:bold;
+        font-size:13px;
+
+    }
+    .xexuatben-header
+    {
+        font-size:12px;
+        color:#482207
+    }
+</style>

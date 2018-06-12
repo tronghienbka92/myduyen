@@ -1,0 +1,100 @@
+﻿@model RegisterCustomerModel
+@using Nop.Web.Extensions
+@using Nop.Web.Models.Customer;
+@using Nop.Core;
+@using Nop.Core.Infrastructure;
+@{
+    Html.AddTitleParts(T("PageTitle.Register").Text);
+   
+}
+<script src="~/Scripts/jquery.validate.min.js"></script>
+<link href="~/Themes/ChonVeV1/Content/css/loginregister.css" rel="stylesheet" />
+<div id="formloginregister">
+    <div id="loginv1">
+        @using (Html.BeginForm(null, null, FormMethod.Post, new { id = "registration-form" }))
+        {
+          @Html.HiddenFor(model=>model.ReturnUrl)
+            @Html.AntiForgeryToken()
+            <h1>Đăng ký</h1>
+            <p>
+                <label for="FullName" class="uname" data-icon="u">Họ và tên</label>
+                @Html.TextBoxFor(m => m.Fullname, new { id = "Fullname", required = "required", oninvalid = "InvalidMsg(this,'Bạn chưa nhập họ và tên')", oninput = "InvalidMsg(this,'');", placeholder = "Tên của bạn" })
+            </p>
+            <p>
+                <label for="Email" class="youmail" data-icon="e">Email</label>
+                @Html.TextBoxFor(m => m.Email, new { id = "Email", required = "required", oninvalid = "InvalidMsg(this,'Bạn chưa nhập thông tin email')", oninput = "InvalidMsg(this,'');", type = "email", placeholder = "Email của bạn" })                
+            </p>
+            <p>
+                <label for="Phone" class="uname" data-icon="p">Số điện thoại</label>
+                @Html.TextBoxFor(model => model.Phone, new { id = "Phone", required = "required", oninvalid = "InvalidMsg(this,'Bạn chưa nhập số điện thoại')", oninput = "InvalidMsg(this,'');", placeholder = "Số điện thoại" })
+            </p>
+            <p>
+                <input id="agree" type="checkbox" name="agree" required="required" onchange="DongYDieuKhoan(this)" />
+                <span style="font-weight:bold;line-height:31px;">Tôi đồng ý với <a class="read" href='@Url.RouteUrl("Topic", new { SeName = Html.GetTopicSeName("privacyinfo") })'>Điều khoản dịch vụ và Chính sách bảo mật</a> của CHONVE.VN</span>
+            </p>
+            <p class="registerv1 button">
+                <input type="submit" value="Đăng ký" id="btnregister" class="btn disabled" />
+            </p>
+            <p class="change_link">
+                Bạn đã có tài khoản ?
+                <a href="@Url.RouteUrl("Login")">Đăng nhập</a>
+            </p>
+
+        }
+    </div>
+</div>
+
+<script>
+    function DongYDieuKhoan(ckb)
+    {
+        ckb.setCustomValidity(ckb.validity.valueMissing ? 'Nhấn vào đây để đồng ý với các điều khoản dịch vụ và chính sách bảo mật của CHONVE.VN' : '');
+    }
+  
+    $(document).ready(function () {
+        document.getElementById("agree").setCustomValidity("Nhấn vào đây để đồng ý với các điều khoản dịch vụ và chính sách bảo mật của CHONVE.VN");
+    });
+    function InvalidMsg(textbox, strmsg) {       
+        if (textbox.value == '') {
+            textbox.setCustomValidity(strmsg);
+        }
+        else if (textbox.validity.typeMismatch) {
+            textbox.setCustomValidity('Email không đúng định dạng');
+        }
+        else {            
+            if(textbox.id=="Email")
+            {                
+                //kiem tra trung lap email                
+                var strdata = { 'Email': textbox.value };                
+                $.ajax({
+                    type: "POST",
+                    url: "/Customer/CheckForDuplication",
+                    dataType: "json",
+                    data: strdata,
+                    error: function (response) {
+                        textbox.setCustomValidity('Có lỗi trong quá trình kiểm tra thông tin email!');
+                    },
+                    success: function (response) {                        
+                        if(response)
+                            textbox.setCustomValidity('');
+                        else
+                            textbox.setCustomValidity("Email đã tồn tại, bạn hãy đăng ký email khác");
+                    }
+                });                
+            }
+            else if (textbox.id == "Phone")
+            {
+                if(textbox.value.length<10)
+                {
+                    textbox.setCustomValidity("Số điện thoại phải có hơn 9 chữ số");
+                }
+                else 
+                    textbox.setCustomValidity('');
+            }
+            else
+                textbox.setCustomValidity('');
+        }
+        
+        return true;
+    }
+    
+</script>

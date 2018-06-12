@@ -1,0 +1,210 @@
+﻿@model NhaXeModel
+@using Nop.Admin.Models.NhaXes
+@Html.ValidationSummary(false)
+@Html.HiddenFor(model => model.Id)
+<div id="nhaxe-edit">
+    <ul>
+        <li @Html.RenderSelectedTabIndex(0, GetSelectedTabIndex())>
+            @T("Admin.ChonVe.NhaXe.ThongTin")
+        </li>
+        <li @Html.RenderSelectedTabIndex(1, GetSelectedTabIndex())>
+            @T("Admin.Common.DiaChi")
+        </li>
+    </ul>
+    <div>
+        @TabInfo()
+    </div>
+    <div>
+        @TabDiaChi()
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#nhaxe-edit").kendoTabStrip({
+            animation: {
+                open: {
+                    effects: "fadeIn"
+                }
+            },
+            select: tabstrip_on_tab_select
+        });
+        $("#@Html.FieldIdFor(model => model.ThongTinDiaChi.ProvinceID)").change(function () {
+            var selectedItem = $(this).val();
+            var ddlStates = $("#@Html.FieldIdFor(model => model.ThongTinDiaChi.QuanHuyenID)");
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: "@(Url.Action("GetQuanHuyenByProvinceId", "QuanHuyen"))",
+                data: { "ProvinceId": selectedItem, "addSelectStateItem": "false" },
+                success: function (data) {
+                    ddlStates.html('');
+                    $.each(data, function (id, option) {
+                        ddlStates.append($('<option></option>').val(option.id).html(option.name));
+                    });
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert('Failed to retrieve states.');
+                }
+            });
+        });
+    });
+</script>
+
+
+@{
+    //custom tabs
+    var eventMessage = new AdminTabStripCreated(this.Html, "nhaxe-edit");
+    EngineContext.Current.Resolve<IEventPublisher>().Publish(eventMessage);
+    foreach (var eventBlock in eventMessage.BlocksToRender)
+    {
+        @eventBlock
+    }
+}
+
+@*save selected tab index*@
+<input type="hidden" id="selected-tab-index" name="selected-tab-index" value="@(GetSelectedTabIndex())">
+@helper TabInfo()
+{
+    <table class="adminContent">
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.TenNhaXe):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.TenNhaXe)
+                @Html.ValidationMessageFor(model => model.TenNhaXe)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.GioiThieu):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(x => x.GioiThieu, "RichEditor")
+                @Html.ValidationMessageFor(model => model.GioiThieu)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.LogoID):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(x => x.LogoID)
+                @Html.ValidationMessageFor(model => model.LogoID)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.AnhDaiDienID):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(x => x.AnhDaiDienID)
+                @Html.ValidationMessageFor(model => model.AnhDaiDienID)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.Email):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.Email)
+                @Html.ValidationMessageFor(model => model.Email)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.DienThoai):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.DienThoai)
+                @Html.ValidationMessageFor(model => model.DienThoai)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.Fax):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.Fax)
+                @Html.ValidationMessageFor(model => model.Fax)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.HotLine):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.HotLine)
+                @Html.ValidationMessageFor(model => model.HotLine)
+            </td>
+        </tr>
+    </table>
+}
+@helper TabDiaChi()
+{
+    <table class="adminContent">
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.ThongTinDiaChi.DiaChi1):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.ThongTinDiaChi.DiaChi1)
+                @Html.ValidationMessageFor(model => model.ThongTinDiaChi.DiaChi1)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.ThongTinDiaChi.DiaChi2):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.ThongTinDiaChi.DiaChi2)
+                @Html.ValidationMessageFor(model => model.ThongTinDiaChi.DiaChi2)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.ThongTinDiaChi.ProvinceID):
+            </td>
+            <td class="adminData">
+                @Html.DropDownListFor(model => model.ThongTinDiaChi.ProvinceID, Model.ThongTinDiaChi.AvailableStates)
+                @Html.ValidationMessageFor(model => model.ThongTinDiaChi.ProvinceID)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.ThongTinDiaChi.QuanHuyenID):
+            </td>
+            <td class="adminData">
+                @Html.DropDownListFor(model => model.ThongTinDiaChi.QuanHuyenID, Model.ThongTinDiaChi.AvailableQuanHuyens)
+                @Html.ValidationMessageFor(model => model.ThongTinDiaChi.QuanHuyenID)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.ThongTinDiaChi.MaBuuDien):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.ThongTinDiaChi.MaBuuDien)
+                @Html.ValidationMessageFor(model => model.ThongTinDiaChi.MaBuuDien)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.ThongTinDiaChi.DienThoai):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.ThongTinDiaChi.DienThoai)
+                @Html.ValidationMessageFor(model => model.ThongTinDiaChi.DienThoai)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.ThongTinDiaChi.Fax):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.ThongTinDiaChi.DiaChi1)
+                @Html.ValidationMessageFor(model => model.ThongTinDiaChi.Fax)
+            </td>
+        </tr>
+    </table>
+}

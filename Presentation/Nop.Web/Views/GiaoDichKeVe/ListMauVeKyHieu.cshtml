@@ -1,0 +1,162 @@
+﻿@model QuanLyMauVeKyHieuModel
+@using Nop.Web.Models.NhaXes
+@using Nop.Core.Infrastructure
+@Html.ValidationSummary(false)
+@{
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+    var defaultGridPageSize = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().DefaultGridPageSize;
+    var gridPageSizes = EngineContext.Current.Resolve<Nop.Core.Domain.Common.AdminAreaSettings>().GridPageSizes;
+
+    //page title
+    ViewBag.Title = "Quản lý thông tin mẫu số, ký hiệu và mệnh giá vé";
+}
+
+<div class="section-header">
+    <div class="title">
+        <img src="@Url.Content("~/Content/chonve/nxmenu/phoive.png")" alt="" />
+        @ViewBag.Title
+    </div>
+</div>
+
+
+<table style="width:100%">
+    <tr>
+        <td style="width:50%;vertical-align:top">
+            <div id="grid-mauve"></div>
+
+            <script>
+                var indexrow = 0;
+                $(document).ready(function () {
+                    $("#grid-mauve").kendoGrid({
+                        dataSource: {
+                            transport: {
+                                read: {
+                                    url: "/GiaoDichKeVe/ListMauVe",
+                                    dataType: "jsonp"
+                                },
+                                update: {
+                                    url: "/GiaoDichKeVe/EditMauVe",
+                                    dataType: "jsonp"
+                                },
+
+                                create: {
+                                    url: "/GiaoDichKeVe/CreateMauVe",
+                                    dataType: "jsonp"
+                                },
+                                parameterMap: function (options, operation) {
+                                    if (operation !== "read" && options.models) {
+                                        return { models: kendo.stringify(options.models) };
+                                    }
+                                }
+                            },
+                            batch: true,
+                            schema: {
+                                model: {
+                                    id: "Id",
+                                    fields: {
+                                        Id: { type: "number", editable: false, nullable: false },
+                                        MauVe: { type: "string", validation: { required: true }, editable: true },
+                                        KyHieu: { type: "string", validation: { required: true }, editable: true }
+                                    }
+                                }
+                            }
+                        },
+                        pageable: false,
+                        height: 300,
+                        toolbar: [{ name: "create", text: "Thêm mới" }],
+                        columns: [
+                             {
+                                 title: "STT",
+                                 template: "#= ++indexrow #",
+                                 width: 50,
+                                 attributes: { style: "text-align:center" },
+                             },
+                            { field: "MauVe", title: "Mẫu Số" },
+                            { field: "KyHieu", title: "Ký Hiệu Vé" },
+
+                            { command: [{ name: "edit", text: "Sửa" }], title: "&nbsp;" }],
+                        editable: "inline"
+                    });
+                });
+            </script>
+
+        </td>
+        <td style="vertical-align:top">
+            <div id="grid-menhgia"></div>
+
+            <script>
+                var indexrow1 = 0;
+                $(document).ready(function () {
+
+                    $("#grid-menhgia").kendoGrid({
+                        dataSource: {
+                            transport: {
+                                read: {
+                                    url: "/GiaoDichKeVe/ListMenhGiaVe",
+                                    dataType: "jsonp"
+                                },
+                                update: {
+                                    url: "/GiaoDichKeVe/EditMenhGiaVe",
+                                    dataType: "jsonp"
+                                },
+                                destroy: {
+                                    url: "/GiaoDichKeVe/DeleteMenhGiaVe",
+                                    dataType: "jsonp"
+                                },
+                                create: {
+                                    url: "/GiaoDichKeVe/CreateMenhGiaVe",
+                                    dataType: "jsonp"
+                                },
+                                parameterMap: function (options, operation) {
+                                    indexrow1 = 0;
+                                    if (operation !== "read" && options.models) {
+                                        return { models: kendo.stringify(options.models) };
+                                    }
+                                }
+                            },
+                            batch: true,
+                            schema: {
+                                model: {
+                                    id: "Id",
+                                    fields: {
+                                        Id: { type: "number", editable: false, nullable: false },
+                                        MenhGia: { type: "number", validation: { required: true }, editable: true }
+                                    }
+                                }
+                            }
+                        },
+                        pageable: false,
+                        height: 300,
+                        toolbar: [{ name: "create", text: "Thêm mới" }],
+                        columns: [
+
+                           {
+                               title: "STT",
+                               template: "#= ++indexrow1 #",
+                               width: 50,
+                               attributes: { style: "text-align:center" },
+                           },
+                            {
+                                field: "MenhGia", title: "Mệnh giá",
+                                type: "number",
+                                format: "{0:###,###,##0 đ}"
+                            },
+
+                            {
+                                command: [
+                                    { name: "edit", text: "Sửa" },
+                                    { name: "destroy", text: "Xóa" },
+                                ], title: "&nbsp;"
+                            }],
+                        editable: {
+                            confirmation: "Bạn có chắc chắn xóa mệnh giá này không ?",
+                            mode: "inline"
+                        },
+                    });
+                });
+            </script>
+        </td>
+    </tr>
+
+</table>
+

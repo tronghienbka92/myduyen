@@ -1,0 +1,390 @@
+﻿@model TimVeXeModel
+@using Nop.Web.Models.VeXeKhach
+@Html.HiddenFor(m => m.NgayDi)
+
+<script>
+    $(document).ready(function () {
+
+        $('#datmuavexeModal').on('hide.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var _action = button.attr("actiontype");
+            if (_action && _action == "1") {
+                return;
+            }
+            HuyChon();
+        });
+        $('#datmuavexeModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget) // Button that triggered the modal
+            //var recipient = button.data('whatever') // Extract info from data-* attributes
+            // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
+            // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+            var _id = button.attr("itemdata");
+            var _ngaydi = $("#@Html.FieldIdFor(m=>m.NgayDi)").val();
+            CreateChonVeGrid();
+            //$(".k-grid .k-grid-header").hide();
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: "@(Url.Action("GetSoDoGheXeInfo", "VeXeKhach"))",
+                data: {
+                    "NguonVeXeId": _id,
+                    "NgayDi": _ngaydi
+                },
+                success: function (data) {
+                    $.each(data, function (id, option) {
+                        TaoQuyTacSoDoGheXe(option.MaTran, option.TrangThai, option.QuyTac1, option.QuyTac2, option.KieuXeId, option.SoCot, option.SoHang);
+                    });
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert('Failed to retrieve states.');
+                }
+            });
+        });
+
+
+    });
+    function CreateChonVeGrid() {
+        $("#datmuavexechoncho-grid").kendoGrid({
+            dataSource: {
+                type: "json",
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("VitriChonList", "VeXeKhach"))",
+                        type: "POST",
+                        dataType: "json"
+                    },
+                    destroy: {
+                        url: "@Html.Raw(Url.Action("VitriChonDelete", "VeXeKhach"))",
+                        type: "POST",
+                        dataType: "json"
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors",
+                    model: {
+                        id: "Id",
+                        fields: {
+                            KyHieuGhe: { editable: false, type: "string" },
+                            Tang: { editable: false, type: "string" },
+                            GiaVe: { editable: false, type: "number" },
+                            GiaVeText: { editable: false, type: "string" },
+                            Id: { editable: false, type: "number" }
+                        }
+                    }
+                },
+                requestEnd: function (e) {
+                    if (e.type == "create" || e.type == "update") {
+                        this.read();
+                    }
+                },
+                aggregate: [
+                    { field: "KyHieuGhe", aggregate: "count" },
+                    { field: "GiaVe", aggregate: "sum", format: "{0:c}" },
+
+                ],
+                error: function (e) {
+                    display_kendoui_grid_error(e);
+                    // Cancel the changes
+                    this.cancelChanges();
+                },
+                pageSize: 48,
+                serverPaging: true,
+                serverFiltering: false,
+                serverSorting: false
+            },
+            dataBound: function (e) {
+                if (e.sender._data.length == 0) {
+                    $("#datmuavexechoncho-grid").hide();
+                }
+                else
+                    $("#datmuavexechoncho-grid").show();
+
+            },
+            pageable: {
+                refresh: false,
+                pageSizes: false,
+                info: false,
+
+            },
+            editable: {
+                mode: "inline"
+            },
+            scrollable: true,
+            height: 370,
+            columns: [{
+                field: "KyHieuGhe",
+                title: "@T("ChonVe.VeXeKhach.KyHieuGhe")",
+                aggregates: ["count"],
+                footerTemplate: "#=count#",
+                width: 60
+            }, {
+                field: "Tang",
+                title: "@T("ChonVe.VeXeKhach.Tang")",
+                width: 30
+            }, {
+                field: "GiaVe",
+                title: "@T("ChonVe.VeXeKhach.GiaVe")",
+                headerAttributes: { style: "text-align:right" },
+                footerAttributes: { style: "text-align:right" },
+                attributes: { style: "text-align:right" },
+                //integer format
+                template: "#:GiaVeText#",
+                aggregates: ["sum"],
+                footerTemplate: "#=kendo.toString(sum, 'n0')# đ"
+            }, {
+                command: [{
+                    name: "destroy",
+                    text: "@T("Admin.Common.Delete")"
+                }],
+                width: 80
+            }]
+        });
+    }
+    function HuyChon() {
+        $.ajax({
+            cache: false,
+            type: "POST",
+            url: "@(Url.Action("HuyChon", "VeXeKhach"))",
+            success: function (data) {
+                ChonGheRefresh();
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                //alert('Failed to retrieve states.');
+            }
+        });
+
+    }
+    function ChonGheRefresh() {
+        var grid = $('#datmuavexechoncho-grid').data('kendoGrid');
+        grid.dataSource.read();
+    }
+    function ChonGhe(kyhieu, tang) {
+        $.ajax({
+            cache: false,
+            type: "GET",
+            url: "@(Url.Action("KiemTraChoNgoi", "VeXeKhach"))",
+            data: {
+                "KyHieuGhe": kyhieu,
+                "Tang": tang
+            },
+            success: function (data) {
+                if (data == "OK") {
+                    ChonGheRefresh();
+                }
+                else {
+                    alert("@T("ChonVe.VeXeKhach.DatMuaVe.DaMua")");
+                }
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                alert('Failed to retrieve states.');
+            }
+        });
+
+    }
+    function ChangeSizeModal(showtang) {
+        $('#datmuavexeTab1ContentCol1').removeClass("col-md-8");
+        $('#datmuavexeTab1ContentCol1').removeClass("col-md-6");
+        $('#datmuavexeTab1ContentCol2').removeClass("col-md-4");
+        $('#datmuavexeTab1ContentCol2').removeClass("col-md-6");
+
+        $('#datmuavexeModal').find(".modal-dialog").removeClass("modal-lg");
+        if (showtang) {
+            $('#datmuavexeModal').find(".modal-dialog").addClass("modal-lg");
+            $('#datmuavexeTab1ContentCol1').addClass("col-md-8");
+            $('#datmuavexeTab1ContentCol2').addClass("col-md-4");
+        }
+        else {
+            $('#datmuavexeTab1ContentCol1').addClass("col-md-6");
+            $('#datmuavexeTab1ContentCol2').addClass("col-md-6");
+        }
+    }
+    function TaoQuyTacSoDoGheXe(matran, trangthai, quytac1, quytac2, kieuxeid, socot, sohang) {
+        var tang = parseInt(kieuxeid);
+        var divsodo = $("#current_sodoghexe_quytac");
+        divsodo.html('');
+        var showtang = false;
+        if (tang == 2)
+            showtang = true;
+        ChangeSizeModal(showtang);
+
+        var _table1 = TaoBangCauHinhSoDo(matran, trangthai, quytac1, 1, socot, sohang, showtang);
+        var _table2 = "";
+        if (tang == 2)
+            _table2 = TaoBangCauHinhSoDo(matran, trangthai, quytac2, 2, socot, sohang, showtang)
+        divsodo.html(_table1 + _table2);
+    }
+    function TaoBangCauHinhSoDo(matran, trangthai, quytac, tang, socot, sohang, showtang) {
+        var _content = "<div class='divquytacsodoghe'>";
+        if (showtang)
+            _content = _content + "<h5>@T("ChonVe.LoaiXe.LoaiXe.ChonSoDoGhe.Tang") " + tang + "</h5>";
+        else
+            _content = _content + "<h5>&nbsp;</h5>";
+        _content = _content + "<table class='quytacsodoghe' cellpadding='0px' cellspacing='0px'>";
+        var _widthcol = 100 / socot;
+        for (var i = 1; i < sohang + 1; i++) {
+            _content = _content + "<tr>";
+            for (var j = 1; j < socot + 1; j++) {
+
+                if (i == 0 || j == 0) {
+                    _content = _content + "<td style='" + _widthcol + "%;vertical-align:bottom;padding:4px;'>";
+                }
+                else {
+                    _content = _content + "<td style='" + _widthcol + "%;'>";
+                    //_content=_content+"["+(j-1)+","+(i-1)+"]("+((i-1)*socot+j-1)+")="+matran[(i-1)*socot+j-1];
+
+                    if (parseInt(matran[(i - 1) * socot + j - 1]) == 1) {
+                        _content = _content + "<div>";
+                        var _trangthai = parseInt(trangthai[i * (socot + 1) + j]);
+                        if (_trangthai == 1)
+                            _content = _content + "<a href='javascript:ChonGhe(\"" + quytac[i * (socot + 1) + j] + "\"," + tang + ")'>";
+                        _content = _content + "<img src='/Content/Images/sodoghe/gheitemempty.png' /><br />";
+                        var _class = "quytacsodoghedamua";
+                        if (_trangthai == 1)
+                            _class = "quytacsodoghecontrong";
+                        if (_trangthai == 2)
+                            _class = "quytacsodoghedatcho";
+                        if (_trangthai == 22)
+                            _class = "quytacsodoghedatcho";
+                        if (_trangthai == 3)
+                            _class = "quytacsodoghegiucho";
+                        _content = _content + "<span class='" + _class + "'>" + quytac[i * (socot + 1) + j] + "</span>";
+                        if (_trangthai == 1)
+                            _content = _content + "</a>";
+                        _content = _content + "</div>";
+                    }
+
+                }
+
+                _content = _content + "</td>";
+            }
+            _content = _content + "</tr>";
+        }
+
+        _content = _content + "</table></div>";
+        return _content;
+    }
+</script>
+
+<!-- Modal -->
+<div class="modal fade" id="datmuavexeModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">@T("ChonVe.VeXeKhach.DatMuaVe")</h4>
+            </div>
+            <div class="modal-body" style="height:440px">
+                <div>
+                    <!-- Nav tabs -->
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li role="presentation" class="active"><a href="#datmuavexeTab2" aria-controls="home" role="tab" data-toggle="tab">@T("ChonVe.VeXeKhach.DatMuaVe.Buoc2")</a></li>
+                        <li role="presentation"><a href="#datmuavexeTab1" aria-controls="profile" role="tab" data-toggle="tab">@T("ChonVe.VeXeKhach.DatMuaVe.Buoc1")</a></li>
+                    </ul>
+                    <!-- Tab panes -->
+                    <div class="tab-content">
+                        <div role="tabpanel" class="tab-pane active" id="datmuavexeTab2">
+                            @datmuavexeTab2Content()
+                        </div>
+                        <div role="tabpanel" class="tab-pane" id="datmuavexeTab1">
+                            @datmuavexeTab1Content()
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="hidden" id="datmuavexeactiontype" value="0"><button type="button" class="btn btn-primary active" style="width:120px">@T("common.next")</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">@T("common.close")</button>
+            </div>
+        </div>
+    </div>
+</div>
+@helper datmuavexeTab1Content()
+{
+    <div class="row">
+        <div class="col-md-8" id="datmuavexeTab1ContentCol1">
+            <div id="current_sodoghexe_quytac" style="width:100%;">
+            </div>
+        </div>
+        <div class="col-md-4" id="datmuavexeTab1ContentCol2">
+            <h5></h5>
+            <div id="datmuavexechoncho-grid" style="margin-left:-25px"></div>
+
+        </div>
+    </div>
+}
+@helper datmuavexeTab2Content()
+{
+    <div class="row">
+        <div class="col-md-6">
+            <div class="row">
+                <div class="col">
+                    <h3>@T("ChonVe.VeXeKhach.DatMuaVe.ThongTinTuyen")</h3>
+                </div>
+            </div>
+            <div>
+
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="row">
+                <div class="col">
+                    <h3></h3>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<style>
+    .divquytacsodoghe {
+        width: 250px;
+        float: left;
+        margin-left: 10px;
+    }
+
+        .divquytacsodoghe h5 {
+            width: 100%;
+            text-align: center;
+            margin-top: 5px;
+        }
+
+    .quytacsodoghe {
+        width: 100%;
+        border: solid 1px #aea8a8;
+    }
+
+        .quytacsodoghe td {
+            vertical-align: middle;
+            text-align: center;
+            height: 50px;
+        }
+
+            .quytacsodoghe td div {
+                border: solid 1px #bebbbb;
+                margin: 2px;
+                padding: 2px;
+            }
+
+                .quytacsodoghe td div img {
+                    width: 25px;
+                    height: 28px;
+                }
+
+    .quytacsodoghecontrong {
+        color: #43a958;
+    }
+
+    .quytacsodoghedatcho {
+        color: #e0c21d;
+    }
+
+    .quytacsodoghegiucho {
+        color: #ff6a00;
+    }
+
+    .quytacsodoghedamua {
+        color: #892b2b;
+    }
+</style>

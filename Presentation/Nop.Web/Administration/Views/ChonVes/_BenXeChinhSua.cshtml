@@ -1,0 +1,219 @@
+﻿@model BenXeModel
+@using Nop.Admin.Models.ChonVes
+@using Nop.Core.Infrastructure
+@using Nop.Web.Framework.Events
+@using Nop.Services.Events
+@Html.ValidationSummary(false)
+@Html.HiddenFor(model => model.Id)
+@Html.HiddenFor(model => model.DiaChiId)
+@Html.HiddenFor(model => model.ThongTinDiaChi.Id)
+
+<div id="modeldetail-edit">
+    <ul>
+        <li @Html.RenderSelectedTabIndex(0, GetSelectedTabIndex())>
+            @T("ChonVe.NhaXe.TabThongTin")
+        </li>
+        <li @Html.RenderSelectedTabIndex(1, GetSelectedTabIndex())>
+            @T("ChonVe.Common.TabDiaChi")
+        </li>
+        <li @Html.RenderSelectedTabIndex(2, GetSelectedTabIndex())>
+            @T("ChonVe.Common.TabBanDo")
+        </li>
+    </ul>
+    <div>
+        @TabInfo()
+    </div>
+    <div>
+        @TabDiaChi()
+    </div>
+    <div>
+        @TabBanDo()
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        //khoi tao vi tri ban do
+        if ($("#@Html.FieldIdFor(model => model.Id)").val() == "0")
+            $("#btnSearchVitri").click();
+        var onActivate = function (e) {
+            var curtapid = $("#selected-tab-index").val();
+            if (curtapid == 2) {
+
+                var _diachi = $("#@Html.FieldIdFor(model => model.ThongTinDiaChi.DiaChi1)").val();
+                if (_diachi != "")
+                    _diachi = _diachi + ", ";
+                var _tinh = $("#@Html.FieldIdFor(model => model.ThongTinDiaChi.ProvinceID) option:selected").text();
+                var _huyen = $("#@Html.FieldIdFor(model => model.ThongTinDiaChi.QuanHuyenID)").val();
+                if (_huyen != "0")
+                    _huyen = $("#@Html.FieldIdFor(model => model.ThongTinDiaChi.QuanHuyenID) option:selected").text() + ", ";
+                else
+                    _huyen = "";
+                $("#addressinput").val(_diachi + _huyen + _tinh + ", Việt Nam");
+                if ($("#@Html.FieldIdFor(model => model.Id)").val() == "0")
+                    $("#btnSearchVitri").click();
+                else
+                    MapGoogleInitialize();
+            }
+
+        };
+        $("#modeldetail-edit").kendoTabStrip({
+            animation: {
+                open: {
+                    effects: "fadeIn"
+                }
+            },
+            activate: onActivate,
+            select: tabstrip_on_tab_select
+        });
+        $("#@Html.FieldIdFor(model => model.ThongTinDiaChi.ProvinceID)").change(function () {
+            var selectedItem = $(this).val();
+            var ddlStates = $("#@Html.FieldIdFor(model => model.ThongTinDiaChi.QuanHuyenID)");
+            $.ajax({
+                cache: false,
+                type: "GET",
+                url: "@(Url.Action("GetQuanHuyenByProvinceId", "ChonVes"))",
+                data: { "ProvinceId": selectedItem, "addSelectStateItem": "false" },
+                success: function (data) {
+                    ddlStates.html('');
+                    $.each(data, function (id, option) {
+                        ddlStates.append($('<option></option>').val(option.id).html(option.name));
+                    });
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert('Failed to retrieve states.');
+                }
+            });
+        });
+    });
+</script>
+@{
+    //custom tabs
+    var eventMessage = new AdminTabStripCreated(this.Html, "modeldetail-edit");
+    EngineContext.Current.Resolve<IEventPublisher>().Publish(eventMessage);
+    foreach (var eventBlock in eventMessage.BlocksToRender)
+    {
+        @eventBlock
+    }
+}
+
+@*save selected tab index*@
+<input type="hidden" id="selected-tab-index" name="selected-tab-index" value="@(GetSelectedTabIndex())">
+@helper TabInfo()
+{
+    <table class="adminContent">
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.TenBenXe):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.TenBenXe)
+                @Html.ValidationMessageFor(model => model.TenBenXe)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.PictureId):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.PictureId)
+                @Html.ValidationMessageFor(model => model.PictureId)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.HienThi):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.HienThi)
+                @Html.ValidationMessageFor(model => model.HienThi)
+            </td>
+        </tr>    
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.MoTa):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(x => x.MoTa, "RichEditor")
+                @Html.ValidationMessageFor(model => model.MoTa)
+            </td>
+        </tr>    
+    </table>
+}
+
+@helper TabDiaChi()
+{
+    <table class="adminContent">
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.ThongTinDiaChi.DiaChi1):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.ThongTinDiaChi.DiaChi1)
+                @Html.ValidationMessageFor(model => model.ThongTinDiaChi.DiaChi1)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.ThongTinDiaChi.DiaChi2):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.ThongTinDiaChi.DiaChi2)
+                @Html.ValidationMessageFor(model => model.ThongTinDiaChi.DiaChi2)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.ThongTinDiaChi.ProvinceID):
+            </td>
+            <td class="adminData">
+                @Html.DropDownListFor(model => model.ThongTinDiaChi.ProvinceID, Model.ThongTinDiaChi.AvailableStates)
+                @Html.ValidationMessageFor(model => model.ThongTinDiaChi.ProvinceID)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.ThongTinDiaChi.QuanHuyenID):
+            </td>
+            <td class="adminData">
+                @Html.DropDownListFor(model => model.ThongTinDiaChi.QuanHuyenID, Model.ThongTinDiaChi.AvailableQuanHuyens)
+                @Html.ValidationMessageFor(model => model.ThongTinDiaChi.QuanHuyenID)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.ThongTinDiaChi.MaBuuDien):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.ThongTinDiaChi.MaBuuDien)
+                @Html.ValidationMessageFor(model => model.ThongTinDiaChi.MaBuuDien)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.ThongTinDiaChi.DienThoai):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.ThongTinDiaChi.DienThoai)
+                @Html.ValidationMessageFor(model => model.ThongTinDiaChi.DienThoai)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                @Html.NopLabelFor(model => model.ThongTinDiaChi.Fax):
+            </td>
+            <td class="adminData">
+                @Html.EditorFor(model => model.ThongTinDiaChi.Fax)
+                @Html.ValidationMessageFor(model => model.ThongTinDiaChi.Fax)
+            </td>
+        </tr>
+    </table>
+}
+@helper TabBanDo()
+{
+    var dataDictAddress = new ViewDataDictionary();
+    //Merge ModelState (required for validation)
+    dataDictAddress.ModelState.Merge(ViewData.ModelState);
+    dataDictAddress.TemplateInfo.HtmlFieldPrefix = "ThongTinDiaChi";
+    @Html.Partial("_ViTriBanDo", Model.ThongTinDiaChi, dataDictAddress)
+
+}

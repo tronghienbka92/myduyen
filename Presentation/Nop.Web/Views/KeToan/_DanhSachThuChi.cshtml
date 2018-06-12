@@ -1,0 +1,164 @@
+﻿@model QLThuChiModel
+@using Nop.Web.Models.NhaXes
+@using Nop.Core.Infrastructure
+@{
+    decimal sodu = Model.TonDauKy;
+}
+<style>
+    .BangBaoCaoTongHop {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+        .BangBaoCaoTongHop, .BangBaoCaoTongHop tr, .BangBaoCaoTongHop tr td {
+            border: 1px solid #928d8d;
+            font-weight:normal;
+        }
+
+            .BangBaoCaoTongHop tr {
+                height: 30px;
+            }
+
+            .BangBaoCaoTongHop thead tr td {
+                font-weight: bold;
+                font-size: 16px;
+                text-align:center;
+            }
+</style>
+
+<table style="width:100%">
+    <tr>
+        <td style="width:100%;text-align:center;font-weight:bold">
+            <h1>SỔ QUỸ TIỀN MẶT</h1>         
+        </td>
+    </tr>
+    <tr>
+        <td style="width:100%">
+            <table class="BangBaoCaoTongHop">
+                <thead>
+                   
+                    <tr style="font-weight:bold;text-align:center">
+                        <td style="width:50px">
+                            STT
+                        </td> 
+                        <td style="width:50px">
+                            Mã
+                        </td> 
+                        <td style="width:120px">
+                            Ngày tạo
+                        </td> 
+                        <td style="width:90px">
+                            Ngày thực hiện
+                        </td> 
+                        <td style="width:150px">
+                            Thông tin xe
+                        </td> 
+                        <td style="width:80px">
+                            Mục
+                        </td> 
+                        <td style="">
+                            Diễn giải
+                        </td>                       
+                        <td style="width:90px">
+                            Thu (VNĐ)
+                        </td>                       
+                        <td style="width:90px">
+                            Chi (VNĐ)
+                        </td>  
+                        <td style="width:90px">
+                            Tồn (VNĐ)
+                        </td>     
+                        <td style="width:50px"></td>   
+                        <td>
+                            Phiếu thu,chi
+                           
+                        </td>   
+                                                         
+                    </tr>
+                </thead>
+                <tr style="font-weight:bold;text-align:right">
+
+                    <td colspan="7" style="text-align:right"><strong>Tồn đầu kỳ:</strong></td>
+                    <td></td>
+                    <td></td>                    
+                    <td style="text-align:right;padding-right:3px">@Model.TonDauKy.ToString("###,###,##0")</td>
+                    <td></td>
+                </tr>
+                @for (int i = 0; i < Model.thuchis.Count; i++)
+                {
+                    var item = Model.thuchis[i];
+                    if(item.isChi)
+                    {
+                        sodu=sodu-item.GiaTri;
+                    }
+                    else{
+                        sodu=sodu+item.GiaTri;
+                    }
+                    <text>
+                        <tr style="font-weight:bold;text-align:center">
+                            <td>
+                                @(i+1)
+                            </td>                          
+                            <td>
+                                <a href="javascript:ShowChiTiet(@item.Id);">@item.Ma</a> 
+                            </td>
+                            <td>
+                                @item.NgayTao.ToString("dd/MM/yyyy HH:mm")
+                            </td>
+                            <td>
+                                @item.NgayDi.ToString("dd/MM/yyyy")
+                            </td>
+                            <td>
+                                @item.thongtinchuyendi
+                            </td>
+                            <td>
+                                @item.tenloaithuchi
+                            </td>
+                            <td style="text-align:left">
+                                @item.DienGiai
+                            </td>
+                            <td style="text-align:right;padding-right:3px">
+                                @(item.isChi?"":item.GiaTri.ToString("###,###,##0"))
+                            </td>
+                            <td style="text-align:right;padding-right:3px">
+                                @(item.isChi ? item.GiaTri.ToString("###,###,##0"):"")
+                            </td>
+                            <td style="text-align:right;padding-right:3px">
+                                @(sodu.ToString("###,###,##0"))
+                            </td>       
+                            <td>
+                                <a href="/KeToan/ThuChiSua?id=@item.Id"><img src="~/Content/chonve/nhaxe/edit_action.png" /></a>
+                            </td>
+                            <td>
+                                @if (item.isChi)
+                                {
+                                    <a href="/NhaXeCauHinh/InPhieu?MaId=@((int)Nop.Core.Domain.NhaXes.ENNhaXeCauHinh.PHIEU_CHI)&Id=@item.Id" class="k-button" target="_blank">Phiếu chi</a>
+                                }
+                                else
+                                {
+                                    <a href="/NhaXeCauHinh/InPhieu?MaId=@((int)Nop.Core.Domain.NhaXes.ENNhaXeCauHinh.PHIEU_THU)&Id=@item.Id" class="k-button" target="_blank">Phiếu thu</a>
+                                }
+                               
+                                
+                            </td>
+                            
+                        </tr>
+                    </text>
+                }
+                
+                    <tr style="font-weight:bold;text-align:right">
+                        
+                            <td colspan="7" style="text-align:right"><strong>Tồn cuối kỳ:</strong></td>
+                            <td></td>
+                            <td></td>                                             
+                            <td style="text-align:right;padding-right:3px">
+                                @(sodu.ToString("###,###,##0"))
+                            </td>
+                            <td></td>       
+                    </tr>
+                   
+
+            </table>
+        </td>
+    </tr>
+</table>

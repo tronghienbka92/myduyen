@@ -1,0 +1,139 @@
+﻿@model OrderModel.PhieuThuChiModel
+@{
+    Layout = null;
+}
+<style>
+    .table{
+        width:770px;
+        margin-left:auto;
+        margin-right:auto;
+        
+    }
+    .strong {
+        margin-left:100px
+    }
+</style>
+<table class="table" cellspacing="2" cellpadding="2">
+    <tbody>
+        <tr>
+            <td style="text-align: center; vertical-align: top; width: 270px;">
+                CÔNG TY CỔ PHẦN CHONVE.VN
+                <br />
+                Địa chỉ: Số 123, đường Nguyễn Trãi, quận Thanh Xuân, Hà Nội.<br />
+                Số điện thoại: 04 123 123
+            </td>
+            <td style="width: 250px; vertical-align: top;">
+                <table style="width: 100%;" cellspacing="2" cellpadding="2">
+                    <tbody>
+                        <tr>
+                            <td>&nbsp;</td>
+                            <td style="text-align: center; font-size: 20px; font-weight: bold;">PHIẾU CHI</td>
+                            <td>&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td>&nbsp;</td>
+                            <td style="text-align: center; width: 120px;">Li&ecirc;n 1</td>
+                            <td style="text-align: left;">Số:&nbsp;[SOPHIEUCHI]</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left; padding-right: 40px;" colspan="3">Ng&agrave;y @DateTime.Now.Day th&aacute;ng @DateTime.Now.Month năm @DateTime.Now.Year</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+            <td style="vertical-align: top;" rowspan="2">
+                <table style="width: 100%;" cellspacing="2" cellpadding="2">
+                    <tbody>
+                        <tr>
+                            <td style="text-align: center; font-weight: bold;">Mẫu số 01 - TT</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: center; font-size: 12px;">(Ban h&agrave;nh theo QĐ số 48/2006/QĐ-BTC<br /> ng&agrave;y 14/09/2006 của Bộ trưởng BTC)</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left;">
+                                <table style="width: 100%; font-weight: bold;" cellspacing="0" cellpadding="0">
+                                    <tbody>
+                                        <tr>
+                                            <td style="text-align: left;">Quyển số :</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align: left;">Nợ :</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align: left;">C&oacute; :</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align: left;">C&oacute; :</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td style="vertical-align: top;" colspan="2">
+                <table style="width: 100%;" cellspacing="2" cellpadding="2">
+                    <tbody>
+                        <tr>
+                            <td style="height: 28px;" colspan="2">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td style="width: 15px;">&nbsp;</td>
+                            <td style="text-align: left;">Họ t&ecirc;n người nhận tiền :&nbsp; <strong >@Model.TenKhachHang</strong></td>
+
+                        </tr>
+                        <tr>
+                            <td>&nbsp;</td>
+                            <td style="text-align: left;">Địa chỉ :&nbsp;<strong class="strong">@Model.EmailKhachHang</strong></td>
+                        </tr>
+                        <tr>
+                            <td>&nbsp;</td>
+                            <td style="text-align: left;">L&yacute; do chi:&nbsp; <strong class="strong">Chi tiền hoàn trả vé</strong></td>
+                        </tr>
+                        <tr>
+                            <td>&nbsp;</td>
+                            <td style="text-align: left;">Số tiền:&nbsp; <strong class="strong">@Model.TongTienSo</strong></td>
+                        </tr>
+                        <tr>
+                            <td>&nbsp;</td>
+                            <td style="text-align: left;">Viết bằng chữ:&nbsp;<strong style="margin-left:50px">@Model.TongTienChu</strong></td>
+                        </tr>
+                        <tr>
+                            <td>&nbsp;</td>
+                            <td style="text-align: left;">K&egrave;m theo&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; chứng từ gốc</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td style="text-align: right; padding-right: 20px;" colspan="3">Ng&agrave;y @DateTime.Now.Day th&aacute;ng @DateTime.Now.Month năm @DateTime.Now.Year</td>
+        </tr>
+        <tr>
+            <td colspan="3">
+                <table style="width: 100%;" cellspacing="2" cellpadding="2">
+                    <tbody>
+                        <tr>
+                            <td style="text-align: center;"><strong>Gi&aacute;m đốc</strong><br /><em>(K&yacute;, họ t&ecirc;n, đ&oacute;ng dấu)</em></td>
+                            <td style="text-align: center;"><strong>Kế to&aacute;n trưởng</strong><br /><em>(K&yacute;, họ t&ecirc;n)</em></td>
+                            <td style="text-align: center;"><strong>Thủ quỹ</strong><br /><em>(K&yacute;, họ t&ecirc;n)</em></td>
+                            <td style="text-align: center;"><strong>Người lập phiếu</strong><br /><em>(K&yacute;, họ t&ecirc;n)</em></td>
+                            <td style="text-align: center; width: 120px;"><strong>Người nhận tiền</strong><br /><em>(K&yacute;, họ t&ecirc;n)</em></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td style="height: 80px;" colspan="3">&nbsp;</td>
+        </tr>
+        <tr>
+            <td colspan="3">Đ&atilde; nhận đủ số tiền (viết bằng chữ) : &nbsp;<strong>@Model.TongTienChu</strong></td>
+        </tr>
+    </tbody>
+</table>
+

@@ -1,0 +1,325 @@
+﻿@model GiaoDichKeVeModel
+@Html.ValidationSummary(false)
+
+@{
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+
+    //page title
+    ViewBag.Title = "Chỉnh sửa bán vé";
+}
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "bangiaove-form" }))
+{
+<div class="section-header">
+    <div class="title">
+        <img src="@Url.Content("~/Content/chonve/nxmenu/phoive.png")" alt="" />
+        @ViewBag.Title 
+    </div>
+    <div class="options">
+        <input type="submit" id="BanGiaoVe" name="save" class="k-button" value="Bàn giao vé" />&nbsp;
+       
+    </div>
+    </div>
+    <table class="adminContent">
+
+        @*<tr>
+            <td class="adminTitle">
+                Văn phòng:
+            </td>
+            <td class="adminData">
+                @Html.DropDownListFor(m => m.VanPhongId, Model.VanPhongs)
+            </td>
+        </tr>*@
+        <tr>
+            <td class="adminTitle">
+                Tổng số lượng vé bàn giao:
+            </td>
+            <td class="adminData">
+             @Model.SLBanGiao (Vé)
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                Tổng tiền bàn giao
+            </td>
+            <td class="adminData">
+                @Model.TienBanGiao
+            </td>
+        </tr>
+        <tr>
+            <td class="adminTitle">
+                Người nhận vé:
+            </td>
+            <td class="adminData">
+                
+                <input id="cbbSearchNguoiNhan" value="@Model.tennguoinhan" style="width:280px" />
+
+                @Html.HiddenFor(model => model.NguoiNhanId)
+                @Html.HiddenFor(model => model.tennguoinhan)
+
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="2" style="text-align:center">
+                <strong>LƯỢT ĐI</strong>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <div id="grid-vedi">Bạn hãy chọn thông tin người nhận vé</div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="text-align:center">
+                <strong>LƯỢT VỀ</strong>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <div id="grid-veve">Bạn hãy chọn thông tin người nhận vé</div>
+            </td>
+        </tr>
+
+    </table>
+}
+    <script>
+        $(document).ready(function () {
+          
+            function dataSearchNguoiNhan() {
+                var _hovaten = $('#cbbSearchNguoiNhan').data("kendoComboBox").text();
+                $('#@Html.FieldIdFor(model => model.tennguoinhan)').val(_hovaten);
+                return {
+                    SearchKhachhang: _hovaten
+                };
+            }
+            $('#cbbSearchNguoiNhan').kendoComboBox({
+                placeholder: "Tên người nhận",
+                dataTextField: "HoTen",
+                dataValueField: "Id",
+                filter: "contains",
+                autoBind: false,
+                minLength: 2,
+                dataSource: {
+                    type: "json",
+                    serverFiltering: true,
+                    transport: {
+                        read: {
+                            url: "@Html.Raw(Url.Action("CBBNhanVienNhanVe", "GiaoDichKeVe"))",
+                            data: dataSearchNguoiNhan
+                        }
+                    }
+                },
+                change: onChangeGui
+            });
+            function onChangeGui(e) {
+                //alert(e.index);
+                var DataItem = this.dataItem();
+                $("#@Html.FieldIdFor(model => model.NguoiNhanId)").val(DataItem.Id);
+                $('#@Html.FieldIdFor(model => model.tennguoinhan)').val(DataItem.HoTen);
+                
+
+            }
+        });
+        function LoadGiaoDichKeVeMenhGiaDi() {
+            $("#grid-vedi").html('');
+            //thong tin ve luot di
+            $("#grid-vedi").kendoGrid({
+                dataSource: {
+                    type: "json",
+                    transport: {
+                        read: {
+                            url: "/GiaoDichKeVe/_GetVeChoNhanVienHienTai",
+                            type: "POST",
+                            dataType: "json",
+                            data: dataVeDi
+                        }
+                    },
+                    schema: {
+                        data: "Data",
+                        total: "Total",
+                        errors: "Errors"
+                    },
+                    error: function (e) {
+                        display_kendoui_grid_error(e);
+                        // Cancel the changes
+                        this.cancelChanges();
+                    },
+                },
+                pageable: false,
+                columns: [
+                      {
+                          field: "STT", title: "STT", width: "120px",
+                          attributes: {
+                              style: "text-align: center;"
+                          },
+                      },
+                      {
+                          field: "MenhGia", title: "Mệnh giá", width: "120px",
+                          attributes: {
+                              style: "text-align: center;"
+                          },
+                          format: "{0:N0}"
+                      },
+                      {
+                          field: "SoLuong", title: "Số lượng", width: "120px",
+                          attributes: {
+                              style: "text-align: center;"
+                          },
+                          format: "{0:N0}"
+                      },
+                      {
+                          field: "SeriFrom", title: "Từ số", width: "120px",
+                          attributes: {
+                              style: "text-align: center;"
+                          }
+                      },
+                      {
+                          field: "SeriTo", title: "Đến số", width: "120px",
+                          attributes: {
+                              style: "text-align: center;"
+                          }
+                      },
+                      {
+                          field: "GhiChu", title: "Ghi chú",
+                          attributes: {
+                              style: "text-align: left;"
+                          }
+                      },
+                       {
+                           field: "MenhGiaId", title: "&nbsp;", width: "120px",
+                           attributes: {
+                               style: "text-align: center;"
+                           },
+                          
+                       }
+                ]
+            });
+        }
+
+        ///////// Load thong tin ve luot ve
+        function LoadGiaoDichKeVeMenhGiaVe() {
+            $("#grid-veve").html('');
+            //thong tin ve luot ve
+            $("#grid-veve").kendoGrid({
+                dataSource: {
+                    type: "json",
+                    transport: {
+                        read: {
+                            url: "/GiaoDichKeVe/_GetVeChoNhanVienHienTai",
+                            type: "POST",
+                            dataType: "json",
+                            data: dataVeVe
+                        }
+                    },
+                    schema: {
+                        data: "Data",
+                        total: "Total",
+                        errors: "Errors"
+                    },
+                    error: function (e) {
+                        display_kendoui_grid_error(e);
+                        // Cancel the changes
+                        this.cancelChanges();
+                    },
+                },
+                pageable: false,
+                columns: [
+                      {
+                          field: "STT", title: "STT", width: "120px",
+                          attributes: {
+                              style: "text-align: center;"
+                          },
+                      },
+                      {
+                          field: "MenhGia", title: "Mệnh giá", width: "120px",
+                          attributes: {
+                              style: "text-align: center;"
+                          },
+                          format: "{0:N0}"
+                      },
+                      {
+                          field: "SoLuong", title: "Số lượng", width: "120px",
+                          attributes: {
+                              style: "text-align: center;"
+                          },
+                          format: "{0:N0}"
+                      },
+                      {
+                          field: "SeriFrom", title: "Từ số", width: "120px",
+                          attributes: {
+                              style: "text-align: center;"
+                          }
+                      },
+                      {
+                          field: "SeriTo", title: "Đến số", width: "120px",
+                          attributes: {
+                              style: "text-align: center;"
+                          }
+                      },
+                      {
+                          field: "GhiChu", title: "Ghi chú",
+                          attributes: {
+                              style: "text-align: left;"
+                          }
+                      },
+                       {
+                           field: "MenhGiaId", title: "&nbsp;", width: "120px",
+                           attributes: {
+                               style: "text-align: center;"
+                           },
+                           
+                       }
+                ]
+            });
+        }
+        function dataVeDi() {
+            var data =
+                {
+
+                    isVeDi: 1,
+                  
+                };
+            return data;
+        }
+        function dataVeVe() {
+            var data =
+                {
+
+                    isVeDi: 0,
+                  
+                };
+            return data;
+        }
+        function RefreshVeLuotDi() {
+            var grid = $('#grid-vedi').data('kendoGrid');
+            grid.dataSource.read();
+        }
+        function RefreshVeLuotVe() {
+            var grid = $('#grid-veve').data('kendoGrid');
+            grid.dataSource.read();
+        }
+
+        function TieuVe(MenhGiaId) {
+            var NhanvienId = $('#@Html.FieldIdFor(model => model.NguoiNhanId)').val();
+            var WindowTieuVe = $("#TieuVe");
+            WindowTieuVe.html("");
+            if (WindowTieuVe.data("kendoWindow"))
+                WindowTieuVe.data("kendoWindow").destroy()
+            WindowTieuVe.kendoWindow({
+                modal: true,
+                width: "500px",
+                title: "Tiêu vé ",
+                content: "@(Url.Action("TieuVe", "GiaoDichKeVe"))" + "?MenhGiaId=" + MenhGiaId + "&NhanVienId=" + NhanvienId,
+                actions: ["Close"]
+            });
+
+            WindowTieuVe.data('kendoWindow').center().open();
+        }
+
+        function SetCloseWindowTieuVe() {
+            $("#TieuVe").data('kendoWindow').close();
+
+        }
+
+    </script>
+   

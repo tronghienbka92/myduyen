@@ -1,0 +1,83 @@
+﻿@model Nop.Web.Models.NhaXes.NhaXeInfoModel
+@{
+    ViewBag.Title = "NhaXeInfoConnect";
+    Layout = "~/Views/Shared/_ColumnsOne.cshtml";
+}
+
+<h2 class="title text-center">@Model.TenNhaXe</h2>
+<div id="customer-edit">
+    <ul>
+        <li style="border-color: #CABCBC" @Html.RenderSelectedTabIndex(0, GetSelectedTabIndex())>
+            @T("Account.BangGia")
+        </li>
+        <li style="border-color: #CABCBC" @Html.RenderSelectedTabIndex(1, GetSelectedTabIndex())>
+            @T("Account.Connect")
+        </li>
+        <li style="border-color: #CABCBC" @Html.RenderSelectedTabIndex(2, GetSelectedTabIndex())>
+            @T("Account.assess")
+        </li>
+    </ul>
+
+    <div style="border-color: #CABCBC">
+        @TabBangGia()
+    </div>
+    <div style="border-color: #CABCBC">
+        @TabConnect()
+    </div>
+    <div style="border-color: #CABCBC">
+        @TabAssess()
+    </div>
+
+</div>
+<script>
+    $(document).ready(function () {
+        $("#customer-edit").kendoTabStrip({
+            animation: {
+                open: {
+                    effects: "fadeIn"
+                }
+            },
+            select: tabstrip_on_tab_select
+        });
+
+    });
+</script>
+@helper  TabBangGia()
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th class="col-md-3">@T("NhaXeInfo.BangGia.HangXe")</th>
+                <th class="col-md-3">@T("NhaXeInfo.BangGia.TuyenDuong")</th>
+                <th class="col-md-3">@T("NhaXeInfo.BangGia.SoChuyen")</th>
+                <th class="col-md-3">@T("NhaXeInfo.BangGia.GiaVe")</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.HanhTrinhs)
+            {
+                <tr>
+                    <td>@Model.TenNhaXe</td>
+                    <td> @item.Mota 
+                    <hr style="border:none" />
+                     @item.LoaiXe</td>
+                    <td>@item.SoChuyenTrongNgay</td>
+                    <td>@item.GiaVeToanTuyenText</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+}
+@helper TabConnect()
+{
+    
+}
+@helper  TabAssess()
+{
+}
+
+
+
+
+

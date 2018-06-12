@@ -1,0 +1,100 @@
+﻿@model TuyenVeXeHomeModel
+@using Nop.Web.Models.VeXeKhach
+
+<div class="row row-content">
+    <div class="container">
+        <div class="row-xxx">
+            <div class="col-md-4">
+                <div class="bus-start active" data-active=".nav1">
+                    <a href="jvascript:void(0)"><img alt="" src="/Themes/ChonVeV1/Content/images/hanoi.png" /></a>
+                    <span>Xuất phát từ @Model.TenTuyenXe1</span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="bus-start" data-active=".nav2">
+                    <a href="jvascript:void(0)"><img alt="" src="/Themes/ChonVeV1/Content/images/hochicminh.png" /></a>
+                    <span>Xuất phát từ @Model.TenTuyenXe2</span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="bus-start" data-active=".nav3">
+                    <a href="jvascript:void(0)"><img alt="" src="/Themes/ChonVeV1/Content/images/danang.png" /></a>
+                    <span>Xuất phát từ @Model.TenTuyenXe3</span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="row row-tp-dd">
+                <div class="tab active nav1">
+                    <h3 class="title-map-tick">Các tuyến xe khách phổ biến xuất phát từ <span>TP HÀ NỘI</span></h3>
+                    <div class="col-md-6">
+                        <div class="box-tuyenxe">
+                            @for (int i = 0; i < Model.tuyenxes1.Count/2 ;i++ )
+                            {
+                                <text>
+                                    @Html.Partial("_TuyenVeXe", Model.tuyenxes1[i])
+                                </text>
+                            }                            
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="box-tuyenxe">
+                            @for (int i = Model.tuyenxes1.Count / 2; i < Model.tuyenxes1.Count; i++)
+                            {
+                                <text>
+                                    @Html.Partial("_TuyenVeXe", Model.tuyenxes1[i])
+                                </text>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="tab nav2">
+                    <h3 class="title-map-tick">Các tuyến xe khách phổ biến xuất phát từ <span>TP HỒ CHÍ MINH</span></h3>
+                    <div class="col-md-6">
+                        <div class="box-tuyenxe">
+                            @for (int i = 0; i < Model.tuyenxes2.Count / 2; i++)
+                            {
+                                <text>
+                                    @Html.Partial("_TuyenVeXe", Model.tuyenxes2[i])
+                                </text>
+                            }
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="box-tuyenxe">
+                            @for (int i = Model.tuyenxes2.Count / 2; i < Model.tuyenxes2.Count; i++)
+                            {
+                                <text>
+                                    @Html.Partial("_TuyenVeXe", Model.tuyenxes2[i])
+                                </text>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="tab nav3">
+                    <h3 class="title-map-tick">Các tuyến xe khách phổ biến xuất phát từ <span>ĐÀ NẴNG</span></h3>
+                    <div class="col-md-6">
+                        <div class="box-tuyenxe">
+                            @for (int i = 0; i < Model.tuyenxes3.Count / 2; i++)
+                            {
+                                <text>
+                                    @Html.Partial("_TuyenVeXe", Model.tuyenxes3[i])
+                                </text>
+                            }
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="box-tuyenxe">
+                            @for (int i = Model.tuyenxes3.Count / 2; i < Model.tuyenxes3.Count; i++)
+                            {
+                                <text>
+                                    @Html.Partial("_TuyenVeXe", Model.tuyenxes3[i])
+                                </text>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

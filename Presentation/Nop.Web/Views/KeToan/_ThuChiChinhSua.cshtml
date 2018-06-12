@@ -1,0 +1,213 @@
+﻿@model ThuChiModel
+@using Nop.Web.Models.NhaXes
+@Html.ValidationSummary(false)
+@Html.HiddenFor(model => model.Id)
+@Html.HiddenFor(model=>model.isChi)
+@{
+}
+<table class="adminContent">
+    <tr>
+        <td class="adminTitle">
+            Ngày thực hiện:
+        </td>
+        <td class="adminData">
+            @Html.EditorFor(model => model.NgayGiaoDich)
+        </td>
+    </tr>
+    @if (Model.ChuyenDiId > 0)
+    {
+        <tr>
+            <td class="adminTitle">
+                Thông tin xe:
+            </td>
+            <td class="adminData">
+                @Model.thongtinchuyendi
+            </td>
+        </tr>
+    }
+    <tr>
+        <td class="adminTitle">
+            Mục :
+        </td>
+        <td class="adminData">
+            <input id="cbbSearchLoaiThuChi" value="@Model.tenloaithuchi" style="width:250px" />
+            @Html.HiddenFor(model => model.LoaiThuChiId)
+            @Html.HiddenFor(model => model.tenloaithuchi)
+            <script>
+    $(document).ready(function () {
+        function dataSearchLoaiThuChi() {
+            var _ten = $('#cbbSearchLoaiThuChi').data("kendoComboBox").text();
+            $("#@Html.FieldIdFor(model => model.tenloaithuchi)").val(_ten);
+            return {
+                Ten: _ten
+            };
+        }
+        $('#cbbSearchLoaiThuChi').kendoComboBox({
+            placeholder: "Tên loại thu chi",
+            dataTextField: "Ten",
+            dataValueField: "Id",
+            filter: "contains",
+            autoBind: false,
+            minLength: 2,
+            dataSource: {
+                type: "json",
+                serverFiltering: true,
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("LoaiThuChiTimKiem", "KeToan"))",
+                        data: dataSearchLoaiThuChi
+                    }
+                }
+            },
+            change: onChangeLoaiThuChi
+        });
+        function onChangeLoaiThuChi(e) {
+            var DataItem = this.dataItem();
+            if (DataItem.Id > 0) {
+                $("#@Html.FieldIdFor(model => model.LoaiThuChiId)").val(DataItem.Id);
+                $("#@Html.FieldIdFor(model => model.tenloaithuchi)").val(DataItem.Ten);
+            }
+        }
+    });
+            </script>
+
+        </td>
+    </tr>
+    <tr>
+        <td class="adminTitle">
+            Số tiền (VNĐ):
+        </td>
+        <td class="adminData">
+            @Html.EditorFor(model => model.GiaTri) &nbsp; <span style="font-weight:bold;color:red" id="lbSoTienBangChu"></span>
+            <script>
+    function ShowSoTienBangChu(sotien) {
+        $("#lbSoTienBangChu").html(DocTienBangChu(sotien));
+    }
+    $(document).ready(function () {
+        var numerictextbox = $("#@Html.FieldIdFor(model => model.GiaTri)").data("kendoNumericTextBox");
+
+        numerictextbox.bind("change", function () {
+            var value = this.value();
+            ShowSoTienBangChu(value); //value is the selected date in the numerictextbox
+        });
+        $("#@Html.FieldIdFor(model => model.GiaTri)").keyup(function (event) {
+                        if (event.keyCode == 13) {
+                            $('#@Html.FieldIdFor(model => model.DienGiai)').focus();
+                return false;
+            }
+        });
+        ShowSoTienBangChu('@Model.GiaTri');
+    });
+            </script>
+        </td>
+    </tr>
+    <tr>
+        @if (Model.isChi)
+        {
+            <td>Người nộp tiền:</td>
+        }
+        else
+        {
+            <td>Người thu:</td>
+        }
+       
+        <td style="text-align:left">
+            <input id="cbbSearchNguoiThu" value="@Model.tennguoithu" style="width:280px" />
+            @Html.HiddenFor(model => model.NguoiThuId)
+            <script>
+                $(document).ready(function () {
+                    function dataSearchNguoiThu() {
+                        var _hovaten = $('#cbbSearchNguoiThu').data("kendoComboBox").text();
+                        return {
+                            SearchKhachhang: _hovaten
+                        };
+                    }
+                    $('#cbbSearchNguoiThu').kendoComboBox({
+                        placeholder: "Họ và tên",
+                        dataTextField: "HoTen",
+                        dataValueField: "Id",
+                        filter: "contains",
+                        autoBind: false,
+                        minLength: 2,
+                        dataSource: {
+                            type: "json",
+                            serverFiltering: true,
+                            transport: {
+                                read: {
+                                    url: "@Html.Raw(Url.Action("CBBNhanVienNhanVe", "GiaoDichKeVe"))",
+                                    data: dataSearchNguoiThu
+                                }
+                            }
+                        },
+                        change: onChangeNguoiThu
+                    });
+                    function onChangeNguoiThu(e) {
+                        var DataItem = this.dataItem();
+                        $("#@Html.FieldIdFor(model => model.NguoiThuId)").val(DataItem.Id);
+
+                    }
+                });
+            </script>
+        </td>
+
+    </tr>
+    <tr>
+        @if (Model.isChi)
+        {
+            <td>Người chi:</td>
+        }
+        else
+        {
+            <td>Người nộp:</td>
+        }
+        
+        <td style="text-align:left">
+            <input id="cbbSearchNguoiNop" value="@Model.tennguoinop" style="width:280px" />
+            @Html.HiddenFor(model => model.NguoiNopId)
+            <script>
+                $(document).ready(function () {
+                    function dataSearchNguoiNop() {
+                        var _hovaten = $('#cbbSearchNguoiNop').data("kendoComboBox").text();
+                        return {
+                            SearchKhachhang: _hovaten
+                        };
+                    }
+                    $('#cbbSearchNguoiNop').kendoComboBox({
+                        placeholder: "Họ và tên",
+                        dataTextField: "HoTen",
+                        dataValueField: "Id",
+                        filter: "contains",
+                        autoBind: false,
+                        minLength: 2,
+                        dataSource: {
+                            type: "json",
+                            serverFiltering: true,
+                            transport: {
+                                read: {
+                                    url: "@Html.Raw(Url.Action("CBBNhanVienNhanVe", "GiaoDichKeVe"))",
+                                    data: dataSearchNguoiNop
+                                }
+                            }
+                        },
+                        change: onChangeNguoiNop
+                    });
+                    function onChangeNguoiNop(e) {
+                        var DataItem = this.dataItem();
+                        $("#@Html.FieldIdFor(model => model.NguoiNopId)").val(DataItem.Id);
+
+                    }
+                });
+            </script>
+
+        </td>
+    </tr>
+
+    <tr>
+        <td class="adminTitle" style="vertical-align:top">
+            Diễn giải:
+        </td>
+        <td class="adminData">
+            @Html.TextAreaFor(model => model.DienGiai, new { @style="width:650px;height:120px;" })
+        </td>
+    </tr>
+</table>

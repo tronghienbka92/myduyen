@@ -1,0 +1,183 @@
+﻿@model Nop.Web.Models.NhaXes.QuanlyPhoiVeModel.KhachHangDatMuaVeModel
+@Html.HiddenFor(m => m.NgayDiDangChon)
+@Html.HiddenFor(m => m.NguonVeXeIdDangChon)
+<table style="text-align:left;">
+    <tr>
+        <td class="adminTitle">
+            Tuyến vé:
+        </td>
+        <td class="adminData">
+            @Html.DropDownListFor(m=>m.ChangId,Model._changs)
+        </td>
+    </tr>
+    <tr>
+        <td class="adminTitle">            
+        </td>
+        <td class="adminData">
+            @Html.CheckBoxFor(model => model.isKhachVangLai) &nbsp; Khách vãng lai
+        </td>
+    </tr>
+    <tr id="trTenKhachHang">
+        <td class="adminTitle">
+            Tên khách hàng:
+        </td>
+        <td class="adminData">
+            <input id="cbbSearchKhachHang" value="@Model.SearchKhachHang" style="width:100%" />
+            @Html.HiddenFor(model => model.Id)
+            @Html.HiddenFor(model => model.TenKhachHang)
+        </td>
+    </tr>    
+    <tr id="trDienThoai">
+        <td class="adminTitle">
+            Điện thoại:
+        </td>
+        <td class="adminData">
+            @Html.EditorFor(model => model.SoDienThoai)
+        </td>
+    </tr>
+    <tr>
+        <td class="adminTitle">
+            Thanh toán:
+        </td>
+        <td class="adminData">
+            @Html.CheckBoxFor(model => model.DaThanhToan) &nbsp; Đã thanh toán ?
+        </td>
+    </tr>
+    <tr>
+        <td class="adminTitle">
+        </td>
+        <td class="adminData">
+            @Html.CheckBoxFor(model => model.IsForKid) &nbsp; Vé cho trẻ em(giảm 50%) ?
+        </td>
+    </tr>    
+    <tr>
+        <td class="adminTitle" style="vertical-align:top">
+            Ghi chú:
+        </td>
+        <td class="adminData">
+            @Html.TextAreaFor(model => model.GhiChu)
+        </td>
+    </tr>
+    <tr>
+        <td></td>
+        <td class="adminData">
+            <input type="button" class="k-button" id="btnThanhToanGiuCho" value="@T("common.yes")" />
+        </td>
+    </tr>
+</table>
+
+<script type="text/javascript">
+    function AnHienKhachVangLai() {
+        var isChecked = $('#@Html.FieldIdFor(model => model.isKhachVangLai)').is(':checked');
+
+        if (!isChecked) {
+            $('#trTenKhachHang').show();
+            $('#trDienThoai').show();
+        }
+        else {
+            $('#trTenKhachHang').hide();
+            $('#trDienThoai').hide();
+        }
+
+
+    }
+    $(document).ready(function () {
+        AnHienKhachVangLai();
+        setTimeout(function () {
+            $('#@Html.FieldIdFor(model => model.DaThanhToan)').focus();
+        }, 500);
+        $('#@Html.FieldIdFor(model => model.isKhachVangLai)').change(function () {
+            AnHienKhachVangLai();
+        });
+        $('#cbbSearchKhachHang').kendoComboBox({
+            placeholder: "Thông tin tên hoặc số điện thoại",
+            dataTextField: "SearchInfo",
+            dataValueField: "Id",
+            filter: "contains",
+            autoBind: false,
+            minLength: 2,
+            dataSource: {
+                type: "json",
+                serverFiltering: true,
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("CbbListKhachHangInNhaXe", "NhaXes"))",
+                        data: dataSearchKhachHang
+                    }
+                }
+            },
+            change: onChange
+        });
+        function onChange() {
+            var DataItem = this.dataItem();
+            $("#@Html.FieldIdFor(model => model.Id)").val(DataItem.Id);
+            $('#@Html.FieldIdFor(model => model.SoDienThoai)').val(DataItem.DienThoai);
+            $('#@Html.FieldIdFor(model => model.TenKhachHang)').val(DataItem.HoTen);
+
+        }
+
+        function dataSearchKhachHang() {
+            var hovaten = $('#cbbSearchKhachHang').data("kendoComboBox").text();
+            $('#@Html.FieldIdFor(model => model.TenKhachHang)').val(hovaten);
+            return {
+                SearchKhachhang: hovaten
+            };
+        }
+        $('#btnThanhToanGiuCho').click(function () {
+            var isChecked = $('#@Html.FieldIdFor(model => model.isKhachVangLai)').is(':checked');
+            if (!isChecked) {
+                if ($('#@Html.FieldIdFor(model => model.TenKhachHang)').val() == "") {
+                    alert('Bạn chưa nhập tên khách hàng');
+                    $('#@Html.FieldIdFor(model => model.TenKhachHang)').focus();
+                    return;
+                }
+                if ($('#@Html.FieldIdFor(model => model.SoDienThoai)').val() == "") {
+                    alert('@T("ChonVe.NhaXe.QuanLyPhoiVe.DatVe.chuanhapsdt")');
+                    $('#@Html.FieldIdFor(model => model.SoDienThoai)').focus();
+                    return;
+                }
+            }
+            $('#btnThanhToanGiuCho').attr('disabled', true);
+            var paradata = additionalData();
+            $.ajax({
+                cache: false,
+                type: "POST",
+                data: paradata,
+                dataType: 'json',
+                url: "@(Url.Action("ThanhToanGiuCho", "NhaXes"))",
+                success: function (data) {
+                    if (data=="OK")
+                        CloseWindowDatMuaVe(true);
+                    else
+                    {
+                        alert("Có lỗi trong đặt vé, bạn hãy kiểm tra thông tin")
+                        $('#btnThanhToanGiuCho').attr('disabled', false);
+                    }
+                        
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    return alert('Error while process ThanhToanGiuCho');
+                    $('#btnThanhToanGiuCho').attr('disabled', false);
+                }
+
+            });
+        });
+        function additionalData() {
+            return {
+                "NguonVeId": $('#@Html.FieldIdFor(model => model.NguonVeXeIdDangChon)').val(),
+                "ChangId": $('#@Html.FieldIdFor(model => model.ChangId)').val(),
+                "NgayDiDangChon": $('#@Html.FieldIdFor(model => model.NgayDiDangChon)').val(),
+                "TenKhachHang": $('#@Html.FieldIdFor(model => model.TenKhachHang)').val(),
+                "SoDienThoai": $('#@Html.FieldIdFor(model => model.SoDienThoai)').val(),
+                "DaThanhToan": $('#@Html.FieldIdFor(model => model.DaThanhToan)').is(':checked'),
+                "Id": $('#@Html.FieldIdFor(model => model.Id)').val(),
+                "GhiChu": $('#@Html.FieldIdFor(model => model.GhiChu)').val(),
+                "IsForKid": $('#@Html.FieldIdFor(model => model.IsForKid)').is(':checked'),
+                "isKhachVangLai": $('#@Html.FieldIdFor(model => model.isKhachVangLai)').is(':checked'),
+            };
+        }
+
+    });
+
+
+</script>

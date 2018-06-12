@@ -1,0 +1,201 @@
+﻿@model ListPhieuModel
+@using Nop.Web.Models.ChuyenPhatNhanh
+@{
+    Layout = "~/Views/Shared/_NhaXeLayout.cshtml";
+}
+
+<table style="width:100%">
+    <tr>
+        <td style="text-align:left;border-right:2px solid #808080;border-bottom:2px solid #808080; ">
+            <span style="font-weight:bold;font-size:15px">Danh sách hàng tồn, thất lạc</span> [<span style="color:red;font-style:italic">Bạn đang thao tác tại văn phòng: <strong>@Model.TenVanPhongHienTai</strong></span>]        
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <table style="width:100%">
+                <tr>
+                    <td>
+                        <table style="width:100%">
+                            <tr>
+                                @*<td style="text-align:right;width:80px;">
+                                    Ngày ký gửi từ:
+                                </td>
+                                <td style="width:120px;">
+                                    @Html.EditorFor(m => m.TuNgay)
+                                </td>
+                                <td style="text-align:right;width:50px;">
+                                    đến:
+                                </td>
+                                <td style="width:120px;">
+                                    @Html.EditorFor(m => m.DenNgay)
+                                </td>*@
+                                <td>
+                                    @Html.TextBoxFor(model => model.HangHoaInfo, new { placeholder = "Thông tin người gửi, nhận, tên hàng...", @style = "width:95%" })
+                                </td>
+                                <td style="width:120px;">
+                                    @Html.DropDownListFor(m => m.TrangThaiId,Model.trangthais)
+                                </td>
+                                <td style="width:120px;">
+                                    <input type="button" id="btnTimKiem" class="k-button" value="Lọc" style="width:100%" />
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div id="phieuchuyenphat-grid"></div>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+<script>
+    function LoadDanhSachPhieuChuyenPhat() {
+
+        var dataadd = {
+            HangHoaInfo: $('#@Html.FieldIdFor(model => model.HangHoaInfo)').val(),
+            TrangThaiId: $('#@Html.FieldIdFor(model => model.TrangThaiId)').val(),
+            VanPhongNhanId: '@(Model.VanPhongNhanId)',
+        };
+
+        $("#phieuchuyenphat-grid").kendoGrid({
+            dataSource: {
+                type: "json",
+                transport: {
+                    read: {
+                        url: "@Html.Raw(Url.Action("_GetHangTonVaThatLac", "HangHoa"))",
+                        type: "POST",
+                        dataType: "json",
+                        data: dataadd
+                    }
+                },
+                schema: {
+                    data: "Data",
+                    total: "Total",
+                    errors: "Errors"
+                },
+                error: function (e) {
+                    display_kendoui_grid_error(e);
+                    // Cancel the changes
+                    this.cancelChanges();
+                },
+            },
+            scrollable: true,
+            columns: [{
+                field: "MaPhieu",
+                title: "Mã phiếu",
+                attributes: { style: "text-align:center" },
+                template: '<a href="javascript:ViewPBN(#=Id#)">#=MaPhieu#</a>'
+            }, {
+                field: "ThongTinXe",
+                title: "Thông tin xe",
+                width: "400px",
+            }, {
+                field: "VanPhongNhanText",
+                title: "Tên văn phòng nhận"
+            }, {
+                field: "NguoiGui.HoTen",
+                title: "Tên người gửi",
+                template: "#=NguoiGui.HoTen#(#=NguoiGui.SoDienThoai#)"
+            }, {
+                field: "NguoiNhan.HoTen",
+                title: "Tên người nhận",
+                template: "#=NguoiNhan.HoTen#(#=NguoiNhan.SoDienThoai#)"
+            }, {
+                field: "TenHang",
+                title: "Thông tin"
+            }, {
+                field: "TongCuocDaThanhToan",
+                title: "Tổng cước đã thanh toán",
+                type: "number",
+                format: "{0:n0} đ",
+                attributes: { style: "text-align:right" },
+            }, {
+                title: "Tổng cước chưa thanh toán",
+                type: "number",
+                template: "#=TongTienCuoc-TongCuocDaThanhToan#",
+                format: "{0:n0} đ",
+                attributes: { style: "text-align:right" },
+            }, {
+                field: "NgayTao",
+                title: "Ngày tạo",
+                type: "date",
+                format: "{0:dd/MM/yyyy}",
+                attributes: { style: "text-align:center" },
+
+            }, {
+                field: "DaSMS",
+                title: "SMS",
+                template: '#=DaSMS==0?"Chưa":"Đã SMS("+DaSMS+")"#',
+                attributes: { style: "text-align:center" },
+                headerAttributes: { style: "text-align: center;" }
+            }, {
+                field: "TrangThaiText",
+                title: "Trạng thái"
+            }, {
+                field: "SoNgayTon",
+                title: "Số ngày"
+            },  {
+                field: "Id",
+                title: "Nhật ký",
+                template: '<a href="javascript:LinkNhatKi(\'#=Id#\' )" >Nhật kí</a>',
+                attributes: { style: "text-align:center" },
+                headerAttributes: { style: "text-align: center;" }
+            }]
+        });
+
+    }
+
+    $(document).ready(function () {
+        LoadDanhSachPhieuChuyenPhat();
+        $('#btnTimKiem').click(function () {
+            LoadDanhSachPhieuChuyenPhat();
+        });
+        $("#@Html.FieldIdFor(m=>m.TrangThaiId)").change(function (event) {
+
+            LoadDanhSachPhieuChuyenPhat();
+        });
+        $("#phieuchuyenphat-grid").kendoTooltip({
+            filter: "td", //this filter selects the second column's cells
+            position: "right",
+            content: function (e) {
+                var dataItem = $("#phieuchuyenphat-grid").data("kendoGrid").dataItem(e.target.closest("tr"));
+                var content = "<div style='text-align:left'><strong>Thông tin:</strong> " + dataItem.MaPhieu + " - " + dataItem.TenHang + " (" + kendo.toString(dataItem.NgayTao, "dd/MM HH:mm") + ")<br />";
+                content = content + "<strong>Văn phòng nhận:</strong> " + dataItem.VanPhongNhanText + "<br />";
+                content = content + "<strong>Người gửi:</strong> " + dataItem.NguoiGuiText + " - " + "<strong>Người nhận:</strong> " + dataItem.NguoiNhanText + "<br />";
+                content = content + "<strong>Người tạo:</strong> " + dataItem.TenNhanvienGiaoDich + "<br />";
+                content = content + "<strong>Tổng cước:</strong> " + kendo.toString(dataItem.TongTienCuoc, "n0") + " đ" + " - " + "<strong>Đã TT:</strong> " + kendo.toString(dataItem.TongCuocDaThanhToan, "n0") + " đ";
+                content = content + "</div>";
+                return content;
+            }
+        }).data("kendoTooltip");
+    });
+    function LinkNhatKi(Id)
+    {
+
+        var windownhatky = $("#divNhatKy");
+        windownhatky.html("");
+
+        windownhatky.kendoWindow({
+            modal: true,
+            width: "500px",
+            height:"350px",
+            title: "Nhật ký phiếu chuyển phát",
+            content: "@(Url.Action("_NhatKiPhieuChuyenPhat", "HangHoa"))" + "?Id=" + Id,
+            actions: ["Close"]
+        });
+
+        windownhatky.data('kendoWindow').center().open();
+    }
+
+</script>
+
+
+<style>
+    .k-grid table tr:hover td {
+        background: rgba(220, 239, 173, 0.38) !important;
+    }
+</style>
+<div style="display:none" id="divNhatKy"></div>

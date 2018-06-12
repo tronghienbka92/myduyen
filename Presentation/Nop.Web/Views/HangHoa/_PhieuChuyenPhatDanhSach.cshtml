@@ -1,0 +1,83 @@
+﻿@model PhieuVanChuyenModel
+@using Nop.Web.Models.ChuyenPhatNhanh
+<table style="width:100%">
+    <tr>
+        <td style="text-align:left;">
+            <h3>Phiếu vận chuyển: @Model.SoLenh</h3>
+        </td>
+    </tr>        
+    <tr>
+        <td style="text-align:left;color:red;border-bottom:2px dashed #531010">
+            Xe: @Model.NhatKyVanChuyenHienTai.BienSo - Lái xe: @Model.NhatKyVanChuyenHienTai.LaiXe - Giờ: @Model.NhatKyVanChuyenHienTai.NgayDi.ToString("HH:mm")
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <table style="width:100%">
+                <tr>
+                    <td style="text-align:left">
+                        <h3>Danh sách phiếu biên nhận</h3>
+                    </td>
+                    <td style="text-align:right">
+                        <input type="button" id="btnNhanHang" class="k-button" value="Nhận hàng" /> &nbsp;
+                        <input type="button" id="btnNhanHangAll" class="k-button" value="Nhận tất cả" />
+                    </td>
+                </tr>
+            </table> 
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <div id="phieuchuyenphat-grid"></div>
+        </td>
+    </tr>  
+</table>
+<script>
+   
+    $(document).ready(function () {
+        LoadDanhSachPhieuChuyenPhat('@Model.Id');
+        if ($("#isHiddenButtonEdit")!=null)
+        {
+            if ($("#isHiddenButtonEdit").val() == "none")
+            {
+                $('#btnNhanHang').hide();
+                $('#btnNhanHangAll').hide();
+            }
+            
+        }
+        $('#btnNhanHangAll').click(function () {
+            var ids = getPhieuChuyenPhatCheck(true);
+            if (ids == "")
+            {
+                return;
+            }
+            if(confirm("Bạn có chắc chắn nhận tất cả hàng trên phiếu vận chuyển này không?"))
+                NhanPhieuChuyenPhat(ids);
+        });
+        $('#btnNhanHang').click(function () {
+            var ids = getPhieuChuyenPhatCheck(false);
+            if (ids == "") {
+                alert("Bạn chưa chọn nhận phiếu nào");
+                return;
+            }
+            if (confirm("Bạn có chắc chắn nhận những hàng đã chọn không?"))
+                NhanPhieuChuyenPhat(ids);
+
+        });
+        $("#phieuchuyenphat-grid").kendoTooltip({
+            filter: "td", //this filter selects the second column's cells
+            position: "right",
+            content: function (e) {
+                var dataItem = $("#phieuchuyenphat-grid").data("kendoGrid").dataItem(e.target.closest("tr"));
+                var content = "<div style='text-align:left'><strong>Thông tin:</strong> " + dataItem.MaPhieu + " - " + dataItem.TenHang + " (" + kendo.toString(dataItem.NgayTao, "dd/MM HH:mm") + ")<br />";
+                content = content + "<strong>Văn phòng nhận:</strong> " + dataItem.VanPhongNhanText + "<br />";
+                content = content + "<strong>Người gửi:</strong> " + dataItem.NguoiGuiText + " - " + "<strong>Người nhận:</strong> " + dataItem.NguoiNhanText + "<br />";
+                content = content + "<strong>Người tạo:</strong> " + dataItem.TenNhanvienGiaoDich + "<br />";
+                content = content + "<strong>Tổng cước:</strong> " + kendo.toString(dataItem.TongTienCuoc, "n0") + " đ" + " - " + "<strong>Đã TT:</strong> " + kendo.toString(dataItem.TongCuocDaThanhToan, "n0") + " đ";
+                content = content + "</div>";
+                return content;
+            }
+        }).data("kendoTooltip");
+    });
+
+</script>
